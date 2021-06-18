@@ -46,6 +46,8 @@ namespace NarrativePlanning
             set;
         }
 
+        public List<Operator> prunedOperators = null;
+
         public WorldState(Hashtable tWorld, Hashtable fWorld, List<Character> characters)
         {
             
@@ -92,6 +94,69 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Returns a list of tuples of possible next states.
+        /// </summary>
+        /// <param name="operators">The list of grounded operators</param>
+        /// <returns>A list of tuples. Each tuple contains the operation text and the resulting state.</returns>
+        public List<Tuple<String, WorldState>> getPossibleNextStatesTuples(List<Operator> operators)
+        {
+            List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
+            foreach (Operator gop in operators)
+            {
+                if (isExecutable(gop, this))
+                    possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextState(this, gop)));
+            }
+            return possibleNextStateTuples;
+        }
+
+        /// <summary>
+        /// Returns a list of tuples of possible next states based on the pruned operators.
+        /// </summary>
+        /// <param name="operators">The list of grounded operators</param>
+        /// <returns>A list of tuples. Each tuple contains the operation text and the resulting state.</returns>
+        public List<Tuple<String, WorldState>> getPrunedNextStatesTuples(List<Operator> operators)
+        {
+            List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
+            foreach (Operator gop in operators)
+            {
+                possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextState(this, gop)));
+            }
+            return possibleNextStateTuples;
+        }
+
+        /// <summary>
+        /// Returns a list of tuples of possible next states for the wrold.
+        /// </summary>
+        /// <param name="operators">The list of grounded operators</param>
+        /// <returns>A list of tuples. Each tuple contains the operation text and the resulting state.</returns>
+        public List<Tuple<String, WorldState>> getPossibleNextStatesTuplesWithPrefs(List<Operator> operators, Preferences prefs)
+        {
+            List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
+            foreach (Operator gop in operators)
+            {
+                if (isExecutable(gop, this))
+                    possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextStateWithPrefs(this, gop, prefs)));
+            }
+            return possibleNextStateTuples;
+        }
+
+        /// <summary>
+        /// Returns a list of world states if certain pruned operators are executed. The only difference between this and the previous
+        /// method is that this one doesn't bother checking if operators are executable as the pruning process guarantees executability.
+        /// </summary>
+        /// <param name="operators">The list of grounded operators</param>
+        /// <returns>A list of tuples. Each tuple contains the operation text and the resulting state.</returns>
+        public List<Tuple<String, WorldState>> getPrunedNextStatesTuplesWithPrefs(Preferences prefs)
+        {
+            List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
+            foreach (Operator gop in prunedOperators)
+            {
+                possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextStateWithPrefs(this, gop, prefs)));
+            }
+            return possibleNextStateTuples;
+        }
+
+        /// <summary>
         /// Returns a list of tuples of possible next states APPARENT to the character.
         /// This means that it looks plainly at the character's beliefs and returns the set of tuples
         /// of possible things characters can do.
@@ -133,6 +198,56 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Returns the action preference given the previous world state and a preference set.
+        /// At the moment this does the following calculation:
+        /// [average precond preferences from previous world state] +
+        /// [action preference from preferences set] +
+        /// [average effect preferences from preferences set]
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="prev"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        public static float getPrefForActionInstance(Operator op, WorldState prev, Preferences preferences)
+        {
+            //XXX: Only taking into account action preference.
+            // Raw preference for this action
+            float aPref = preferences.GetActionPreference(op.name);
+            // Preference inherited from previous world state
+            float pPref = 0;
+            int pCount = 0;
+            foreach (string preT in op.preT.Keys)
+            {
+                pPref += Convert.ToSingle(prev.tWorld[preT]);
+                pCount++;
+            }
+            foreach (string preF in op.preF.Keys)
+            {
+                pPref += Convert.ToSingle(prev.fWorld[preF]);
+                pCount++;
+            }
+            pPref /= pCount;
+            // Preference from action effects
+            float ePref = 0;
+            int eCount = 0;
+            foreach (string effT in op.effT.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effT, true);
+                eCount++;
+            }
+            foreach (string effF in op.effF.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effF, false);
+                eCount++;
+            }
+            ePref /= eCount;
+            float pref = (aPref + pPref + ePref) / 3;
+            //Console.WriteLine("Returning preference " + pref + " for action " + op.name);
+            // Return the average of the three preference sources
+            return pref;
+        }
+
+        /// <summary>
         /// Returns the resultant state when an action is applied on 
         /// a world state
         /// </summary>
@@ -147,14 +262,14 @@ namespace NarrativePlanning
 				if (newState.fWorld.Contains(lit))
 					newState.fWorld.Remove(lit);
 				if (!newState.tWorld.Contains(lit))
-					newState.tWorld.Add(lit, 1);
+					newState.tWorld.Add(lit, 1f);
 			}
 			foreach (String lit in ground.effF.Keys)
 			{
 				if (newState.tWorld.Contains(lit))
 					newState.tWorld.Remove(lit);
 				if (!newState.fWorld.Contains(lit))
-					newState.fWorld.Add(lit, 1);
+					newState.fWorld.Add(lit, 1f);
 			}
 			Character c = newState.getCharacter(ground.character);
 
@@ -270,25 +385,53 @@ namespace NarrativePlanning
 			return newState;
           }
 
-		/// <summary>
-		/// Returns the relaxed next state, i.e. the WorldState when only the
-		/// add effects are applied and not delete effects.
-		/// </summary>
-		/// <param name="current">Current world state</param>
-		/// <param name="ground">Grounded operator to be applied</param>
-		/// <returns>Resulting relaxed world state.</returns>
-		public static WorldState getNextRelaxedState(WorldState current, Operator ground) 
+        /// <summary>
+        /// Returns the resultant state when an action is applied on 
+        /// a world state
+        /// </summary>
+        /// <param name="current">The current world state</param>
+        /// <param name="ground">Grounded operator to be applied</param>
+        /// <returns>Resultant world state.</returns>
+        public static WorldState getNextStateWithPrefs(WorldState current, Operator ground, Preferences prefs)
+        {
+            WorldState newState = current.clone();
+            foreach (String lit in ground.effT.Keys)
+            {
+                if (newState.fWorld.Contains(lit))
+                    newState.fWorld.Remove(lit);
+                if (!newState.tWorld.Contains(lit))
+                    newState.tWorld.Add(lit, prefs.GetPropositionPreference(lit, true));
+            }
+            foreach (String lit in ground.effF.Keys)
+            {
+                if (newState.tWorld.Contains(lit))
+                    newState.tWorld.Remove(lit);
+                if (!newState.fWorld.Contains(lit))
+                    newState.fWorld.Add(lit, prefs.GetPropositionPreference(lit, false));
+            }
+
+            return newState;
+        }
+
+        /// <summary>
+        /// Returns the relaxed next state, i.e. the WorldState when only the
+        /// add effects are applied and not delete effects.
+        /// </summary>
+        /// <param name="current">Current world state</param>
+        /// <param name="ground">Grounded operator to be applied</param>
+        /// <returns>Resulting relaxed world state.</returns>
+        public static WorldState getNextRelaxedState(WorldState current, Operator ground) 
 		{
 			WorldState newState = current.clone();
 			foreach (String lit in ground.effT.Keys)
 			{
 				if (!newState.tWorld.Contains(lit))
-					newState.tWorld.Add(lit, 1);
+					newState.tWorld.Add(lit, 1f);
 			}
 			foreach (String lit in ground.effF.Keys)
 			{
 				if (!newState.fWorld.Contains(lit))
-					newState.fWorld.Add(lit, 1);
+					newState.fWorld.Add(lit, 1f);
 			}
 			Character ch = newState.getCharacter(ground.character);
 			foreach (String lit in ground.effBPlus.Keys)
@@ -370,7 +513,39 @@ namespace NarrativePlanning
 			return newState;
 		}
 
-		private static List<string> getCharactersThatObserveThis(WorldState world, Operator ground, EffectTuple effect)
+        /// <summary>
+		/// Returns the relaxed next state, i.e. the WorldState when only the
+		/// add effects are applied and not delete effects. This particular variant
+        /// is used for preference calculations.
+		/// </summary>
+		/// <param name="current">Current world state</param>
+		/// <param name="prefTuple">A grounded operator / preference tuple</param>
+		/// <returns>Resulting relaxed world state.</returns>
+		public static WorldState getNextRelaxedState(WorldState current, Tuple<Operator, float> prefTuple)
+        {
+            WorldState newState = current.clone();
+            foreach (String lit in prefTuple.Item1.effT.Keys)
+            {
+                if (newState.tWorld.Contains(lit))
+                    // Using Convert.ToSingle because casting to float doesn't work (packaged ints)
+                    if (prefTuple.Item2 > Convert.ToSingle(newState.tWorld[lit]))
+                        newState.tWorld[lit] = prefTuple.Item2;
+                if (!newState.tWorld.Contains(lit))
+                    newState.tWorld.Add(lit, prefTuple.Item2);
+            }
+            foreach (String lit in prefTuple.Item1.effF.Keys)
+            {
+                if (newState.fWorld.Contains(lit))
+                    if (prefTuple.Item2 > Convert.ToSingle(newState.fWorld[lit]))
+                        newState.fWorld[lit] = prefTuple.Item2;
+                if (!newState.fWorld.Contains(lit))
+                    newState.fWorld.Add(lit, prefTuple.Item2);
+            }
+
+            return newState;
+        }
+
+        private static List<string> getCharactersThatObserveThis(WorldState world, Operator ground, EffectTuple effect)
 		{
 			//run the function specified in the effect tuple observability and send the correct args
             

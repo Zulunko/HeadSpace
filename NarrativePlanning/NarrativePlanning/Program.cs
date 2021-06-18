@@ -10,9 +10,6 @@ namespace NarrativePlanning
         {
             UnityConsole.WriteLine("Hello World!");
 
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-
             // UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN
             //DomainBuilder.TypeTreeBuilder t = new DomainBuilder.TypeTreeBuilder();
             //DomainBuilder.InstanceAdder i = new DomainBuilder.InstanceAdder(t.root);
@@ -37,7 +34,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/breakout.json");
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/hitman_preference.json", new Preferences());
 
 
             // UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN USING TXT FILES
@@ -47,21 +44,29 @@ namespace NarrativePlanning
             //DomainBuilder.GroundGenerator gg = new DomainBuilder.GroundGenerator(t.root, opb.operators);
             //DomainBuilder.OperationBuilder.storeOperators(gg.grounds, opb.operators, "serialized-ops.txt");
 
+            NarrativePlanning.PlanningProblem problem = new NarrativePlanning.PlanningProblem(j.initial, j.goal, j.operators, new Preferences());
 
-            NarrativePlanning.PlanningProblem problem = new NarrativePlanning.PlanningProblem(j.initial, j.goal, j.operators, j.desires, j.counterActions);
-            
             /////// STEP 2: GENERATE PLAN 
             // Use planner to generate the plan and register it to mapper
-            NarrativePlanning.Plan plan = problem.HeadSpaceXSolution();
+            //problem.computeRPGToFixed();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            NarrativePlanning.Plan plan = problem.FFNoPreferenceSolution();
+            watch.Stop();
+            UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
+            watch.Reset();
+            watch.Start();
+            plan = problem.FFPreferenceSolution();
+            watch.Stop();
+            UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
+            //NarrativePlanning.Plan plan = problem.FFSolution();
             //UnityConsole.Write(problem.FFSolution().toString());
             if (plan == null)
-            {
-                NarrativePlanning.UnityConsole.WriteLine("Planning complete. No plan  found");
-                return;
-            }
+                NarrativePlanning.UnityConsole.WriteLine("Planning complete. No plan found");
             else
                 NarrativePlanning.UnityConsole.WriteLine("Planning complete. Plan is : " + plan.toString());
 
+            return;
         }
     }
     

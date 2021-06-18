@@ -27,16 +27,17 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CounterAction.cs" />
     <Compile Include="DomainBuilder\CounteractionBuilder.cs" />
     <Compile Include="DomainBuilder\DesireBuilder.cs" />
     <Compile Include="DomainBuilder\JSONDomainBuilder.cs" />
+    <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Operator.cs" />
@@ -63,6 +64,8 @@
   <ItemGroup>
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
+    <None Include="JSON Files\hitman_preference.json" />
+    <None Include="JSON Files\torches.json" />
     <None Include="Text Files\types.txt" />
     <None Include="Text Files\instances.txt" />
     <None Include="Text Files\operators.txt" />

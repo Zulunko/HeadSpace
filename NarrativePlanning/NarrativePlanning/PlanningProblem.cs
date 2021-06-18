@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -13,6 +14,7 @@ namespace NarrativePlanning
         public List<Operator> groundedoperators;
         public List<Desire> desires;
         public List<CounterAction> counteractions;
+        public Preferences preferences;
 
         /// <summary>
         /// A Planning Problem consists of the initial state, the goal state
@@ -54,6 +56,14 @@ namespace NarrativePlanning
             List<Desire> desires = new List<Desire>();
             List<CounterAction> counters = new List<CounterAction>();
             initialize(initial, goal, operators, desires, counters);
+        }
+
+        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p)
+        {
+            w0 = initial;
+            this.goal = goal;
+            this.groundedoperators = operators;
+            this.preferences = p;
         }
 
         public void initialize(WorldState initial, WorldState goal, List<Operator> operators, List<Desire> desires, List<CounterAction> counteractions)
@@ -191,7 +201,6 @@ namespace NarrativePlanning
                     Tuple<string, WorldState> res;
                     if (!WorldState.isExecutable(op, w))
                     {
-
                         NarrativePlanning.Operator failedop = NarrativePlanning.Operator.getFailedOperator(groundedoperators, op);
                         res = new Tuple<string, WorldState>(failedop.text, WorldState.getNextState(w, failedop));
                         p.steps.Add(res);
@@ -235,6 +244,198 @@ namespace NarrativePlanning
                     //solution found!
                     solutionPlan = current;
                     UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    return solutionPlan;
+                }
+                depth++;
+            }
+            return solutionPlan;
+        }
+
+        /// <summary>
+        /// Returns a plan using a FF-based solution.
+        /// </summary>
+        /// <returns> A solution plan</returns>
+        public Plan FFPreferenceSolution()
+        {
+            int depth = 1;
+            int bfactor = 0;
+            int avg_branching_factor = 0;
+            int nnodes = 0;
+            Plan solutionPlan = null;
+            Plan current = new Plan(this);
+            //Queue<Plan> queue = new Queue<Plan>();
+            float min = -1;
+            Tuple<String, WorldState> best = null;
+            while (solutionPlan == null)
+            {
+                min = 100;
+                WorldState w = current.steps[current.steps.Count - 1].Item2;
+                int tmp = 0;
+                List<Tuple<String, WorldState>> n;
+                // XXX PRUNING
+                if (w.prunedOperators != null) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
+                else n = w.getPossibleNextStatesTuplesWithPrefs(groundedoperators, preferences);
+                n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
+                //foreach (Tuple<String, WorldState> t in n)
+                //{
+                //    Console.WriteLine("ACT: " + t.Item1);
+                //    Console.WriteLine("VAL: " + preferences.GetActionPreference(t.Item1.Split(' ')[0]));
+                //}
+                //check every node in the frontier    
+                foreach (Tuple<String, WorldState> next in n)
+                {
+                    //Console.WriteLine(n.Count + " FRONTIER NODES: " + next.Item1);
+                    if (next.Item1.Contains("-false"))
+                        continue;
+                    nnodes++;
+                    tmp++;
+                    Plan p = new Plan(this);
+                    //queue.Enqueue(p);
+                    Operator op = groundedoperators.Find(xy => xy.text.Equals(next.Item1));
+
+                    //String charactername = op.character;
+                    //Console.WriteLine();
+                    FastForward.Layers prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                    //PrintRPG(prefRPG);
+                    Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
+
+                    Tuple<string, WorldState> res = next;
+                    //p.steps.Add(next);
+                    float y;
+                    if (heuristicData.Item1 == -1)
+                        y = -1;
+                    else
+                        y = heuristicData.Item1;// + (1f - heuristicData.Item2);
+                    //Console.WriteLine("        Value for " + next.Item1 + ": " + y);
+
+                    if (y < min && y != -1)
+                    {
+                        best = res;
+                        min = y;
+                    }
+
+                    /*if (res.Item2.isGoalState(this.goal))
+                    {
+                        //solution found!
+                        current.steps.Add(res);
+                        solutionPlan = current;
+                        UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                        return solutionPlan;
+                    }*/
+                }
+
+                if (n.Count == 0)
+                    return null;
+
+                //UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                //UnityConsole.Write("----------\n");
+                if (tmp > bfactor)
+                    bfactor = tmp;
+
+                //add best node to plan
+                current.steps.Add(best);
+                if (current.steps[current.steps.Count - 1].Item2.isGoalState(this.goal))
+                {
+                    //solution found!
+                    solutionPlan = current;
+                    //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    return solutionPlan;
+                }
+                depth++;
+            }
+            return solutionPlan;
+        }
+
+        /// <summary>
+        /// Returns a plan using a FF-based solution.
+        /// </summary>
+        /// <returns> A solution plan</returns>
+        public Plan FFNoPreferenceSolution()
+        {
+            int depth = 1;
+            int bfactor = 0;
+            int avg_branching_factor = 0;
+            int nnodes = 0;
+            Plan solutionPlan = null;
+            Plan current = new Plan(this);
+            //Queue<Plan> queue = new Queue<Plan>();
+            float min = -1;
+            Tuple<String, WorldState> best = null;
+            while (solutionPlan == null)
+            {
+                min = 100;
+                WorldState w = current.steps[current.steps.Count - 1].Item2;
+                int tmp = 0;
+
+                List<Tuple<String, WorldState>> n;
+                if (w.prunedOperators == null)
+                    n = w.getPossibleNextStatesTuples(groundedoperators);
+                else
+                    n = w.getPrunedNextStatesTuples(w.prunedOperators);
+                //n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
+                //foreach (Tuple<String, WorldState> t in n)
+                //{
+                //    Console.WriteLine("ACT: " + t.Item1);
+                //    Console.WriteLine("VAL: " + preferences.GetActionPreference(t.Item1.Split(' ')[0]));
+                //}
+                //check every node in the frontier    
+                foreach (Tuple<String, WorldState> next in n)
+                {
+                    //Console.WriteLine(n.Count + " FRONTIER NODES: " + next.Item1);
+                    if (next.Item1.Contains("-false"))
+                        continue;
+                    nnodes++;
+                    tmp++;
+                    Plan p = new Plan(this);
+                    //queue.Enqueue(p);
+                    Operator op = groundedoperators.Find(xy => xy.text.Equals(next.Item1));
+
+                    //String charactername = op.character;
+                    //Console.WriteLine();
+                    FastForward.Layers prefRPG = FastForward.computeRPG(groundedoperators, next.Item2, this.goal);
+                    //PrintRPG(prefRPG);
+                    int heuristicData = FastForward.extractRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
+
+                    Tuple<string, WorldState> res = next;
+                    //p.steps.Add(next);
+                    float y;
+                    if (heuristicData == -1)
+                        y = -1;
+                    else
+                        y = heuristicData;// + (1f - heuristicData.Item2);
+                    //Console.WriteLine("        Value for " + next.Item1 + ": " + y);
+
+                    if (y < min && y != -1)
+                    {
+                        best = res;
+                        min = y;
+                    }
+
+                    /*if (res.Item2.isGoalState(this.goal))
+                    {
+                        //solution found!
+                        current.steps.Add(res);
+                        solutionPlan = current;
+                        UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                        return solutionPlan;
+                    }*/
+                }
+
+                if (n.Count == 0)
+                    return null;
+
+                //UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                //UnityConsole.Write("----------\n");
+                if (tmp > bfactor)
+                    bfactor = tmp;
+
+                //add best node to plan
+                current.steps.Add(best);
+                if (current.steps[current.steps.Count - 1].Item2.isGoalState(this.goal))
+                {
+                    //solution found!
+                    solutionPlan = current;
+                    //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                     return solutionPlan;
                 }
                 depth++;
@@ -516,6 +717,14 @@ namespace NarrativePlanning
             return HeadSpaceX(desires, plan, goal, groundedoperators, counteractions);
         }
 
+        public void computeRPGOnly()
+        {
+            FastForward.printRPG(FastForward.computeRPG(groundedoperators, w0, goal));
+        }
+        public void computeRPGToFixed()
+        {
+            FastForward.printRPG(FastForward.computeRPGToFixed(groundedoperators, w0, goal));
+        }
 
         public PlanningProblem clone()
         {
@@ -531,6 +740,46 @@ namespace NarrativePlanning
             //    gs.Add(gop.Clone() as String);
             //}
             return new PlanningProblem(i, g, o);
+        }
+
+        private static bool firstPrint = true;
+
+        public void PrintRPG(FastForward.Layers rpg)
+        {
+            if (!firstPrint) return;
+            firstPrint = false;
+            int i = 0;
+            StreamWriter file = new StreamWriter("Output.csv");
+            PrintPropLayer(rpg.F[i] as WorldState, file);
+            while (i < rpg.k)
+            {
+                i++;
+                PrintActionLayer(rpg.A[i] as List<Tuple<Operator, float>>, file);
+                PrintPropLayer(rpg.F[i] as WorldState, file);
+            }
+            file.Close();
+        }
+
+        public void PrintPropLayer(WorldState props, StreamWriter file)
+        {
+            foreach (DictionaryEntry de in props.tWorld)
+            {
+                file.Write("TRUE-" + de.Key + "," + de.Value + ",");
+            }
+            foreach (DictionaryEntry de in props.fWorld)
+            {
+                file.Write("FALSE-" + de.Key + "," + de.Value + ",");
+            }
+            file.Write("\n");
+        }
+
+        public void PrintActionLayer(List<Tuple<Operator, float>> actions, StreamWriter file)
+        {
+            foreach (Tuple<Operator, float> a in actions)
+            {
+                file.Write(a.Item1.text + "," + a.Item2 + ",");
+            }
+            file.Write("\n");
         }
     }
 }

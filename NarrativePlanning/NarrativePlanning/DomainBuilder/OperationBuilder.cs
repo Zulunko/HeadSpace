@@ -153,21 +153,24 @@ namespace NarrativePlanning.DomainBuilder
                 String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
                 newOp.preF.Add(l, 1);
             }
-            foreach (string lit in op.PreBplus)
-            {
-                String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
-                newOp.preBPlus.Add(l, 1);
-            }
-            foreach (string lit in op.PreBminus)
-            {
-                String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
-                newOp.preBMinus.Add(l, 1);
-            }
-            foreach (string lit in op.PreU)
-            {
-                String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
-                newOp.preUnsure.Add(l, 1);
-            }
+            if (op.PreBplus != null)
+                foreach (string lit in op.PreBplus)
+                {
+                    String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
+                    newOp.preBPlus.Add(l, 1);
+                }
+            if (op.PreBminus != null)
+                foreach (string lit in op.PreBminus)
+                {
+                    String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
+                    newOp.preBMinus.Add(l, 1);
+                }
+            if (op.PreU != null)
+                foreach (string lit in op.PreU)
+                {
+                    String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
+                    newOp.preUnsure.Add(l, 1);
+                }
             foreach (string lit in op.EffT)
             {
                 String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
@@ -178,54 +181,57 @@ namespace NarrativePlanning.DomainBuilder
                 String l = lit.Replace('(', ' ').Replace(')', ' ').Trim();
                 newOp.effF.Add(l, 1);
             }
-			foreach(JSONDomain.EffectTuple etup in op.EffBplus)
-			{
-                List<String> obslist = new List<string>(etup.Observability);
-				List<ObservabilityRule> rules = new List<ObservabilityRule>();
-				foreach(String obsrule in obslist)
-				{
-					String fname = obsrule.Substring(0, obsrule.IndexOf("("));
-					String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
-					List<String> actualargs = new List<string>(args.Split('\''));
-					ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
-					rules.Add(rule);
-				}
-				String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
-				NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
-                newOp.effBPlus.Add(l, effectTuple);
-			}
-			foreach (JSONDomain.EffectTuple etup in op.EffBminus)
-            {
-				List<String> obslist = new List<string>(etup.Observability);
-                List<ObservabilityRule> rules = new List<ObservabilityRule>();
-                foreach (String obsrule in obslist)
+            if (op.EffBplus != null)
+			    foreach(JSONDomain.EffectTuple etup in op.EffBplus)
+			    {
+                    List<String> obslist = new List<string>(etup.Observability);
+				    List<ObservabilityRule> rules = new List<ObservabilityRule>();
+				    foreach(String obsrule in obslist)
+				    {
+					    String fname = obsrule.Substring(0, obsrule.IndexOf("("));
+					    String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
+					    List<String> actualargs = new List<string>(args.Split('\''));
+					    ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
+					    rules.Add(rule);
+				    }
+				    String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
+				    NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
+                    newOp.effBPlus.Add(l, effectTuple);
+			    }
+            if (op.EffBminus != null)
+			    foreach (JSONDomain.EffectTuple etup in op.EffBminus)
                 {
-                    String fname = obsrule.Substring(0, obsrule.IndexOf("("));
-					String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
-                    List<String> actualargs = new List<string>(args.Split('\''));
-                    ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
-                    rules.Add(rule);
+				    List<String> obslist = new List<string>(etup.Observability);
+                    List<ObservabilityRule> rules = new List<ObservabilityRule>();
+                    foreach (String obsrule in obslist)
+                    {
+                        String fname = obsrule.Substring(0, obsrule.IndexOf("("));
+					    String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
+                        List<String> actualargs = new List<string>(args.Split('\''));
+                        ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
+                        rules.Add(rule);
+                    }
+                    String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
+                    NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
+				    newOp.effBMinus.Add(l, effectTuple);
                 }
-                String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
-                NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
-				newOp.effBMinus.Add(l, effectTuple);
-            }
-			foreach (JSONDomain.EffectTuple etup in op.EffU)
-			{
-				List<String> obslist = new List<string>(etup.Observability);
-                List<ObservabilityRule> rules = new List<ObservabilityRule>();
-                foreach (String obsrule in obslist)
-                {
-					String fname = obsrule.Substring(0, obsrule.IndexOf("("));
-					String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
-                    List<String> actualargs = new List<string>(args.Split('\''));
-                    ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
-                    rules.Add(rule);
-                }
-                String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
-                NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
-				newOp.effUnsure.Add(l, effectTuple);
-			}
+            if (op.EffU != null)
+			    foreach (JSONDomain.EffectTuple etup in op.EffU)
+			    {
+				    List<String> obslist = new List<string>(etup.Observability);
+                    List<ObservabilityRule> rules = new List<ObservabilityRule>();
+                    foreach (String obsrule in obslist)
+                    {
+					    String fname = obsrule.Substring(0, obsrule.IndexOf("("));
+					    String args = obsrule.Substring(obsrule.IndexOf("(")+1, obsrule.IndexOf(")")-obsrule.IndexOf("(")-1);
+                        List<String> actualargs = new List<string>(args.Split('\''));
+                        ObservabilityRule rule = new ObservabilityRule(fname, actualargs);
+                        rules.Add(rule);
+                    }
+                    String l = etup.Effect.Replace('(', ' ').Replace(')', ' ').Trim();
+                    NarrativePlanning.EffectTuple effectTuple = new NarrativePlanning.EffectTuple(l, rules);
+				    newOp.effUnsure.Add(l, effectTuple);
+			    }
         }
 
         public static void storeOperators(List<String> grounds, List<NarrativePlanning.Operator> operators, String fileName)

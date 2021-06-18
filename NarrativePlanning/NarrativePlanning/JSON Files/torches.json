@@ -1,0 +1,323 @@
+﻿{
+  "types": [
+    {
+      "name": "Character",
+      "type": "Object"
+    },
+    {
+      "name": "Location",
+      "type": "Object"
+    },
+    {
+      "name": "Torch",
+      "type": "Object"
+    },
+  ],
+  "instances": [
+    {
+      "name": "Char1",
+      "type": "Character"
+    },
+    {
+        "name": "Char2",
+        "type": "Character"
+    },
+    {
+      "name": "Shed",
+      "type": "Location"
+    },
+    {
+      "name": "Forest",
+      "type": "Location"
+    },
+    {
+      "name": "House",
+      "type": "Location"
+    },
+    {
+      "name": "Lake",
+      "type": "Location"
+    },
+    {
+      "name": "Dock",
+      "type": "Location"
+    },
+    {
+      "name": "House-Torch",
+      "type": "Torch"
+    },
+    {
+      "name": "Lake-Torch",
+      "type": "Torch"
+    },
+    {
+      "name": "Dock-Torch",
+      "type": "Torch"
+    }
+  ],
+  "desires": [],
+  "counteractions": [],
+  "operators": [
+    {
+      "name": "move",
+      "args": [
+        {
+          "name": "?from",
+          "type": "Location"
+        },
+        {
+          "name": "?to",
+          "type": "Location"
+        },
+        {
+          "name": "?c",
+          "type": "Character"
+        },
+      ],
+      "char": "?c",
+      "loc": "?from",
+      "pre-t": [
+        "(connected ?from ?to)",
+        "(at ?c ?from)"
+      ],
+      "pre-f": [],
+      "eff-t": [
+        "(at ?c ?to)"
+      ],
+      "eff-f": [
+        "(at ?c ?from)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false,
+    },
+    {
+      "name": "light-held-torch",
+      "args": [
+        {
+          "name": "?c",
+          "type": "Character"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?t1",
+          "type": "Torch"
+        },
+        {
+          "name": "?t2",
+          "type": "Torch"
+        },
+      ],
+      "char": "?c",
+      "loc": "?l",
+      "pre-t": [
+        "(has ?t1 ?c)",
+        "(at ?c ?l)",
+        "(at ?t2 ?l)",
+        "(lit ?t2)"
+      ],
+      "pre-f": ["(lit ?t1)"],
+      "eff-t": [
+        "(lit ?t1)"
+      ],
+      "eff-f": [],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false,
+    },
+    {
+      "name": "light-ground-torch",
+      "args": [
+        {
+          "name": "?c",
+          "type": "Character"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?t1",
+          "type": "Torch"
+        },
+        {
+          "name": "?t2",
+          "type": "Torch"
+        },
+      ],
+      "char": "?c",
+      "loc": "?l",
+      "pre-t": [
+        "(has ?t1 ?c)",
+        "(at ?c ?l)",
+        "(at ?t2 ?l)",
+        "(lit ?t1)"
+      ],
+      "pre-f": ["(lit ?t2)"],
+      "eff-t": [
+        "(lit ?t2)"
+      ],
+      "eff-f": [],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false,
+    },
+    {
+      "name": "pickup-torch",
+      "args": [
+        {
+          "name": "?c",
+          "type": "Character"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?t",
+          "type": "Torch"
+        },
+      ],
+      "char": "?c",
+      "loc": "?l",
+      "pre-t": [
+        "(at ?c ?l)",
+        "(at ?t ?l)",
+      ],
+      "pre-f": ["(hands-full ?c)"],
+      "eff-t": [
+        "(has ?t ?c)",
+        "(hands-full ?c)"
+      ],
+      "eff-f": ["(at ?t ?l)"],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false,
+    },
+    {
+      "name": "drop-torch",
+      "args": [
+        {
+          "name": "?c",
+          "type": "Character"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?t",
+          "type": "Torch"
+        },
+      ],
+      "char": "?c",
+      "loc": "?l",
+      "pre-t": [
+        "(at ?c ?l)",
+        "(has ?t ?c)",
+      ],
+      "pre-f": [],
+      "eff-t": [
+        "(at ?t ?l)"
+      ],
+      "eff-f": [
+        "(hands-full ?c)",
+        "(has ?t ?c)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false,
+    },
+  ],
+  "initial": {
+    "t": [
+      "(at Char1 Forest)",
+      "(at Char2 Forest)",
+      "(connected Shed Forest)",
+      "(connected Forest Shed)",
+      "(connected Shed House)",
+      "(connected House Shed)",
+      "(connected Forest House)",
+      "(connected House Forest)",
+      "(connected Shed Lake)",
+      "(connected Lake Shed)",
+      "(connected Forest Lake)",
+      "(connected Lake Forest)",
+      "(connected Dock Lake)",
+      "(connected Lake Dock)",
+      "(at House-Torch House)",
+      "(at Lake-Torch Lake)",
+      "(at Dock-Torch Dock)",
+      "(lit Dock-Torch)",
+    ],
+    "f": [
+        "(hands-full Char1)",
+        "(hands-full Char2)",
+        "(lit House-Torch)",
+        "(lit Lake-Torch)"
+    ],
+    "characters": [
+      {
+        "name": "Char1",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+    ]
+  },
+  "final": {
+    "t": [
+      "(at Char1 Dock)",
+      //"(at Char2 Shed)",
+      //"(lit House-Torch)",
+      //"(lit Lake-Torch)",
+      //"(has House-Torch Char1)",
+      //"(has Lake-Torch Char2)",
+      //"(at Dock-Torch Dock)"
+    ],
+    "f": [],
+    "characters": [
+      {
+        "name": "Char1",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+    ]
+  }
+}

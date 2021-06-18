@@ -1,0 +1,585 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "NPC",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Poison",
+            "type": "Object"
+        },
+        {
+            "name": "Knife",
+            "type": "Object"
+        },
+        {
+            "name": "KeyCard",
+            "type": "Object",
+        },
+        {
+            "name": "Gun",
+            "type": "Object",
+        },
+        {
+            "name": "Food",
+            "type": "Object",
+        }
+    ],
+    "instances": [
+        {
+            "name": "Player1",
+            "type": "Player"
+        },
+        {
+            "name": "Target",
+            "type": "NPC"
+        },
+        {
+            "name": "Entrance",
+            "type": "Location"
+        },
+        {
+            "name": "Lobby",
+            "type": "Location"
+        },
+        {
+            "name": "BackRoom",
+            "type": "Location"
+        },
+        {
+            "name": "Penthouse",
+            "type": "Location"
+        },
+        {
+            "name": "Kitchen",
+            "type": "Location"
+        },
+        {
+            "name": "Cyanide",
+            "type": "Poison"
+        },
+        {
+            "name": "ChefKnife",
+            "type": "Knife"
+        },
+        {
+            "name": "PenthouseKey",
+            "type": "KeyCard"
+        },
+        {
+            "name": "Maid",
+            "type": "NPC"
+        },
+        {
+            "name": "WaltherPPK",
+            "type": "Gun",
+        },
+        {
+            "name": "Chef",
+            "type": "NPC",
+        },
+        {
+            "name": "Chicken",
+            "type": "Food"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "ambush-keycard-npc",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?k",
+                    "type": "KeyCard"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?n ?l)",
+                "(has ?n ?k)",
+                "(alive ?n)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(has ?p ?k)"
+            ],
+            "eff-f": [
+                "(alive ?n)",
+                "(has ?n ?k)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "enter-with-keycard",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?k",
+                    "type": "KeyCard"
+                }
+            ],
+            "char": "?p",
+            "loc": "Lobby",
+            "pre-t": [
+                "(at ?p Lobby)",
+                "(has ?p ?k)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at ?p Penthouse)"
+            ],
+            "eff-f": [ "(at ?p Lobby)" ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "kill-loud",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?g",
+                    "type": "Gun"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(has ?p ?g)",
+                "(at ?p ?l)",
+                "(at ?n ?l)",
+                "(alive ?n)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+            ],
+            "eff-f": [ //TOGGLE: comment out the below to prevent shoot path.
+                "(alive ?n)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "impersonate-call-chef",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Lobby",
+            "pre-t": [
+                "(at ?p Lobby)",
+                "(at Chef Kitchen)",
+                "(alive Chef)"
+            ],
+            "pre-f": [ "(chef-called)" ],
+            "eff-t": [
+                "(chef-called)",
+                "(at Chicken Kitchen)"
+            ],
+            "eff-f": []
+        },
+        {
+            "name": "complete-food",
+            "args": [
+                {
+                    "name": "?c",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?f",
+                    "type": "Food"
+                }
+            ],
+            "char": "",
+            "loc": "Kitchen",
+            "pre-t": [
+                "(at ?c Kitchen)",
+                "(at ?f Kitchen)",
+                "(chef-called)"
+            ],
+            "pre-f": [],
+            "eff-t": [ "(has ?f ?c)" ],
+            "eff-f": [ "(at ?f Kitchen)" ]
+        },
+        {
+            "name": "npc-move",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                }
+            ],
+            "char": "",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?n ?from)",
+                "(alive ?n)",
+                "(mobile ?n)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at ?n ?to)"
+            ],
+            "eff-f": [
+                "(at ?n ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "npc-buzzer",
+            "args": [
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                }
+            ],
+            "char": "",
+            "loc": "Lobby",
+            "pre-t": [
+                "(at ?n Lobby)",
+                "(at Target Penthouse)",
+                "(alive ?n)"
+                //"(alive Target)",
+            ],
+            "pre-f": [
+                "(connected Lobby Penthouse)"
+            ],
+            "eff-t": [
+                "(at ?n Penthouse)"
+            ],
+            "eff-f": [
+                "(at ?n Lobby)",
+                "(chef-called)"
+            ]
+        },
+        {
+            "name": "place-food",
+            "args": [
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?f",
+                    "type": "Food"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "",
+            "loc": "?l",
+            "pre-t": [ "(has ?f ?n)", "(at ?n ?l)", "(alive ?n)" ],
+            "pre-f": [],
+            "eff-t": [ "(at ?f ?l)" ],
+            "eff-f": [ "(has ?f ?n)" ]
+        },
+        {
+            "name": "poison-food",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?s",
+                    "type": "Poison"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?f",
+                    "type": "Food"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?f ?l)",
+                "(has ?p ?s)",
+                "(at ?p ?l)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(poisoned ?f)"
+            ],
+            "eff-f": [ "(has ?p ?s)" ]
+        },
+        {
+            "name": "eat-poisoned-food",
+            "args": [
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?f",
+                    "type": "Food"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?n ?l)",
+                "(at ?f ?l)",
+                "(poisoned ?f)",
+                "(alive ?n)"
+            ],
+            "pre-f": [],
+            "eff-t": [],
+            "eff-f": [
+                "(at ?f ?l)",
+                // TOGGLE: comment out the below to disable poisoning
+                "(alive ?n)"
+            ]
+        },
+        {
+            "name": "steal-knife",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?k",
+                    "type": "Knife"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?k ?l)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(has ?k ?p)"
+            ],
+            "eff-f": [
+                "(at ?k ?l)"
+            ]
+        },
+        {
+            "name": "stab",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?k",
+                    "type": "Knife"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(has ?k ?p)",
+                "(at ?p ?l)",
+                "(at ?n ?l)",
+                "(alive ?n)"
+            ],
+            "pre-f": [],
+            "eff-t": [],
+            "eff-f": [
+                // TOGGLE: Comment out the below to disable knife kill
+                "(alive ?n)"
+            ]
+        }
+    ],
+    "initial": {
+        "t": [
+            "(at Player1 Entrance)",
+            "(at Target Penthouse)",
+            "(at Maid BackRoom)",
+            "(at Chef Kitchen)",
+            "(at ChefKnife Kitchen)",
+            "(connected Entrance Lobby)",
+            "(connected Lobby Entrance)",
+            "(connected Lobby Kitchen)",
+            "(connected Kitchen Lobby)",
+            "(connected Lobby BackRoom)",
+            "(connected BackRoom Lobby)",
+            "(connected Penthouse Lobby)",
+            "(has Maid PenthouseKey)",
+            "(has Player1 Cyanide)",
+            "(has Player1 WaltherPPK)",
+            //"(has Player1 ChefKnife)",
+            "(alive Maid)",
+            "(alive Target)",
+            "(alive Chef)",
+            "(mobile Chef)"
+        ],
+        "f": [
+            "(connected Lobby Penthouse)",
+            "(chef-called)",
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    },
+    "final": {
+        "t": [
+            //"(at Char2 Shed)",
+            //"(lit House-Torch)",
+            //"(lit Lake-Torch)",
+            //"(has House-Torch Char1)",
+            //"(has Lake-Torch Char2)",
+            //"(at Dock-Torch Dock)"
+        ],
+        "f": [
+            "(alive Target)"
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    }
+}

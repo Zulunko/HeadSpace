@@ -148,6 +148,32 @@ namespace NarrativePlanning.DomainBuilder
             return state;
         }
 
+        public static WorldState getState(JSONDomain.Final inputstate, Preferences prefs)
+        {
+            WorldState state = null;
+            Hashtable tWorld = new Hashtable();
+            Hashtable fWorld = new Hashtable();
+            List<Character> characters = new List<Character>();
+
+            foreach (String lit in inputstate.T)
+            {
+                String l = lit.Trim().Trim('(', ')').Trim();
+                tWorld.Add(l, prefs.GetPropositionPreference(l, true));
+            }
+            foreach (String lit in inputstate.F)
+            {
+                String l = lit.Trim().Trim('(', ')').Trim();
+                fWorld.Add(l, prefs.GetPropositionPreference(l, false));
+            }
+            foreach (JSONDomain.Character c in inputstate.Characters)
+            {
+                characters.Add(createCharacter(c));
+            }
+
+            state = new WorldState(tWorld, fWorld, characters);
+            return state;
+        }
+
         private static Character createCharacter(JSONDomain.Character character)
         {
             Character c = new Character();

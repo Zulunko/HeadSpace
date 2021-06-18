@@ -67,6 +67,11 @@ namespace NarrativePlanning.DomainBuilder
             this.filename = filename;
             create();
         }
+        public JSONDomainBuilder(string filename, Preferences prefs)
+        {
+            this.filename = filename;
+            createWithPrefs(prefs);
+        }
         private void create()
         {
             StreamReader r = new StreamReader(filename);
@@ -86,6 +91,28 @@ namespace NarrativePlanning.DomainBuilder
             counterActions = DomainBuilder.CounteractionBuilder.parseCounteractions(jsonDomain.Counteractions);
             desires = DomainBuilder.DesireBuilder.parseDesires(jsonDomain.Desires);
             initial = StateCreator.getState(jsonDomain.Initial);
+            goal = StateCreator.getState(jsonDomain.Final);
+            UnityConsole.Write("Deserialized JSON file");
+        }
+        private void createWithPrefs(Preferences prefs)
+        {
+            StreamReader r = new StreamReader(filename);
+            string json = r.ReadToEnd();
+            var jsonDomain = JsonDomain.FromJson(json);
+            root = TypeTreeBuilder.buildTypeTree(jsonDomain.Types);
+            instancesJSON = jsonDomain.Instances;
+            operatorsJSON = jsonDomain.Operators;
+            InstanceAdder.addInstances(root, jsonDomain.Instances);
+
+            //////////// UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN //////////////////////
+            operators = OperationBuilder.parseOperators(jsonDomain.Operators, root);
+            DomainBuilder.GroundGenerator gg = new GroundGenerator(root, operators);
+            DomainBuilder.OperationBuilder.storeOperators(gg.grounds, operators, "serialized-ops.txt");
+
+            operators = DomainBuilder.OperationBuilder.getStoredOperators("serialized-ops.txt");
+            counterActions = DomainBuilder.CounteractionBuilder.parseCounteractions(jsonDomain.Counteractions);
+            desires = DomainBuilder.DesireBuilder.parseDesires(jsonDomain.Desires);
+            initial = StateCreator.getState(jsonDomain.Initial, prefs);
             goal = StateCreator.getState(jsonDomain.Final);
             UnityConsole.Write("Deserialized JSON file");
         }

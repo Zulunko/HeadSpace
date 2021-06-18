@@ -14,14 +14,19 @@ namespace NarrativePlanning
                 A = new Hashtable();
             }
 
+            // Prop layers:
+            // <int, WorldState>
             public Hashtable F {
                 get;
                 set;
             }
+            // Action layers:
+            // <int, List<Operator>>
             public Hashtable A {
                 get;
                 set;
             }
+            // Total layers
             public int k {
                 get;
                 set;
@@ -46,6 +51,8 @@ namespace NarrativePlanning
         delegate Hashtable del(Object obj);
 
         delegate List<Operator> del2(Object obj);
+
+        delegate List<Tuple<Operator, float>> del3(Object obj);
 
         /// <summary>
         /// Computes the relaxed plan graph for a given input
@@ -82,6 +89,94 @@ namespace NarrativePlanning
             }
             l.k = t;
             return l;
+        }
+
+        /// <summary>
+        /// Computes the relaxed plan graph for a given input to the fixed point
+        /// </summary>
+        /// <param name="operators">Grounded operators</param>
+        /// <param name="initial">Initial world state</param>
+        /// <param name="goal">Goal worldstate</param>
+        /// <returns>Returns the RPG in a Layers form.</returns>
+        public static Layers computeRPGToFixed(List<Operator> operators, WorldState initial, WorldState goal)
+        {
+            Layers l = null;
+            int t = 0;
+            l = new Layers();
+            l.F.Add(0, initial);
+
+            while (true)
+            {
+                t++;
+                List<Operator> At = new List<Operator>();
+                foreach (Operator o in operators)
+                {
+                    if (WorldState.isExecutable(o, ((WorldState)l.F[t - 1])))
+                    {
+                        At.Add(o);
+                    }
+                }
+                l.A.Add(t, At);
+                l.F.Add(t, ((WorldState)l.F[t - 1]).clone());
+                foreach (Operator o in At)
+                {
+                    l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), o);
+                }
+                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                {
+                    l.k = t;
+                    if (!((WorldState)l.F[t]).isGoalState(goal))
+                    {
+                        Console.WriteLine("HEY U HECCIN FAILED");
+                    }
+                    return l;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes the relaxed plan graph for a given input to the fixed point with preference metadata
+        /// </summary>
+        /// <param name="operators">Grounded operators</param>
+        /// <param name="initial">Initial world state</param>
+        /// <param name="goal">Goal worldstate</param>
+        /// <param name="preferences">Preference set</param>
+        /// <returns>Returns the RPG in a Layers form.</returns>
+        public static Layers computePreferenceRPG(List<Operator> operators, WorldState initial, WorldState goal, Preferences preferences)
+        {
+            Layers l = null;
+            int t = 0;
+            l = new Layers();
+            l.F.Add(0, initial);
+
+            while (true)
+            {
+                t++;
+                List<Tuple<Operator, float>> At = new List<Tuple<Operator, float>>();
+                // Add operators for every executable op
+                foreach (Operator o in operators)
+                {
+                    if (WorldState.isExecutable(o, ((WorldState)l.F[t - 1])))
+                    {
+                        At.Add(new Tuple<Operator, float>(o, WorldState.getPrefForActionInstance(o, (WorldState)l.F[t-1], preferences)));
+                    }
+                }
+                l.A.Add(t, At);
+                l.F.Add(t, ((WorldState)l.F[t - 1]).clone());
+                foreach (Tuple<Operator, float> tuple in At)
+                {
+                    l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), tuple);
+                }
+                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                {
+                    l.k = t;
+                    if (!((WorldState)l.F[t]).isGoalState(goal))
+                    {
+                        Console.WriteLine("HEY U HECCIN FAILED");
+                    }
+                    return l;
+                }
+            }
         }
 
         /// <summary>
@@ -230,7 +325,7 @@ namespace NarrativePlanning
             int m = firstlevels.Max();
 
             Hashtable Gt = new Hashtable();
-            for (int t = 0; t <= m; ++t){
+            for (int t = 0; t <= m; t++){
                 WorldState w = new WorldState(new Hashtable(), new Hashtable(), null);
                 foreach(String lit in g.tWorld.Keys){
                     if(firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld) == t){
@@ -310,6 +405,498 @@ namespace NarrativePlanning
                 }
             }
             return selectedActions;
+        }
+
+        /// <summary>
+        /// Finds the hueristic measure for the RPG.
+        /// </summary>
+        /// <param name="l">The layers</param>
+        /// <param name="g">Goal worldstate</param>
+        /// <param name="operators">List of grounded operators</param>
+        /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
+        public static int extractRPSizeAndPrunedOps(Layers l, WorldState g, WorldState i)
+        {
+            int selectedActions = 0;
+
+            if (!((WorldState)l.F[l.k]).isGoalState(g))
+            {
+                return -1;
+            }
+
+            // 1. Calculate max level for any goal literal at first equivalent value to final layer. 
+            int goalCount = 0;
+            float prefMatch = 0;
+            List<int> firstlevels = new List<int>();
+            foreach (String lit in g.tWorld.Keys)
+            {
+                firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld));
+                goalCount++;
+            }
+            foreach (String lit in g.fWorld.Keys)
+            {
+                firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld));
+                goalCount++;
+            }
+            int m = firstlevels.Max();
+
+            // 2. Add first equivalent level (to final layer) goal props to goal set at that layer.
+            Hashtable Gt = new Hashtable();
+            for (int t = 0; t <= m; t++)
+            {
+                WorldState w = new WorldState(new Hashtable(), new Hashtable(), null);
+                foreach (String lit in g.tWorld.Keys)
+                {
+                    if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld) == t)
+                        w.tWorld.Add(lit, 1);
+                }
+                foreach (String lit in g.fWorld.Keys)
+                {
+                    if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld) == t)
+                        w.fWorld.Add(lit, 1);
+                }
+                Gt.Add(t, w);
+            }
+
+            // 3. Iterate from final first level layer and work backwards.
+            for (int t = m; t >= 1; --t)
+            {
+                // 3a. For each layer, merge the list of true and false goal predicates to simplify logic and prevent copy-pasting.
+                //  Also, extract preference values for convenience.
+                List<Tuple<string, bool, float>> goalData = new List<Tuple<string, bool, float>>();
+                foreach (string lit in (Gt[t] as WorldState).tWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, true, Convert.ToSingle((Gt[t] as WorldState).tWorld[lit])));
+                }
+                foreach (string lit in (Gt[t] as WorldState).fWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, false, Convert.ToSingle((Gt[t] as WorldState).fWorld[lit])));
+                }
+
+                HashSet<string> satisfiedGoals = new HashSet<string>();
+                // 3c. Iterate through each goal to find an action that provides that goal.
+                foreach (Tuple<string, bool, float> goalLit in goalData)
+                {
+                    //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
+                    //Check if this goal has already been satisfied by actions added in this layer.
+                    if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
+                    {
+                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        continue;
+                    }
+
+                    // 3c1. Sort the operators that can fulfill this goal to try to find the best operator first.
+                    string lit = goalLit.Item1;
+                    List<Operator> actions = (List<Operator>)l.A[t];
+                    foreach (Operator o in actions)
+                    {
+                        bool found = false;
+
+                        // 3c1a. Item2 says whether the literal is positive or negative, so we check if the literal is positive whether
+                        //  it's in the positive effects of this action and if it's negative whether it's in the negative effects of this action.
+                        //check if effects of action have literal as a component
+                        if ((goalLit.Item2 && o.effT.Contains(lit)) || (!goalLit.Item2 && o.effF.Contains(lit)))
+                        {
+                            // EWL: The below is unnecessary because we want to add the highest-value action which this one is guaranteed
+                            //  to be. We don't care if it's the first time the action has appeared, as it provides more preference-matching
+                            //  actions prior to this layer if not.
+                            //check if that action appeared first time at t
+                            //if (firstLevelIgnorePrefs(o, l.A, ((obj) => (obj as List<Tuple<Operator, float>>))) == t)
+                            //{
+
+                            // 3c1a1. We have found an action that provides our goal. This action is guaranteed to be the highest-value action
+                            //  available because of our operation sorting, so we select this action and set all of its preconditions as subgoals.
+                            //PRUNING
+                            if (t == 1)
+                            {
+                                //Console.WriteLine("----PRUNING LAYER");
+                                //Console.Write(o.text);
+                                //Console.WriteLine();
+                                if (i.prunedOperators == null)
+                                    i.prunedOperators = new List<Operator>();
+                                i.prunedOperators.Add(o);
+                                //Console.WriteLine("----");
+                            }
+                            if (found) continue;
+                            found = true;
+                            selectedActions++;
+                            //Console.WriteLine("Selected: " + o.name);
+                            //now add all of its preconditions as subgoals in Gts
+                            foreach (String prelit in o.preT.Keys)
+                            {
+                                // 3c1a1a. We add the precond as a subgoal to the lowest proposition level where this precond has a value equal to
+                                //  its current value.
+                                int level = firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).tWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[lit]);
+                            }
+                            foreach (String prelit in o.preF.Keys)
+                            {
+                                int level = firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).fWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[lit]);
+                            }
+
+                            // Register goals that were satisfied by this action, regardless of whether they're the goal we're seeking.
+                            foreach (String efflit in o.effT.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + true.ToString());
+                            }
+                            foreach (String efflit in o.effF.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + false.ToString());
+                            }
+
+                            // EWL: Once we find an action for this goal, we should really just break so we can continue to the next goal.
+                            //break;
+                            //}
+                        }
+                    }
+                }
+            }
+            return selectedActions;
+        }
+
+        /// <summary>
+        /// Extracts RP with preference data.
+        /// </summary>
+        /// <param name="l">The layers</param>
+        /// <param name="g">Goal worldstate</param>
+        /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
+        public static Tuple<int, float> extractPrefRPSize(Layers l, WorldState g)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
+        {
+            int selectedActions = 0;
+
+            if (!((WorldState)l.F[l.k]).isGoalState(g))
+            {
+                return new Tuple<int, float>(-1, 0);
+            }
+
+            // 1. Calculate max level for any goal literal at first equivalent value to final layer. 
+            int goalCount = 0;
+            float prefMatch = 0;
+            List<int> firstlevels = new List<int>();
+            foreach (String lit in g.tWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, true, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            foreach (String lit in g.fWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, false, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            prefMatch /= goalCount;
+            //Console.WriteLine("------Pref match value: " + prefMatch);
+            //character states ignored!!
+            int m = firstlevels.Max();
+            //Console.WriteLine("MAX CONSIDERED: " + m + " OUT OF " + l.k);
+
+            // 2. Add first equivalent level (to final layer) goal props to goal set at that layer.
+            Hashtable Gt = new Hashtable();
+            for (int t = 0; t <= m; t++)
+            {
+                WorldState w = new WorldState(new Hashtable(), new Hashtable(), null);
+                foreach (String lit in g.tWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, true, prefVal) == t)
+                    {
+                        w.tWorld.Add(lit, prefVal);
+                    }
+                }
+                foreach (String lit in g.fWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, false, prefVal) == t)
+                    {
+                        w.fWorld.Add(lit, prefVal);
+                    }
+                }
+                Gt.Add(t, w);
+            }
+
+            // 3. Iterate from final first level layer and work backwards.
+            for (int t = m; t >= 1; --t)
+            {
+                // 3a. For each layer, merge the list of true and false goal predicates to simplify logic and prevent copy-pasting.
+                //  Also, extract preference values for convenience.
+                List<Tuple<string, bool, float>> goalData = new List<Tuple<string, bool, float>>();
+                foreach (string lit in (Gt[t] as WorldState).tWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, true, Convert.ToSingle((Gt[t] as WorldState).tWorld[lit])));
+                }
+                foreach (string lit in (Gt[t] as WorldState).fWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, false, Convert.ToSingle((Gt[t] as WorldState).fWorld[lit])));
+                }
+                // 3b. Sort the goal literals in order of highest preference to lowest preference to ensure we fulfill the highest preference goal first.
+                goalData.Sort((a, b) => b.Item3.CompareTo(a.Item3));
+
+                HashSet<string> satisfiedGoals = new HashSet<string>();
+                // 3c. Iterate through each goal to find an action that provides that goal.
+                foreach (Tuple<string, bool, float> goalLit in goalData)
+                {
+                    //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
+                    //Check if this goal has already been satisfied by actions added in this layer.
+                    if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
+                    {
+                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        continue;
+                    }
+
+                    // 3c1. Sort the operators that can fulfill this goal to try to find the best operator first.
+                    string lit = goalLit.Item1;
+                    List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
+                    actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+                    foreach (Tuple<Operator, float> prefTuple in actTuples)
+                    {
+                        Operator o = prefTuple.Item1;
+                        
+                        // 3c1a. Item2 says whether the literal is positive or negative, so we check if the literal is positive whether
+                        //  it's in the positive effects of this action and if it's negative whether it's in the negative effects of this action.
+                        //check if effects of action have literal as a component
+                        if ((goalLit.Item2 && o.effT.Contains(lit)) || (!goalLit.Item2 && o.effF.Contains(lit)))
+                        {
+                            // EWL: The below is unnecessary because we want to add the highest-value action which this one is guaranteed
+                            //  to be. We don't care if it's the first time the action has appeared, as it provides more preference-matching
+                            //  actions prior to this layer if not.
+                            //check if that action appeared first time at t
+                            //if (firstLevelIgnorePrefs(o, l.A, ((obj) => (obj as List<Tuple<Operator, float>>))) == t)
+                            //{
+
+                            // 3c1a1. We have found an action that provides our goal. This action is guaranteed to be the highest-value action
+                            //  available because of our operation sorting, so we select this action and set all of its preconditions as subgoals.
+                            selectedActions++;
+                            //Console.WriteLine("Selected: " + o.name);
+                            //now add all of its preconditions as subgoals in Gts
+                            foreach (String prelit in o.preT.Keys)
+                            {
+                                // 3c1a1a. We add the precond as a subgoal to the lowest proposition level where this precond has a value equal to
+                                //  its current value.
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).tWorld[lit]);
+                                int level = firstEqualPrefLevel(t - 1, prelit, l.F, true, prefVal);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).tWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[lit]);
+                            }
+                            foreach (String prelit in o.preF.Keys)
+                            {
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t-1]).fWorld[lit]);
+                                int level = firstEqualPrefLevel(t - 1, prelit, l.F, false, prefVal);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).fWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[lit]);
+                            }
+
+                            // Register goals that were satisfied by this action, regardless of whether they're the goal we're seeking.
+                            foreach (String efflit in o.effT.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + true.ToString());
+                            }
+                            foreach (String efflit in o.effF.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + false.ToString());
+                            }
+
+                            // EWL: Once we find an action for this goal, we should really just break so we can continue to the next goal.
+                            break;
+                            //}
+                        }
+                    }
+                }
+            }
+            return new Tuple<int, float>(selectedActions, prefMatch);
+        }
+
+        /// <summary>
+        /// Extracts RP with preference data and sets pruned operators on the initial world state.
+        /// </summary>
+        /// <param name="l">The layers</param>
+        /// <param name="g">Goal worldstate</param>
+        /// <param name="i">Initial worldstate, solely passed in to add pruned operators</param>
+        /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
+        public static Tuple<int, float> extractPrefRPSizeAndPrunedOps(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
+        {
+            int selectedActions = 0;
+
+            if (!((WorldState)l.F[l.k]).isGoalState(g))
+            {
+                return new Tuple<int, float>(-1, 0);
+            }
+
+            // 1. Calculate max level for any goal literal at first equivalent value to final layer. 
+            int goalCount = 0;
+            float prefMatch = 0;
+            List<int> firstlevels = new List<int>();
+            foreach (String lit in g.tWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, true, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            foreach (String lit in g.fWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, false, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            prefMatch /= goalCount;
+            //Console.WriteLine("------Pref match value: " + prefMatch);
+            //character states ignored!!
+            int m = firstlevels.Max();
+            //Console.WriteLine("MAX CONSIDERED: " + m + " OUT OF " + l.k);
+
+            // 2. Add first equivalent level (to final layer) goal props to goal set at that layer.
+            Hashtable Gt = new Hashtable();
+            for (int t = 0; t <= m; t++)
+            {
+                WorldState w = new WorldState(new Hashtable(), new Hashtable(), null);
+                foreach (String lit in g.tWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, true, prefVal) == t)
+                    {
+                        w.tWorld.Add(lit, prefVal);
+                    }
+                }
+                foreach (String lit in g.fWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, false, prefVal) == t)
+                    {
+                        w.fWorld.Add(lit, prefVal);
+                    }
+                }
+                Gt.Add(t, w);
+            }
+
+            // 3. Iterate from final first level layer and work backwards.
+            for (int t = m; t >= 1; --t)
+            {
+                // 3a. For each layer, merge the list of true and false goal predicates to simplify logic and prevent copy-pasting.
+                //  Also, extract preference values for convenience.
+                List<Tuple<string, bool, float>> goalData = new List<Tuple<string, bool, float>>();
+                foreach (string lit in (Gt[t] as WorldState).tWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, true, Convert.ToSingle((Gt[t] as WorldState).tWorld[lit])));
+                }
+                foreach (string lit in (Gt[t] as WorldState).fWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, false, Convert.ToSingle((Gt[t] as WorldState).fWorld[lit])));
+                }
+                // 3b. Sort the goal literals in order of highest preference to lowest preference to ensure we fulfill the highest preference goal first.
+                goalData.Sort((a, b) => b.Item3.CompareTo(a.Item3));
+
+                HashSet<string> satisfiedGoals = new HashSet<string>();
+                // 3c. Iterate through each goal to find an action that provides that goal.
+                foreach (Tuple<string, bool, float> goalLit in goalData)
+                {
+                    //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
+                    //Check if this goal has already been satisfied by actions added in this layer.
+                    if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
+                    {
+                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        continue;
+                    }
+
+                    // 3c1. Sort the operators that can fulfill this goal to try to find the best operator first.
+                    string lit = goalLit.Item1;
+                    List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
+                    actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+                    foreach (Tuple<Operator, float> prefTuple in actTuples)
+                    {
+                        bool found = false;
+                        Operator o = prefTuple.Item1;
+
+                        // 3c1a. Item2 says whether the literal is positive or negative, so we check if the literal is positive whether
+                        //  it's in the positive effects of this action and if it's negative whether it's in the negative effects of this action.
+                        //check if effects of action have literal as a component
+                        if ((goalLit.Item2 && o.effT.Contains(lit)) || (!goalLit.Item2 && o.effF.Contains(lit)))
+                        {
+                            // EWL: The below is unnecessary because we want to add the highest-value action which this one is guaranteed
+                            //  to be. We don't care if it's the first time the action has appeared, as it provides more preference-matching
+                            //  actions prior to this layer if not.
+                            //check if that action appeared first time at t
+                            //if (firstLevelIgnorePrefs(o, l.A, ((obj) => (obj as List<Tuple<Operator, float>>))) == t)
+                            //{
+
+                            // 3c1a1. We have found an action that provides our goal. This action is guaranteed to be the highest-value action
+                            //  available because of our operation sorting, so we select this action and set all of its preconditions as subgoals.
+                            //PRUNING
+                            if (t == 1)
+                            {
+                                //Console.WriteLine("----PRUNING LAYER");
+                                //Console.Write(o.text);
+                                //Console.WriteLine();
+                                if (i.prunedOperators == null)
+                                    i.prunedOperators = new List<Operator>();
+                                i.prunedOperators.Add(o);
+                                //Console.WriteLine("----");
+                            }
+                            if (found) continue;
+                            found = true;
+                            selectedActions++;
+                            //Console.WriteLine("Selected: " + o.name);
+                            //now add all of its preconditions as subgoals in Gts
+                            foreach (String prelit in o.preT.Keys)
+                            {
+                                // 3c1a1a. We add the precond as a subgoal to the lowest proposition level where this precond has a value equal to
+                                //  its current value.
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).tWorld[lit]);
+                                int level = firstEqualPrefLevel(t - 1, prelit, l.F, true, prefVal);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).tWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[lit]);
+                            }
+                            foreach (String prelit in o.preF.Keys)
+                            {
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).fWorld[lit]);
+                                int level = firstEqualPrefLevel(t - 1, prelit, l.F, false, prefVal);
+                                if (level == -1 || level >= t)
+                                    level = t - 1;
+                                if (!(Gt[level] as WorldState).fWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[lit]);
+                            }
+
+                            // Register goals that were satisfied by this action, regardless of whether they're the goal we're seeking.
+                            foreach (String efflit in o.effT.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + true.ToString());
+                            }
+                            foreach (String efflit in o.effF.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + false.ToString());
+                            }
+
+                            // EWL: Once we find an action for this goal, we should really just break so we can continue to the next goal.
+                            //break;
+                            //}
+                        }
+                    }
+                }
+            }
+            return new Tuple<int, float>(selectedActions, prefMatch);
         }
 
         /// <summary>
@@ -522,7 +1109,7 @@ namespace NarrativePlanning
 			return selectedActions;
 		}
 
-
+        // Return the first instance of a specific prop in a prop layer.
         private static int firstLevel(String l, Hashtable table, del accessor){
             ArrayList keys = new ArrayList(table.Keys);
             keys.Sort();
@@ -536,6 +1123,44 @@ namespace NarrativePlanning
             return -1;
         }
 
+        /// <summary>
+        /// Returns the first level where this prop matches the given prefVal.
+        /// </summary>
+        /// <param name="layer">The layer to start looking back from in the RPG (typically the precondition layer for the action providing a goal).</param>
+        /// <param name="lit">The proposition being searched for.</param>
+        /// <param name="propLayers">The proposition layers of the RPG.</param>
+        /// <param name="isTrue">Whether this is a true or a false proposition.</param>
+        /// <param name="prefVal">The current value of the proposition.</param>
+        /// <returns></returns>
+        private static int firstEqualPrefLevel(int layer, string lit, Hashtable propLayers, bool isTrue, float prefVal)
+        {
+            //Console.WriteLine("STARTING PREF LEVEL EVAL AT: " + layer);
+            for (int i = layer-1; i >= 0; i--)
+            {
+                if (isTrue)
+                {
+                    //Console.WriteLine(Convert.ToSingle(((WorldState)propLayers[i]).tWorld[lit]));
+                    if (!((WorldState)propLayers[i]).tWorld.Contains(lit) || Convert.ToSingle(((WorldState)propLayers[i]).tWorld[lit]) < prefVal)
+                    {
+                        //Console.WriteLine("PREF EVAL FINISHED AT: " + (i+1));
+                        return i + 1;
+                    }
+                }
+                else
+                {
+                    //Console.WriteLine(Convert.ToSingle(((WorldState)propLayers[i]).fWorld[lit]));
+                    if (!((WorldState)propLayers[i]).fWorld.Contains(lit) || Convert.ToSingle(((WorldState)propLayers[i]).fWorld[lit]) < prefVal)
+                    {
+                        //Console.WriteLine("PREF EVAL FINISHED AT: " + (i+1));
+                        return i + 1;
+                    }
+                }
+            }
+            //Console.WriteLine("PREF EVAL FINISHED AT: " + 0);
+            return 0;
+        }
+
+        // Return the first instance of a specific operation in a prop layer?
         private static int firstLevel(Operator l, Hashtable table, del2 accessor)
         {
             ArrayList keys = new ArrayList(table.Keys);
@@ -548,6 +1173,50 @@ namespace NarrativePlanning
                     return i;
             }
             return -1;
+        }
+
+        // XXX: only temporary
+        private static int firstLevelIgnorePrefs(Operator l, Hashtable table, del3 accessor)
+        {
+            ArrayList keys = new ArrayList(table.Keys);
+            keys.Sort();
+            int last = (int)keys[keys.Count - 1];
+            int first = (int)keys[0];
+            for (int i = first; i <= last; ++i)
+            {
+                foreach(Tuple<Operator, float> entry in accessor(table[i]))
+                {
+                    if (entry.Item1 == l)
+                        return i;
+                }
+            }
+            return -1;
+        }
+
+        public static void printRPG(Layers layers)
+        {
+            Console.WriteLine("LAYER 0");
+            int i = 0;
+            while (i <= layers.k)
+            {
+                Console.WriteLine("\nPROPS");
+                foreach (String lit in ((WorldState)layers.F[i]).tWorld.Keys)
+                {
+                    Console.Write(lit + " ");
+                }
+                foreach (String lit in ((WorldState)layers.F[i]).fWorld.Keys)
+                {
+                    Console.Write(lit + " ");
+                }
+                if (i == layers.k) break;
+                i++;
+                Console.WriteLine("\n\n\nLAYER " + i);
+                Console.WriteLine("\nACTIONS");
+                foreach (Operator op in (List<Operator>)layers.A[i])
+                {
+                    Console.Write(op.name + " ");
+                }
+            }
         }
     }
 }
