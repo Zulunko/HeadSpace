@@ -34,7 +34,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/hitman_preference.json", new Preferences());
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/western_preference.json", new Preferences());
 
 
             // UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN USING TXT FILES
@@ -50,13 +50,14 @@ namespace NarrativePlanning
             // Use planner to generate the plan and register it to mapper
             //problem.computeRPGToFixed();
             Stopwatch watch = new Stopwatch();
+            //UnityConsole.WriteLine("Solving without prefs...");
+            //watch.Start();
+            //NarrativePlanning.Plan plan = problem.FFNoPreferenceSolution();
+            //watch.Stop();
+            //UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
+            //watch.Reset();
             watch.Start();
-            NarrativePlanning.Plan plan = problem.FFNoPreferenceSolution();
-            watch.Stop();
-            UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
-            watch.Reset();
-            watch.Start();
-            plan = problem.FFPreferenceSolution();
+            NarrativePlanning.Plan plan = problem.FFPreferenceSolution();
             watch.Stop();
             UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
             //NarrativePlanning.Plan plan = problem.FFSolution();
@@ -65,7 +66,7 @@ namespace NarrativePlanning
                 NarrativePlanning.UnityConsole.WriteLine("Planning complete. No plan found");
             else
                 NarrativePlanning.UnityConsole.WriteLine("Planning complete. Plan is : " + plan.toString());
-
+            while (true) { }
             return;
         }
     }

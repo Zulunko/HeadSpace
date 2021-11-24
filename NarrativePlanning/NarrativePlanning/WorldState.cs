@@ -151,7 +151,8 @@ namespace NarrativePlanning
             List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
             foreach (Operator gop in prunedOperators)
             {
-                possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextStateWithPrefs(this, gop, prefs)));
+                if (isExecutable(gop, this))
+                    possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextStateWithPrefs(this, gop, prefs)));
             }
             return possibleNextStateTuples;
         }
@@ -730,5 +731,16 @@ namespace NarrativePlanning
             return base.GetHashCode();
         }
 
+        public void PrintFullState()
+        {
+            foreach (DictionaryEntry de in tWorld)
+            {
+                Console.WriteLine("("+de.Key+")");
+            }
+            foreach (DictionaryEntry de in fWorld)
+            {
+                Console.WriteLine("(not (" + de.Key + "))");
+            }
+        }
     }
 }

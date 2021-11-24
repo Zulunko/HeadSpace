@@ -1,0 +1,542 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "NPC",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "FriendlyNPC",
+            "type": "NPC"
+        },
+        {
+            "name": "EnemyNPC",
+            "type": "NPC"
+        },
+        {
+            "name": "Carryable",
+            "type": "Object"
+        },
+        {
+            "name": "Tent",
+            "type": "Location"
+        },
+        {
+            "name": "Outdoor",
+            "type": "Location"
+        },
+        {
+            "name": "Waypoint",
+            "type": "Outdoor"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Player1",
+            "type": "Player"
+        },
+        {
+            "name": "BanditPatrol",
+            "type": "EnemyNPC"
+        },
+        {
+            "name": "BanditsInCamp",
+            "type": "EnemyNPC"
+        },
+        {
+            "name": "BanditLeader",
+            "type": "EnemyNPC"
+        },
+        {
+            "name": "Town",
+            "type": "Waypoint"
+        },
+        {
+            "name": "OuterCamp",
+            "type": "Waypoint"
+        },
+        {
+            "name": "Camp",
+            "type": "Outdoor"
+        },
+        {
+            "name": "BanditLeaderTent",
+            "type": "Tent"
+        },
+        {
+            "name": "Heirloom",
+            "type": "Carryable"
+        },
+        {
+            "name": "Sheriff",
+            "type": "FriendlyNPC"
+        },
+        {
+            "name": "Mercenaries",
+            "type": "FriendlyNPC"
+        },
+        {
+            "name": "Horse",
+            "type": "Object"
+        },
+        {
+            "name": "Home",
+            "type": "Tent"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        {
+            "name": "move-on-horseback",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Outdoor"
+                },
+                {
+                    "name": "?to",
+                    "type": "Outdoor"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)",
+                "(on ?p Horse)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "move-on-foot",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(on ?p Horse)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "mount",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "Player1",
+            "loc": "?l",
+            "pre-t": [
+                "(at Player1 ?l)",
+                "(at Horse ?l)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(on Player1 Horse)"
+            ],
+            "eff-f": [
+                "(at Horse ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "dismount",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "Player1",
+            "loc": "?l",
+            "pre-t": [
+                "(at Player1 ?l)",
+                "(on Player1 Horse)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at Horse ?l)"
+            ],
+            "eff-f": [
+                "(on Player1 Horse)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "approach-in-stealth",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Waypoint"
+                },
+                {
+                    "name": "?to",
+                    "type": "Waypoint"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(on ?p Horse)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "approach-loud",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Waypoint"
+                },
+                {
+                    "name": "?to",
+                    "type": "Waypoint"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(on ?p Horse)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "hire-npc",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "FriendlyNPC"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?n ?l)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(hired ?n)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "capture-bandit",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?n",
+                    "type": "EnemyNPC"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(hired Mercenaries)",
+                "(hired Sheriff)",
+                "(at ?n ?l)"
+            ],
+            "pre-f": [
+                "(neutralized ?n)"
+            ],
+            "eff-t": [ "(neutralized ?n)" ],
+            "eff-f": [],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "shoot",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "EnemyNPC"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?n ?l)"
+            ],
+            "pre-f": [
+                "(neutralized ?n)"
+            ],
+            "eff-t": [
+                "(neutralized ?n)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "pickup",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?c",
+                    "type": "Carryable"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?c ?l)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(has ?p ?c)"
+            ],
+            "eff-f": [
+                "(at ?c ?l)"
+            ]
+        },
+        {
+            "name": "threaten-leader",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "BanditLeaderTent",
+            "pre-t": [
+                "(at ?p BanditLeaderTent)",
+                "(at BanditLeader BanditLeaderTent)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at Heirloom BanditLeaderTent)"
+            ],
+            "eff-f": [
+            ]
+        }
+    ],
+    "initial": {
+        "t": [
+            //"(connected Town OuterCamp)", - using specific approach actions
+            //"(connected OuterCamp Town)",
+            "(connected Home Town)",
+            "(connected Town Home)",
+            "(connected OuterCamp Camp)",
+            "(connected Camp OuterCamp)",
+            "(connected Camp BanditLeaderTent)",
+            "(connected BanditLeaderTent Camp)",
+            "(at BanditPatrol OuterCamp)",
+            "(at BanditsInCamp Camp)",
+            "(at BanditLeader BanditLeaderTent)",
+            "(at Sheriff Town)",
+            "(at Mercenaries Town)",
+            "(at Horse Town)",
+            "(at Player1 Home)"
+        ],
+        "f": [
+            "(on Player1 Horse)",
+            "(neutralized BanditPatrol)",
+            "(neutralized BanditsInCamp)",
+            //Not at: player1
+            "(at Player1 Town)",
+            "(at Player1 OuterCamp)",
+            "(at Player1 Camp)",
+            "(at Player1 BanditLeaderTent)",
+            //Not hired
+            "(hired Mercenaries)",
+            "(hired Sheriff)",
+            //Not at: horse
+            "(at Horse OuterCamp)",
+            "(at Horse Camp)"
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    },
+    "final": {
+        "t": [
+            "(has Player1 Heirloom)",
+            "(neutralized BanditPatrol)",
+            "(neutralized BanditsInCamp)",
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    }
+}

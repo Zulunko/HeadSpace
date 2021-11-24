@@ -28,7 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -64,8 +64,11 @@
   <ItemGroup>
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
+    <None Include="JSON Files\western_preference.json" />
+    <None Include="JSON Files\scifi_preference.json" />
     <None Include="JSON Files\hitman_preference.json" />
     <None Include="JSON Files\torches.json" />
+    <None Include="packages.config" />
     <None Include="Text Files\types.txt" />
     <None Include="Text Files\instances.txt" />
     <None Include="Text Files\operators.txt" />
@@ -86,7 +89,6 @@
     <None Include="JSON Files\refill.json" />
     <None Include="JSON Files\traintrackrescue.json" />
     <None Include="JSON Files\utahpia.json" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

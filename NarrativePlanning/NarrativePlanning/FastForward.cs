@@ -731,7 +731,7 @@ namespace NarrativePlanning
         /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
         public static Tuple<int, float> extractPrefRPSizeAndPrunedOps(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
         {
-            int selectedActions = 0;
+            HashSet<string> selectedActions = new HashSet<string>();
 
             if (!((WorldState)l.F[l.k]).isGoalState(g))
             {
@@ -790,6 +790,7 @@ namespace NarrativePlanning
                 Gt.Add(t, w);
             }
 
+            //HashSet<string> satisfiedGoals = new HashSet<string>();
             // 3. Iterate from final first level layer and work backwards.
             for (int t = m; t >= 1; --t)
             {
@@ -813,6 +814,7 @@ namespace NarrativePlanning
                 {
                     //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
                     //Check if this goal has already been satisfied by actions added in this layer.
+                    //Console.WriteLine("Checking satsifaction for: " + goalLit.Item1 + "!" + goalLit.Item2.ToString());
                     if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
                     {
                         Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
@@ -842,21 +844,34 @@ namespace NarrativePlanning
 
                             // 3c1a1. We have found an action that provides our goal. This action is guaranteed to be the highest-value action
                             //  available because of our operation sorting, so we select this action and set all of its preconditions as subgoals.
-                            //PRUNING
-                            if (t == 1)
+                            if (found) continue;
+                            found = true;
+                            string action = o.text;
+                            //foreach (string arg in o.args.Keys)
+                            //{
+                            //    action += arg + "!";
+                            //}
+                            Console.WriteLine("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit);
+                            if (selectedActions.Contains(action))
+                                Console.WriteLine("Already added action " + action + ", ignoring...");
+                            else
                             {
-                                //Console.WriteLine("----PRUNING LAYER");
-                                //Console.Write(o.text);
-                                //Console.WriteLine();
+                                selectedActions.Add(action);
                                 if (i.prunedOperators == null)
                                     i.prunedOperators = new List<Operator>();
                                 i.prunedOperators.Add(o);
-                                //Console.WriteLine("----");
                             }
-                            if (found) continue;
-                            found = true;
-                            selectedActions++;
-                            //Console.WriteLine("Selected: " + o.name);
+                            //PRUNING
+                            //if (t == 1)
+                            //{
+                            //Console.WriteLine("----PRUNING LAYER");
+                            //Console.Write(o.text);
+                            //Console.WriteLine();
+                            //    if (i.prunedOperators == null)
+                            //        i.prunedOperators = new List<Operator>();
+                            //    i.prunedOperators.Add(o);
+                            //Console.WriteLine("----");
+                            //}
                             //now add all of its preconditions as subgoals in Gts
                             foreach (String prelit in o.preT.Keys)
                             {
@@ -883,20 +898,27 @@ namespace NarrativePlanning
                             foreach (String efflit in o.effT.Keys)
                             {
                                 satisfiedGoals.Add(efflit + "!" + true.ToString());
+                                //Console.WriteLine("Satisfied " + efflit + "!" + true.ToString());
                             }
                             foreach (String efflit in o.effF.Keys)
                             {
                                 satisfiedGoals.Add(efflit + "!" + false.ToString());
+                                //Console.WriteLine("Satisfied " + efflit + "!" + false.ToString());
                             }
 
                             // EWL: Once we find an action for this goal, we should really just break so we can continue to the next goal.
-                            //break;
+                            break;
                             //}
                         }
                     }
                 }
             }
-            return new Tuple<int, float>(selectedActions, prefMatch);
+            Console.WriteLine("SELECTED ACTIONS:");
+            foreach(string s in selectedActions)
+            {
+                Console.WriteLine(" " + s);
+            }
+            return new Tuple<int, float>(selectedActions.Count, prefMatch);
         }
 
         /// <summary>
@@ -1134,6 +1156,12 @@ namespace NarrativePlanning
         /// <returns></returns>
         private static int firstEqualPrefLevel(int layer, string lit, Hashtable propLayers, bool isTrue, float prefVal)
         {
+            //Shortcut for if this is true in the initial state.
+            if (isTrue && ((WorldState)propLayers[0]).tWorld.Contains(lit))
+                return 0;
+            else if (!isTrue && ((WorldState)propLayers[0]).fWorld.Contains(lit))
+                return 0;
+
             //Console.WriteLine("STARTING PREF LEVEL EVAL AT: " + layer);
             for (int i = layer-1; i >= 0; i--)
             {

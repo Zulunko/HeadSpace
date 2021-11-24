@@ -1,0 +1,518 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "NPC",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Mechanical",
+            "type": "NPC"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Player1",
+            "type": "Player"
+        },
+        {
+            "name": "GateGuards",
+            "type": "NPC"
+        },
+        {
+            "name": "MainHall",
+            "type": "Location"
+        },
+        {
+            "name": "CoreRoom",
+            "type": "Location"
+        },
+        {
+            "name": "AirVent",
+            "type": "Location"
+        },
+        {
+            "name": "LoadingBay",
+            "type": "Location"
+        },
+        {
+            "name": "Road",
+            "type": "Location"
+        },
+        {
+            "name": "Core",
+            "type": "Object"
+        },
+        {
+            "name": "BayWorkers",
+            "type": "NPC"
+        },
+        {
+            "name": "AutomatedTurrets",
+            "type": "Mechanical"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+
+        {
+            "name": "shoot",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?npc",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(guarded ?from ?to)",
+                "(guarded ?to ?from)",
+                "(at ?npc ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(guarded ?from ?to)",
+                "(guarded ?to ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "sneak-past",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(guarded ?from ?to)",
+                "(at BayWorkers ?from)",
+                "(connected ?from ?to)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "plant-bomb",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "CoreRoom",
+            "pre-t": [
+                "(at ?p CoreRoom)"
+            ],
+            "pre-f": [
+                "(alarmed CoreRoom)"
+            ],
+            "eff-t": [
+                "(critical Core)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        /*{
+            "name": "trigger-bomb",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Road",
+            "pre-t": [
+                "(at ?p Road)",
+                "(at Bomb CoreRoom)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(destroyed Core)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },*/
+        {
+            "name": "disarm-core",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "CoreRoom",
+            "pre-t": [
+                "(at ?p CoreRoom)",
+                "(alarmed CoreRoom)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(alarmed CoreRoom)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "overload-core",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "CoreRoom",
+            "pre-t": [
+                "(at ?p CoreRoom)"
+            ],
+            "pre-f": [
+                "(overloading Core)"
+            ],
+            "eff-t": [
+                "(overloading Core)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "defend-core",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "CoreRoom",
+            "pre-t": [
+                "(at ?p CoreRoom)",
+                "(overloading Core)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(critical Core)"
+            ],
+            "eff-f": [
+                "(overloading Core)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "disable-turrets",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "MainHall",
+            "pre-t": [
+                "(at ?p MainHall)",
+                "(guarded MainHall AirVent)",
+                "(guarded MainHall CoreRoom)",
+                "(guarded CoreRoom MainHall)",
+                "(guarded AirVent MainHall)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(guarded MainHall AirVent)",
+                "(guarded MainHall CoreRoom)",
+                "(guarded CoreRoom MainHall)",
+                "(guarded AirVent MainHall)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "core-explosion",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Road",
+            "pre-t": [
+                "(critical Core)",
+                "(at ?p Road)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(destroyed Core)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(guarded ?from ?to)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "break-door",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "MainHall",
+            "pre-t": [
+                "(at ?p MainHall)"
+            ],
+            "pre-f": [
+                "(connected MainHall CoreRoom)",
+                "(guarded MainHall CoreRoom)"
+            ],
+            "eff-t": [
+                "(connected MainHall CoreRoom)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            "(at Player1 Road)",
+
+            "(connected Road MainHall)",
+            "(guarded Road MainHall)",
+
+            "(connected MainHall Road)",
+            "(guarded MainHall Road)",
+
+            "(connected Road LoadingBay)",
+
+            "(connected LoadingBay Road)",
+            "(guarded LoadingBay Road)",
+
+            "(connected LoadingBay MainHall)",
+            "(guarded LoadingBay MainHall)",
+
+            "(connected MainHall LoadingBay)",
+
+            "(guarded MainHall CoreRoom)",
+
+            "(connected MainHall AirVent)",
+            "(guarded MainHall AirVent)",
+
+            "(connected AirVent CoreRoom)",
+
+            "(connected CoreRoom AirVent)",
+
+            "(connected AirVent MainHall)",
+            "(guarded AirVent MainHall)",
+
+            "(connected CoreRoom MainHall)",
+            "(guarded CoreRoom MainHall)",
+
+            "(at GateGuards Road)",
+            "(at AutomatedTurrets MainHall)",
+            "(at BayWorkers LoadingBay)",
+            "(at Core CoreRoom)",
+            "(alarmed CoreRoom)"
+        ],
+        "f": [
+            "(connected MainHall CoreRoom)",
+            "(overloading Core)",
+            "(critical Core)",
+            "(guarded Road LoadingBay)",
+            "(guarded MainHall LoadingBay)",
+            "(guarded AirVent CoreRoom)",
+            "(guarded CoreRoom AirVent)",
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    },
+    "final": {
+        "t": [
+            "(critical Core)"
+            //"(destroyed Core)",
+            //"(at Player1 Road)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    }
+}

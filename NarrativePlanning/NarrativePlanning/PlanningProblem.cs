@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 
 namespace NarrativePlanning
 {
@@ -251,6 +252,32 @@ namespace NarrativePlanning
             return solutionPlan;
         }
 
+        private Plan RewindAndEliminateAction(Plan p, int numToRewind)
+        {
+            Console.WriteLine("Rewinding " + numToRewind + " steps from current plan:");
+            int i = p.steps.Count - 1 - numToRewind;
+            for (int j = 0; j < p.steps.Count - 1; j++)
+            {
+                Console.WriteLine("    " + p.steps[j].Item1);
+                if (j == i) Console.WriteLine("    ----MEMOIZATION CUTOFF");
+            }
+            String nextstep = p.steps[i + 1].Item1;
+            p.steps.RemoveRange(i + 1, p.steps.Count - i - 1);
+            WorldState w = p.steps[i].Item2;
+            int toremove = -1;
+            for (int j = 0; j < w.prunedOperators.Count; j++)
+            {
+                if (w.prunedOperators[j].text == nextstep)
+                {
+                    toremove = j;
+                    break;
+                }
+            }
+            if (toremove == -1) throw new Exception();
+            w.prunedOperators.RemoveAt(toremove);
+            return p;
+        }
+
         /// <summary>
         /// Returns a plan using a FF-based solution.
         /// </summary>
@@ -270,6 +297,25 @@ namespace NarrativePlanning
             {
                 min = 100;
                 WorldState w = current.steps[current.steps.Count - 1].Item2;
+                
+                // XXX Check if w is in our memoized states. If it is, rewind to the step that matches and
+                // restore prune list but remove operator that was chosen last time.
+                // TODO: run the shit and see what happens
+                for (int i = 0; i < current.steps.Count-1; i++)
+                {
+                    if (current.steps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.tWorld.Count &&
+                        current.steps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.fWorld.Count)
+                    {
+                        Console.WriteLine("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1);
+                        //RewindAndEliminateAction(current, current.steps.Count - 1 - i);
+                        RewindAndEliminateAction(current, 1);
+                        w = current.steps[current.steps.Count - 1].Item2;
+                        break;
+                    }
+                }
+                w.PrintFullState();
+
+
                 int tmp = 0;
                 List<Tuple<String, WorldState>> n;
                 // XXX PRUNING
@@ -296,9 +342,8 @@ namespace NarrativePlanning
                     //String charactername = op.character;
                     //Console.WriteLine();
                     FastForward.Layers prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
-                    //PrintRPG(prefRPG);
+                    //if (current.steps[current.steps.Count - 1].Item1.StartsWith("shoot Player1 AutomatedTurrets") && next.Item1.StartsWith("move MainHall AirVent")) PrintRPG(prefRPG);
                     Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
-
                     Tuple<string, WorldState> res = next;
                     //p.steps.Add(next);
                     float y;
@@ -306,7 +351,7 @@ namespace NarrativePlanning
                         y = -1;
                     else
                         y = heuristicData.Item1;// + (1f - heuristicData.Item2);
-                    //Console.WriteLine("        Value for " + next.Item1 + ": " + y);
+                    Console.WriteLine("        Value for " + next.Item1 + ": " + y);
 
                     if (y < min && y != -1)
                     {
@@ -324,10 +369,15 @@ namespace NarrativePlanning
                     }*/
                 }
 
+                // XXX MEMOIZATION: rewind if n.Count == 0
                 if (n.Count == 0)
-                    return null;
+                {
+                    RewindAndEliminateAction(current, 1);
+                    continue;
+                    //return null;
+                }
 
-                //UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
                 //UnityConsole.Write("----------\n");
                 if (tmp > bfactor)
                     bfactor = tmp;
@@ -341,7 +391,9 @@ namespace NarrativePlanning
                     //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                     return solutionPlan;
                 }
-                depth++;
+
+                // XXX MEMO: removed this, can change to make more accurate maybe
+                //depth++;
             }
             return solutionPlan;
         }
