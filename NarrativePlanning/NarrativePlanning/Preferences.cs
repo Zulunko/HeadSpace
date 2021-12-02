@@ -59,6 +59,7 @@ namespace NarrativePlanning
             */
 
             //Tactician
+            ///*
             {"shoot", -0.9175f },
             {"sneak-past", 0.835f },
             {"break-door", -0.835f },
@@ -66,6 +67,7 @@ namespace NarrativePlanning
             {"defend-core", 0.1665f },
             {"disable-turrets", 1f },
             {"disarm-core", 1f }
+            //*/
         };
         private Dictionary<string, float> propositionPrefs = new Dictionary<string, float>()
         {

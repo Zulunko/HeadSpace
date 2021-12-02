@@ -736,11 +736,11 @@ namespace NarrativePlanning
         {
             foreach (DictionaryEntry de in tWorld)
             {
-                Console.WriteLine("("+de.Key+")");
+                UnityConsole.Log("("+de.Key+")", LOGMODE.WORLDSTATE);
             }
             foreach (DictionaryEntry de in fWorld)
             {
-                Console.WriteLine("(not (" + de.Key + "))");
+                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
             }
         }
     }

@@ -254,12 +254,12 @@ namespace NarrativePlanning
 
         private Plan RewindAndEliminateAction(Plan p, int numToRewind)
         {
-            Console.WriteLine("Rewinding " + numToRewind + " steps from current plan:");
+            UnityConsole.Log("Rewinding " + numToRewind + " steps from current plan:", LOGMODE.MEMOIZE);
             int i = p.steps.Count - 1 - numToRewind;
             for (int j = 0; j < p.steps.Count - 1; j++)
             {
-                Console.WriteLine("    " + p.steps[j].Item1);
-                if (j == i) Console.WriteLine("    ----MEMOIZATION CUTOFF");
+                UnityConsole.Log("    " + p.steps[j].Item1, LOGMODE.MEMOIZE);
+                if (j == i) UnityConsole.Log("    ----MEMOIZATION CUTOFF", LOGMODE.MEMOIZE);
             }
             String nextstep = p.steps[i + 1].Item1;
             p.steps.RemoveRange(i + 1, p.steps.Count - i - 1);
@@ -294,6 +294,7 @@ namespace NarrativePlanning
         /// <returns> A solution plan</returns>
         public Plan FFPreferenceSolution()
         {
+            Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
             int depth = 1;
             int bfactor = 0;
             int avg_branching_factor = 0;
@@ -316,7 +317,7 @@ namespace NarrativePlanning
                     if (current.steps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.tWorld.Count &&
                         current.steps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.fWorld.Count)
                     {
-                        Console.WriteLine("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1);
+                        UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1, LOGMODE.MEMOIZE);
                         //RewindAndEliminateAction(current, current.steps.Count - 1 - i);
                         RewindAndEliminateAction(current, 1);
                         w = current.steps[current.steps.Count - 1].Item2;
@@ -361,7 +362,7 @@ namespace NarrativePlanning
                         y = -1;
                     else
                         y = heuristicData.Item1;// + (1f - heuristicData.Item2);
-                    Console.WriteLine("        Value for " + next.Item1 + ": " + y);
+                    UnityConsole.Log("        Value for " + next.Item1 + ": " + y, LOGMODE.PLANNER);
 
                     if (y < min && y != -1)
                     {
@@ -388,7 +389,7 @@ namespace NarrativePlanning
                     //return null;
                 }
 
-                UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                UnityConsole.Log("STEP SELECTED: " + best.Item1 + "\n", LOGMODE.PLANNER);
                 //UnityConsole.Write("----------\n");
                 if (tmp > bfactor)
                     bfactor = tmp;
@@ -400,12 +401,14 @@ namespace NarrativePlanning
                     //solution found!
                     solutionPlan = current;
                     //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    Console.WriteLine("---------------------PLANNING PROCESS ENDED");
                     return solutionPlan;
                 }
 
                 // XXX MEMO: removed this, can change to make more accurate maybe
                 //depth++;
             }
+            Console.WriteLine("---------------------PLANNING PROCESS ENDED");
             return solutionPlan;
         }
 

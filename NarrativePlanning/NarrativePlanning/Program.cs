@@ -4,6 +4,16 @@ using System.Diagnostics;
 
 namespace NarrativePlanning
 {
+    [Flags]
+    public enum LOGMODE : short
+    {
+        MEMOIZE = 1, // Output relating to memoization and rewinding
+        PLANNER = 2, // Output related to the planning process (not heuristic)
+        HEURISTIC = 4, // Output related to the heuristic calculations (RPGs, etc)
+        WORLDSTATE = 8, // Output to dump world state on each step
+        RELAXEDPLAN = 16, // Print the relaxed plan (pruned action list) each step
+    }
+
     class MainClass
     {
         public static void Main(string[] args)
@@ -73,6 +83,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
+        public static LOGMODE logmode = LOGMODE.PLANNER | LOGMODE.MEMOIZE | LOGMODE.RELAXEDPLAN;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);
@@ -82,6 +93,13 @@ namespace NarrativePlanning
         {
             //UnityEngine.Debug.Log(str);
             Console.WriteLine(str);
+        }
+        public static void Log(String str, LOGMODE type)
+        {
+            if (logmode.HasFlag(type))
+            {
+                Console.WriteLine(str);
+            }
         }
     }
 }

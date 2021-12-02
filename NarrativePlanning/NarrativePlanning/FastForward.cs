@@ -480,7 +480,7 @@ namespace NarrativePlanning
                     //Check if this goal has already been satisfied by actions added in this layer.
                     if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
                     {
-                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        UnityConsole.Log("IGNORING GOAL " + goalLit.Item1, LOGMODE.HEURISTIC);
                         continue;
                     }
 
@@ -652,7 +652,7 @@ namespace NarrativePlanning
                     //Check if this goal has already been satisfied by actions added in this layer.
                     if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
                     {
-                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        UnityConsole.Log("IGNORING GOAL " + goalLit.Item1, LOGMODE.HEURISTIC);
                         continue;
                     }
 
@@ -817,7 +817,7 @@ namespace NarrativePlanning
                     //Console.WriteLine("Checking satsifaction for: " + goalLit.Item1 + "!" + goalLit.Item2.ToString());
                     if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
                     {
-                        Console.WriteLine("IGNORING GOAL " + goalLit.Item1);
+                        UnityConsole.Log("IGNORING GOAL " + goalLit.Item1, LOGMODE.HEURISTIC);
                         continue;
                     }
 
@@ -851,9 +851,9 @@ namespace NarrativePlanning
                             //{
                             //    action += arg + "!";
                             //}
-                            Console.WriteLine("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit);
+                            UnityConsole.Log("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit, LOGMODE.HEURISTIC);
                             if (selectedActions.Contains(action))
-                                Console.WriteLine("Already added action " + action + ", ignoring...");
+                                UnityConsole.Log("Already added action " + action + ", ignoring...", LOGMODE.HEURISTIC);
                             else
                             {
                                 selectedActions.Add(action);
@@ -913,10 +913,10 @@ namespace NarrativePlanning
                     }
                 }
             }
-            Console.WriteLine("SELECTED ACTIONS:");
+            UnityConsole.Log("SELECTED ACTIONS:", LOGMODE.RELAXEDPLAN);
             foreach(string s in selectedActions)
             {
-                Console.WriteLine(" " + s);
+                UnityConsole.Log(" " + s, LOGMODE.RELAXEDPLAN);
             }
             return new Tuple<int, float>(selectedActions.Count, prefMatch);
         }
@@ -1223,26 +1223,26 @@ namespace NarrativePlanning
 
         public static void printRPG(Layers layers)
         {
-            Console.WriteLine("LAYER 0");
+            UnityConsole.Log("LAYER 0", LOGMODE.HEURISTIC);
             int i = 0;
             while (i <= layers.k)
             {
-                Console.WriteLine("\nPROPS");
+                UnityConsole.Log("\nPROPS", LOGMODE.HEURISTIC);
                 foreach (String lit in ((WorldState)layers.F[i]).tWorld.Keys)
                 {
-                    Console.Write(lit + " ");
+                    UnityConsole.Log(lit + " ", LOGMODE.HEURISTIC);
                 }
                 foreach (String lit in ((WorldState)layers.F[i]).fWorld.Keys)
                 {
-                    Console.Write(lit + " ");
+                    UnityConsole.Log(lit + " ", LOGMODE.HEURISTIC);
                 }
                 if (i == layers.k) break;
                 i++;
-                Console.WriteLine("\n\n\nLAYER " + i);
-                Console.WriteLine("\nACTIONS");
+                UnityConsole.Log("\n\n\nLAYER " + i, LOGMODE.HEURISTIC);
+                UnityConsole.Log("\nACTIONS", LOGMODE.HEURISTIC);
                 foreach (Operator op in (List<Operator>)layers.A[i])
                 {
-                    Console.Write(op.name + " ");
+                    UnityConsole.Log(op.name + " ", LOGMODE.HEURISTIC);
                 }
             }
         }
