@@ -265,16 +265,26 @@ namespace NarrativePlanning
             p.steps.RemoveRange(i + 1, p.steps.Count - i - 1);
             WorldState w = p.steps[i].Item2;
             int toremove = -1;
-            for (int j = 0; j < w.prunedOperators.Count; j++)
+            if (w.prunedOperators != null)
             {
-                if (w.prunedOperators[j].text == nextstep)
+                for (int j = 0; j < w.prunedOperators.Count; j++)
                 {
-                    toremove = j;
-                    break;
+                    if (w.prunedOperators[j].text == nextstep)
+                    {
+                        toremove = j;
+                        break;
+                    }
                 }
             }
-            if (toremove == -1) throw new Exception();
-            w.prunedOperators.RemoveAt(toremove);
+            if (toremove != -1)
+            {
+                w.prunedOperators.RemoveAt(toremove);
+            }
+            else
+            {
+                if (w.eliminatedOperators == null) w.eliminatedOperators = new List<string>();
+                w.eliminatedOperators.Add(p.steps[i].Item1);
+            }
             return p;
         }
 
@@ -319,7 +329,7 @@ namespace NarrativePlanning
                 int tmp = 0;
                 List<Tuple<String, WorldState>> n;
                 // XXX PRUNING
-                if (w.prunedOperators != null) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
+                if (w.prunedOperators != null && w.prunedOperators.Count > 0) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
                 else n = w.getPossibleNextStatesTuplesWithPrefs(groundedoperators, preferences);
                 n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
                 //foreach (Tuple<String, WorldState> t in n)
@@ -372,6 +382,7 @@ namespace NarrativePlanning
                 // XXX MEMOIZATION: rewind if n.Count == 0
                 if (n.Count == 0)
                 {
+                    // Possibly here: instead keep a list of eliminated actions, redo this add without pruned actions but while still avoiding eliminated actions
                     RewindAndEliminateAction(current, 1);
                     continue;
                     //return null;

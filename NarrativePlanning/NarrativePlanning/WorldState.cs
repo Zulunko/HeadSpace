@@ -47,6 +47,7 @@ namespace NarrativePlanning
         }
 
         public List<Operator> prunedOperators = null;
+        public List<string> eliminatedOperators = null;
 
         public WorldState(Hashtable tWorld, Hashtable fWorld, List<Character> characters)
         {
@@ -134,7 +135,7 @@ namespace NarrativePlanning
             List<Tuple<String, WorldState>> possibleNextStateTuples = new List<Tuple<string, WorldState>>();
             foreach (Operator gop in operators)
             {
-                if (isExecutable(gop, this))
+                if (isExecutable(gop, this) && (eliminatedOperators == null || !eliminatedOperators.Contains(gop.text)))
                     possibleNextStateTuples.Add(new Tuple<String, WorldState>(gop.text, getNextStateWithPrefs(this, gop, prefs)));
             }
             return possibleNextStateTuples;

@@ -275,7 +275,8 @@
             "loc": "CoreRoom",
             "pre-t": [
                 "(at ?p CoreRoom)",
-                "(overloading Core)"
+                "(overloading Core)",
+                "(alarmed CoreRoom)"
             ],
             "pre-f": [
             ],
