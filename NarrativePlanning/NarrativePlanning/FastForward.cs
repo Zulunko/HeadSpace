@@ -180,6 +180,51 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Computes the relaxed plan graph for a given input to the fixed point with preference metadata
+        /// </summary>
+        /// <param name="operators">Grounded operators</param>
+        /// <param name="initial">Initial world state</param>
+        /// <param name="goal">Goal worldstate</param>
+        /// <param name="preferences">Preference set</param>
+        /// <returns>Returns the RPG in a Layers form.</returns>
+        public static Layers computeMultiPreferenceRPG(List<Operator> operators, WorldState initial, WorldState goal, Preferences preferences)
+        {
+            Layers l = null;
+            int t = 0;
+            l = new Layers();
+            l.F.Add(0, initial);
+
+            while (true)
+            {
+                t++;
+                List<Tuple<Operator, float>> At = new List<Tuple<Operator, float>>();
+                // Add operators for every executable op
+                foreach (Operator o in operators)
+                {
+                    if (WorldState.isExecutable(o, ((WorldState)l.F[t - 1])))
+                    {
+                        At.Add(new Tuple<Operator, float>(o, WorldState.EXPERIMENTALgetMultiPrefForActionInstance(o, (WorldState)l.F[t - 1], preferences)));
+                    }
+                }
+                l.A.Add(t, At);
+                l.F.Add(t, ((WorldState)l.F[t - 1]).clone());
+                foreach (Tuple<Operator, float> tuple in At)
+                {
+                    l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), tuple);
+                }
+                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                {
+                    l.k = t;
+                    if (!((WorldState)l.F[t]).isGoalState(goal))
+                    {
+                        Console.WriteLine("HEY U HECCIN FAILED");
+                    }
+                    return l;
+                }
+            }
+        }
+
+        /// <summary>
         /// Computes the relaxed plan graph but for the character 
         /// and not the world
         /// </summary>

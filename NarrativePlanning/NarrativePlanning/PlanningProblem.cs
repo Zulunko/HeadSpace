@@ -292,7 +292,7 @@ namespace NarrativePlanning
         /// Returns a plan using a FF-based solution.
         /// </summary>
         /// <returns> A solution plan</returns>
-        public Plan FFPreferenceSolution()
+        public Plan FFPreferenceSolution(bool isMulti)
         {
             Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
             int depth = 1;
@@ -303,6 +303,7 @@ namespace NarrativePlanning
             Plan current = new Plan(this);
             //Queue<Plan> queue = new Queue<Plan>();
             float min = -1;
+            float ps = -1;
             Tuple<String, WorldState> best = null;
             while (solutionPlan == null)
             {
@@ -332,7 +333,10 @@ namespace NarrativePlanning
                 // XXX PRUNING
                 if (w.prunedOperators != null && w.prunedOperators.Count > 0) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
                 else n = w.getPossibleNextStatesTuplesWithPrefs(groundedoperators, preferences);
-                n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
+                if (!isMulti)
+                    n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
+                else
+                    n.Sort((a, b) => preferences.GetActionPreferenceForCharacter(b.Item1.Split(' ')[1], b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreferenceForCharacter(a.Item1.Split(' ')[1], a.Item1.Split(' ')[0])));
                 //foreach (Tuple<String, WorldState> t in n)
                 //{
                 //    Console.WriteLine("ACT: " + t.Item1);
@@ -352,8 +356,13 @@ namespace NarrativePlanning
 
                     //String charactername = op.character;
                     //Console.WriteLine();
-                    FastForward.Layers prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
-                    //if (current.steps[current.steps.Count - 1].Item1.StartsWith("shoot Player1 AutomatedTurrets") && next.Item1.StartsWith("move MainHall AirVent")) PrintRPG(prefRPG);
+                    FastForward.Layers prefRPG;
+                    if (!isMulti)
+                        prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                    else
+                        prefRPG = FastForward.computeMultiPreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                    //if (current.steps[current.steps.Count - 1].Item1.StartsWith("shoot Player1 AutomatedTurrets") && next.Item1.StartsWith("move MainHall AirVent"))
+                    //PrintRPG(prefRPG);
                     Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
                     Tuple<string, WorldState> res = next;
                     //p.steps.Add(next);
@@ -361,13 +370,18 @@ namespace NarrativePlanning
                     if (heuristicData.Item1 == -1)
                         y = -1;
                     else
-                        y = heuristicData.Item1;// + (1f - heuristicData.Item2);
+                        y = heuristicData.Item1;// heuristicData.Item1;// + (1f - heuristicData.Item2);
                     UnityConsole.Log("        Value for " + next.Item1 + ": " + y, LOGMODE.PLANNER);
+                    UnityConsole.Log("        Playstyle for " + next.Item1 + ": " + heuristicData.Item2, LOGMODE.PLANNER);
 
-                    if (y < min && y != -1)
-                    {
-                        best = res;
-                        min = y;
+                    if (y != -1)
+                    {               // Uncomment the below to prioritize higher playstyle value paths in ties
+                        if (y < min || (y == min && heuristicData.Item2 > ps) || (y == min && heuristicData.Item2 == ps && best.Item1.Contains("move") && !res.Item1.Contains("move")))
+                        {
+                            best = res;
+                            min = y;
+                            ps = heuristicData.Item2;
+                        }
                     }
 
                     /*if (res.Item2.isGoalState(this.goal))

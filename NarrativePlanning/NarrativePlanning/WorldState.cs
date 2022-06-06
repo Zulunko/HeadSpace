@@ -250,6 +250,136 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Returns the action preference given the previous world state and a preference set.
+        /// At the moment this does the following calculation:
+        /// [average precond preferences from previous world state] +
+        /// [action preference from preferences set] +
+        /// [average effect preferences from preferences set]
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="prev"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        public static float getMultiPrefForActionInstance(Operator op, WorldState prev, Preferences preferences)
+        {
+            //XXX: Only taking into account action preference.
+            // Raw preference for this action
+            float aPref = preferences.GetActionPreferenceForCharacter(op.character, op.name);
+            // Preference inherited from previous world state
+            float pPref = 0;
+            int pCount = 0;
+            foreach (string preT in op.preT.Keys)
+            {
+                pPref += Convert.ToSingle(prev.tWorld[preT]);
+                pCount++;
+            }
+            foreach (string preF in op.preF.Keys)
+            {
+                pPref += Convert.ToSingle(prev.fWorld[preF]);
+                pCount++;
+            }
+            pPref /= pCount;
+            // Preference from action effects
+            float ePref = 0;
+            int eCount = 0;
+            foreach (string effT in op.effT.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effT, true);
+                eCount++;
+            }
+            foreach (string effF in op.effF.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effF, false);
+                eCount++;
+            }
+            ePref /= eCount;
+            float pref = (aPref + pPref + ePref) / 3;
+            //Console.WriteLine("Returning preference " + pref + " for action " + op.name);
+            // Return the average of the three preference sources
+            return pref;
+        }
+
+        /// <summary>
+        /// Returns the action preference given the previous world state and a preference set.
+        /// At the moment this does the following calculation:
+        /// [average precond preferences from previous world state] +
+        /// [action preference from preferences set] +
+        /// [average effect preferences from preferences set]
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="prev"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        public static float EXPERIMENTALgetMultiPrefForActionInstance(Operator op, WorldState prev, Preferences preferences)
+        {
+            //XXX: Only taking into account action preference.
+            // Raw preference for this action
+            float aPref = preferences.GetActionPreferenceForCharacter(op.character, op.name);
+            // Preference inherited from previous world state
+            float pPref = 0;
+            int pCount = 0;
+            foreach (string preT in op.preT.Keys)
+            {
+                if (Convert.ToSingle(prev.tWorld[preT]) != 0)
+                {
+                    pPref += Convert.ToSingle(prev.tWorld[preT]);
+                    pCount++;
+                }
+            }
+            foreach (string preF in op.preF.Keys)
+            {
+                if (Convert.ToSingle(prev.fWorld[preF]) != 0)
+                {
+                    pPref += Convert.ToSingle(prev.fWorld[preF]);
+                    pCount++;
+                }
+            }
+            if (pCount != 0)
+                pPref /= pCount;
+            // Preference from action effects
+            float ePref = 0;
+            int eCount = 0;
+            foreach (string effT in op.effT.Keys)
+            {
+                if (preferences.GetPropositionPreference(effT, true) != 0)
+                {
+                    ePref += preferences.GetPropositionPreference(effT, true);
+                    eCount++;
+                }
+            }
+            foreach (string effF in op.effF.Keys)
+            {
+                if (preferences.GetPropositionPreference(effF, false) != 0)
+                {
+                    ePref += preferences.GetPropositionPreference(effF, false);
+                    eCount++;
+                }
+            }
+            if (eCount != 0)
+                ePref /= eCount;
+            float pref = (aPref + pPref + ePref) / 3;
+            /*if (aPref != 0 && pPref != 0 && ePref != 0)
+                pref = (aPref + pPref + ePref) / 3;
+            else if (pPref != 0 & ePref != 0)
+                pref = (pPref + ePref) / 2;
+            else if (aPref != 0 & pPref != 0)
+                pref = (aPref + pPref) / 2;
+            else if (aPref != 0 & ePref != 0)
+                pref = (aPref + ePref) / 2;
+            else if (aPref != 0)
+                pref = aPref;
+            else if (pPref != 0)
+                pref = pPref;
+            else if (ePref != 0)
+                pref = ePref;
+            else
+                pref = 0;*/
+            //Console.WriteLine("Returning preference " + pref + " for action " + op.name);
+            // Return the average of the three preference sources
+            return pref;
+        }
+
+        /// <summary>
         /// Returns the resultant state when an action is applied on 
         /// a world state
         /// </summary>
@@ -695,8 +825,10 @@ namespace NarrativePlanning
         public override bool Equals(object obj)
         {
             WorldState w = obj as WorldState;
-            bool a = this.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == this.tWorld.Count && this.tWorld.Count == w.tWorld.Count;
-            bool b = this.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == this.fWorld.Count && this.fWorld.Count == w.fWorld.Count;
+            bool a = this.tWorld.Keys.Cast<string>().Union(w.tWorld.Keys.Cast<string>()).Count() == this.tWorld.Keys.Count && this.tWorld.Count == w.tWorld.Count;
+            bool b = this.fWorld.Keys.Cast<string>().Union(w.fWorld.Keys.Cast<string>()).Count() == this.fWorld.Keys.Count && this.fWorld.Count == w.fWorld.Count;
+            //bool a = this.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == this.tWorld.Count && this.tWorld.Count == w.tWorld.Count;
+            //bool b = this.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == this.fWorld.Count && this.fWorld.Count == w.fWorld.Count;
             bool c = this.characters.Count() == w.characters.Count();
             bool d = this.intentions.Count() == w.intentions.Count();
             for (int i = 0; i < this.characters.Count(); ++i) {
@@ -712,8 +844,10 @@ namespace NarrativePlanning
         public bool HasChangedFrom(object obj)
         {
             WorldState w = obj as WorldState;
-            bool a = this.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == this.tWorld.Count && this.tWorld.Count == w.tWorld.Count;
-            bool b = this.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == this.fWorld.Count && this.fWorld.Count == w.fWorld.Count;
+            bool a = this.tWorld.Keys.Cast<string>().Union(w.tWorld.Keys.Cast<string>()).Count() == this.tWorld.Keys.Count && this.tWorld.Count == w.tWorld.Count;
+            bool b = this.fWorld.Keys.Cast<string>().Union(w.fWorld.Keys.Cast<string>()).Count() == this.fWorld.Keys.Count && this.fWorld.Count == w.fWorld.Count;
+            //bool a = this.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == this.tWorld.Count && this.tWorld.Count == w.tWorld.Count;
+            //bool b = this.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == this.fWorld.Count && this.fWorld.Count == w.fWorld.Count;
             bool c = this.characters.Count() == w.characters.Count();
             bool d = this.intentions.Count() == w.intentions.Count();
             for (int i = 0; i < this.characters.Count(); ++i)

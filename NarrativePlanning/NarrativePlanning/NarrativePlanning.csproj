@@ -64,6 +64,8 @@
   <ItemGroup>
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
+    <None Include="JSON Files\valheim_preference.json" />
+    <None Include="JSON Files\simple_preference.json" />
     <None Include="JSON Files\western_preference.json" />
     <None Include="JSON Files\scifi_preference.json" />
     <None Include="JSON Files\hitman_preference.json" />
