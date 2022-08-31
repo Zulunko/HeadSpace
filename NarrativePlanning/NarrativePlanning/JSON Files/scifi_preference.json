@@ -398,6 +398,76 @@
             "isPrivate": false
         },
         {
+            "name": "entermain",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(specialconnected ?from MainHall)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(guarded ?from MainHall)"
+            ],
+            "eff-t": [
+                "(at ?p MainHall)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "enterbay",
+            "args": [
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(specialconnected ?from LoadingBay)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(guarded ?from LoadingBay)"
+            ],
+            "eff-t": [
+                "(at ?p LoadingBay)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
             "name": "break-door",
             "args": [
                 {
@@ -432,13 +502,13 @@
         "t": [
             "(at Player1 Road)",
 
-            "(connected Road MainHall)",
+            "(specialconnected Road MainHall)",
             "(guarded Road MainHall)",
 
             "(connected MainHall Road)",
             "(guarded MainHall Road)",
 
-            "(connected Road LoadingBay)",
+            "(specialconnected Road LoadingBay)",
 
             "(connected LoadingBay Road)",
             "(guarded LoadingBay Road)",

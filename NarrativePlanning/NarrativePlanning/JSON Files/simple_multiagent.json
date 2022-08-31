@@ -1,0 +1,496 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "NPC",
+            "type": "Object"
+        },
+        {
+            "name": "Door",
+            "type": "Object"
+        },
+        //{
+        //    "name": "UnlockableDoor",
+        //    "type": "Door"
+        //},
+        {
+            "name": "KillDoor",
+            "type": "Door"
+        },
+        {
+            "name": "PressDoor",
+            "type": "Door"
+        },
+        {
+            "name": "Button",
+            "type": "Object"
+        },
+        {
+            "name": "Key",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        //{
+        //    "name": "Player1",
+        //    "type": "Player"
+        //},
+        {
+            "name": "Player2",
+            "type": "Player"
+        },
+        {
+            "name": "Player3",
+            "type": "Player"
+        },
+        {
+            "name": "Player4",
+            "type": "Player"
+        },
+        {
+            "name": "Start",
+            "type": "Location"
+        },
+        {
+            "name": "SDoor",
+            "type": "Door"
+        },
+        {
+            "name": "Room1",
+            "type": "Location"
+        },
+        {
+            "name": "Room1Side1",
+            "type": "Location"
+        },
+        {
+            "name": "KDoor1",
+            "type": "KillDoor"
+        },
+        {
+            "name": "Room1Side2",
+            "type": "Location"
+        },
+        {
+            "name": "PDoor1",
+            "type": "PressDoor"
+        },
+        {
+            "name": "Button1",
+            "type": "Button"
+        },
+        //{
+        //    "name": "UDoor1",
+        //    "type": "UnlockableDoor"
+        //},
+        //{
+        //    "name": "Goal",
+        //    "type": "Location"
+        //},
+        {
+            "name": "Charlie",
+            "type": "NPC"
+        },
+        {
+            "name": "John",
+            "type": "NPC"
+        },
+        {
+            "name": "Key1",
+            "type": "Key"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                },
+                {
+                    "name": "?d",
+                    "type": "Door"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)",
+                "(at ?d ?from)",
+                "(open ?d)",
+                "(at ?d ?to)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //kill
+        {
+            "name": "kill",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?d",
+                    "type": "KillDoor"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?n ?l)",
+                "(alive ?n)",
+                "(at ?d ?l)"
+            ],
+            "pre-f": [
+                "(open ?d)"
+            ],
+            "eff-t": [
+                "(open ?d)"
+            ],
+            "eff-f": [
+                "(alive ?n)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //button-press
+        {
+            "name": "button-press",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?d",
+                    "type": "PressDoor"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?d ?l)",
+                "(at ?b ?l)"
+            ],
+            "pre-f": [
+                "(open ?d)"
+            ],
+            "eff-t": [
+                "(open ?d)",
+                "(on ?p ?b)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //button-release
+        /*
+        {
+            "name": "button-release",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?d",
+                    "type": "PressDoor"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?d ?l)",
+                "(at ?b ?l)",
+                "(open ?d)",
+                "(on ?p ?b)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(open ?d)",
+                "(on ?p ?b)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        */
+        //steal-from
+        {
+            "name": "steal-from",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?n",
+                    "type": "NPC"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(has ?n ?k)",
+                "(at ?n ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?p ?k)"
+            ],
+            "eff-f": [
+                "(has ?n ?k)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //open
+        /*
+        {
+            "name": "open",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?d",
+                    "type": "UnlockableDoor"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?d ?l)",
+                "(has ?p ?k)"
+            ],
+            "pre-f": [
+                "(open ?d)"
+            ],
+            "eff-t": [
+                "(open ?d)"
+            ],
+            "eff-f": [
+                "(has ?p ?k)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+        */
+    ],
+    "initial": {
+        "t": [
+            //Map
+            "(connected Start Room1)",
+            "(connected Room1 Start)",
+            "(at SDoor Start)",
+            "(at SDoor Room1)",
+            "(open SDoor)",
+            "(connected Room1 Room1Side1)",
+            "(connected Room1Side1 Room1)",
+            "(at PDoor1 Room1)",
+            "(at PDoor1 Room1Side1)",
+            "(connected Room1Side1 Room1Side2)",
+            "(connected Room1Side2 Room1Side1)",
+            "(at KDoor1 Room1Side1)",
+            "(at KDoor1 Room1Side2)",
+            "(at Button1 Room1)",
+            //"(connected Room1 Goal)",
+            //"(connected Goal Room1)",
+            //"(at UDoor1 Room1)",
+            //"(at UDoor1 Goal)",
+
+            //NPC kill
+            "(at John Room1Side1)",
+            "(alive John)",
+
+            //NPC steal from
+            "(at Charlie Room1Side2)",
+            "(has Charlie Key1)",
+            "(alive Charlie)",
+
+            //Players
+            //"(at Player1 Start)",
+            "(at Player2 Start)",
+            "(at Player3 Start)",
+            "(at Player4 Start)"
+        ],
+        "f": [
+            "(open PDoor1)",
+            "(open UDoor1)",
+            "(open KDoor1)"
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player3",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player4",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            //"(at Player1 Goal)",
+            //"(at Player2 Goal)",
+            //"(at Player3 Goal)",
+            //"(at Player4 Goal)"
+        ],
+        "f": [
+            "(has Charlie Key1)"
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player3",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player4",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

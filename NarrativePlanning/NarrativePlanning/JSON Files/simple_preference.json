@@ -1,0 +1,225 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Button",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Player1",
+            "type": "Player"
+        },
+        {
+            "name": "Player2",
+            "type": "Player"
+        },
+        {
+            "name": "Room1",
+            "type": "Location"
+        },
+        {
+            "name": "Room2",
+            "type": "Location"
+        },
+        {
+            "name": "Room3",
+            "type": "Location"
+        },
+        {
+            "name": "Room4",
+            "type": "Location"
+        },
+        {
+            "name": "Room5",
+            "type": "Location"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(blocked ?from)",
+                "(guarded ?from)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "shoot",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(guarded ?from)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(guarded ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "push-button",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(blocked ?from)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(blocked ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            "(connected Room1 Room2)",
+            "(guarded Room1)",
+            "(blocked Room1)",
+            "(connected Room2 Room3)",
+            "(guarded Room2)",
+            "(blocked Room2)",
+            "(connected Room3 Room4)",
+            "(guarded Room3)",
+            "(blocked Room3)",
+            "(connected Room4 Room5)",
+            "(guarded Room4)",
+            "(blocked Room4)",
+
+            "(at Player1 Room1)",
+            "(at Player2 Room1)",
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    },
+    "final": {
+        "t": [
+            "(at Player1 Room5)",
+            "(at Player2 Room5)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+            /*{
+        "name": "Char2",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }*/
+        ]
+    }
+}

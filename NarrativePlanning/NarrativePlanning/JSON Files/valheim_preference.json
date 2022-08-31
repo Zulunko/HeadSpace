@@ -1,0 +1,757 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Ore",
+            "type": "Object"
+        },
+        {
+            "name": "Plant",
+            "type": "Object"
+        },
+        {
+            "name": "Hide",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Player1",
+            "type": "Player"
+        },
+        {
+            "name": "Player2",
+            "type": "Player"
+        },
+        {
+            "name": "Player3",
+            "type": "Player"
+        },
+        {
+            "name": "Player4",
+            "type": "Player"
+        },
+        {
+            "name": "Base",
+            "type": "Location"
+        },
+        {
+            "name": "Forest",
+            "type": "Location"
+        },
+        {
+            "name": "Fields",
+            "type": "Location"
+        },
+        {
+            "name": "Caves",
+            "type": "Location"
+        },
+        {
+            "name": "TrollOutpost",
+            "type": "Location"
+        },
+        {
+            "name": "Deer",
+            "type": "Hide"
+        },
+        {
+            "name": "Boar",
+            "type": "Hide"
+        },
+        {
+            "name": "Iron",
+            "type": "Ore"
+        },
+        {
+            "name": "Copper",
+            "type": "Ore"
+        },
+        {
+            "name": "Herb",
+            "type": "Plant"
+        },
+        {
+            "name": "Mushroom",
+            "type": "Plant"
+        },
+        {
+            "name": "Fruit",
+            "type": "Plant"
+        },
+        {
+            "name": "Troll",
+            "type": "Object"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "hunt",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?t",
+                    "type": "Hide"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(at ?t ?from)",
+                "(empty ?p)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?p ?t)"
+            ],
+            "eff-f": [
+                "(empty ?p)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "mine",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?t",
+                    "type": "Ore"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(at ?t ?from)",
+                "(empty ?p)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?p ?t)"
+            ],
+            "eff-f": [
+                "(empty ?p)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "harvest",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?t",
+                    "type": "Plant"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)",
+                "(at ?t ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?p ?t)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "deliver-plant",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?o",
+                    "type": "Plant"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(at ?p Base)",
+                "(has ?p ?o)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(in ?o Base)"
+            ],
+            "eff-f": [
+                "(has ?p ?o)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "deliver-ore",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?o",
+                    "type": "Ore"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(at ?p Base)",
+                "(has ?p ?o)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(in ?o Base)",
+                "(empty ?p)"
+            ],
+            "eff-f": [
+                "(has ?p ?o)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "deliver-hide",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?o",
+                    "type": "Hide"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(at ?p Base)",
+                "(has ?p ?o)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(in ?o Base)",
+                "(empty ?p)"
+            ],
+            "eff-f": [
+                "(has ?p ?o)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "craft-armor",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(in Deer Base)",
+                "(in Boar Base)",
+                "(in Iron Base)",
+                "(in Copper Base)",
+                "(at ?p Base)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at Armor Base)"
+            ],
+            "eff-f": [
+                "(in Deer Base)",
+                "(in Boar Base)",
+                "(in Iron Base)",
+                "(in Copper Base)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "craft-pot",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(in Herb Base)",
+                "(in Mushroom Base)",
+                "(in Fruit Base)",
+                "(at ?p Base)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at Potion Base)"
+            ],
+            "eff-f": [
+                "(in Herb Base)",
+                "(in Mushroom Base)",
+                "(in Fruit Base)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "equip-armor",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(at ?p Base)",
+                "(at Armor Base)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(armored ?p)"
+            ],
+            "eff-f": [
+                "(at Armor Base)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "equip-potion",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Base",
+            "pre-t": [
+                "(at ?p Base)",
+                "(at Potion Base)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(potioned ?p)"
+            ],
+            "eff-f": [
+                "(at Potion Base)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "kill-troll",
+            "args": [
+                {
+                    "name": "?p1",
+                    "type": "Player"
+                },
+                {
+                    "name": "?p2",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p1",
+            "loc": "TrollOutpost",
+            "pre-t": [
+                "(at ?p1 TrollOutpost)",
+                "(armored ?p1)",
+                "(at ?p2 TrollOutpost)",
+                "(potioned ?p2)",
+                /*"(at Player3 TrollOutpost)",
+                "(armored Player3)",
+                "(potioned Player3)",
+                "(at Player4 TrollOutpost)",
+                "(armored Player4)",
+                "(potioned Player4)",*/
+                "(at Troll TrollOutpost)",
+                "(alive Troll)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(alive Troll)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        /*{
+            "name": "drop-ore",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?o",
+                    "type": "Ore"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(has ?p ?o)"
+            ],
+            "pre-f": [
+                "(empty ?p)"
+            ],
+            "eff-t": [
+                "(empty ?p)"
+            ],
+            "eff-f": [
+                "(has ?p ?o)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "drop-plant",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?a",
+                    "type": "Plant"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(has ?p ?a)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(has ?p ?a)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        {
+            "name": "drop-hide",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?h",
+                    "type": "Hide"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(has ?p ?h)"
+            ],
+            "pre-f": [
+                "(empty ?p)"
+            ],
+            "eff-t": [
+                "(empty ?p)"
+            ],
+            "eff-f": [
+                "(has ?p ?h)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }*/
+    ],
+    "initial": {
+        "t": [
+            //Map
+            "(connected Base Forest)",
+            "(connected Forest Base)",
+            "(connected Base Fields)",
+            "(connected Fields Base)",
+            "(connected Forest Caves)",
+            "(connected Caves Forest)",
+            "(connected Caves TrollOutpost)",
+            "(connected TrollOutpost Caves)",
+
+            "(connected Forest Fields)",
+            "(connected Fields Forest)",
+
+            //Player info
+            "(at Player1 Base)",
+            "(empty Player1)",
+            "(at Player2 Base)",
+            "(empty Player2)",
+            "(at Player3 Base)",
+            "(empty Player3)",
+            "(at Player4 Base)",
+            "(empty Player4)",
+
+            // World info
+            "(alive Troll)",
+            "(at Troll TrollOutpost)",
+            "(at Deer Fields)",
+            "(at Boar Forest)",
+            "(at Iron Caves)",
+            "(at Copper Fields)",
+            "(at Mushroom Caves)",
+            "(at Fruit Fields)",
+            "(at Herb Forest)",
+
+
+            //Testing
+            //"(armored Player1)",
+            //"(armored Player2)",
+            //"(armored Player3)",
+            //"(armored Player4)",
+
+            //"(potioned Player1)",
+            //"(potioned Player2)",
+            //"(potioned Player3)",
+            //"(potioned Player4)",
+
+            //"(has Player1 Mushroom)",
+            //"(has Player1 Herb)",
+            //"(has Player1 Fruit)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player3",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player4",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+        ],
+        "f": [
+            "(alive Troll)"
+        ],
+        "characters": [
+            {
+                "name": "Player1",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player2",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player3",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Player4",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

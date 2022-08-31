@@ -180,6 +180,51 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Computes the relaxed plan graph for a given input to the fixed point with preference metadata
+        /// </summary>
+        /// <param name="operators">Grounded operators</param>
+        /// <param name="initial">Initial world state</param>
+        /// <param name="goal">Goal worldstate</param>
+        /// <param name="preferences">Preference set</param>
+        /// <returns>Returns the RPG in a Layers form.</returns>
+        public static Layers computeMultiPreferenceRPG(List<Operator> operators, WorldState initial, WorldState goal, Preferences preferences)
+        {
+            Layers l = null;
+            int t = 0;
+            l = new Layers();
+            l.F.Add(0, initial);
+
+            while (true)
+            {
+                t++;
+                List<Tuple<Operator, float>> At = new List<Tuple<Operator, float>>();
+                // Add operators for every executable op
+                foreach (Operator o in operators)
+                {
+                    if (WorldState.isExecutable(o, ((WorldState)l.F[t - 1])))
+                    {
+                        At.Add(new Tuple<Operator, float>(o, WorldState.getMultiPrefForActionInstance(o, (WorldState)l.F[t - 1], preferences)));
+                    }
+                }
+                l.A.Add(t, At);
+                l.F.Add(t, ((WorldState)l.F[t - 1]).clone());
+                foreach (Tuple<Operator, float> tuple in At)
+                {
+                    l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), tuple);
+                }
+                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                {
+                    l.k = t;
+                    if (!((WorldState)l.F[t]).isGoalState(goal))
+                    {
+                        Console.WriteLine("HEY U HECCIN FAILED");
+                    }
+                    return l;
+                }
+            }
+        }
+
+        /// <summary>
         /// Computes the relaxed plan graph but for the character 
         /// and not the world
         /// </summary>
@@ -825,6 +870,9 @@ namespace NarrativePlanning
                     string lit = goalLit.Item1;
                     List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
                     actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+                    UnityConsole.Log("SORTED?" + t, LOGMODE.HEURISTIC);
+                    foreach (Tuple<Operator, float> prefTuple in actTuples) // XXX Temp: the prefTuple for Player3 killing is not here. Probably wrong layer.
+                        UnityConsole.Log(prefTuple.Item1.text, LOGMODE.HEURISTIC);
                     foreach (Tuple<Operator, float> prefTuple in actTuples)
                     {
                         bool found = false;
@@ -851,7 +899,7 @@ namespace NarrativePlanning
                             //{
                             //    action += arg + "!";
                             //}
-                            UnityConsole.Log("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit, LOGMODE.HEURISTIC);
+                            UnityConsole.Log("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit + "(val: " + prefTuple.Item2 + ")", LOGMODE.HEURISTIC);
                             if (selectedActions.Contains(action))
                                 UnityConsole.Log("Already added action " + action + ", ignoring...", LOGMODE.HEURISTIC);
                             else
@@ -877,21 +925,17 @@ namespace NarrativePlanning
                             {
                                 // 3c1a1a. We add the precond as a subgoal to the lowest proposition level where this precond has a value equal to
                                 //  its current value.
-                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).tWorld[lit]);
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).tWorld[prelit]); //XXX MIKEL: This was a huge mistake; it said "lit" instead of "prelit".
                                 int level = firstEqualPrefLevel(t - 1, prelit, l.F, true, prefVal);
-                                if (level == -1 || level >= t)
-                                    level = t - 1;
                                 if (!(Gt[level] as WorldState).tWorld.Contains(prelit))
-                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[lit]);
+                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
                             }
                             foreach (String prelit in o.preF.Keys)
                             {
-                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).fWorld[lit]);
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).fWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
                                 int level = firstEqualPrefLevel(t - 1, prelit, l.F, false, prefVal);
-                                if (level == -1 || level >= t)
-                                    level = t - 1;
                                 if (!(Gt[level] as WorldState).fWorld.Contains(prelit))
-                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[lit]);
+                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
                             }
 
                             // Register goals that were satisfied by this action, regardless of whether they're the goal we're seeking.

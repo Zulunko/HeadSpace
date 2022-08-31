@@ -12,6 +12,7 @@ namespace NarrativePlanning
         HEURISTIC = 4, // Output related to the heuristic calculations (RPGs, etc)
         WORLDSTATE = 8, // Output to dump world state on each step
         RELAXEDPLAN = 16, // Print the relaxed plan (pruned action list) each step
+        ALL = 31
     }
 
     class MainClass
@@ -44,7 +45,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/scifi_preference.json", new Preferences());
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/valheim_preference.json", new Preferences());
 
 
             // UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN USING TXT FILES
@@ -67,7 +68,7 @@ namespace NarrativePlanning
             //UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
             //watch.Reset();
             watch.Start();
-            NarrativePlanning.Plan plan = problem.FFPreferenceSolution();
+            NarrativePlanning.Plan plan = problem.FFPreferenceSolution(true);
             watch.Stop();
             UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
             //NarrativePlanning.Plan plan = problem.FFSolution();
@@ -83,7 +84,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = LOGMODE.PLANNER | LOGMODE.MEMOIZE | LOGMODE.RELAXEDPLAN;
+        public static LOGMODE logmode = 0;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);
