@@ -102,7 +102,6 @@ namespace NarrativePlanning
             }*/
 
             //valheim_preference
-            
             {"Player1", new Dictionary<string, float>
             {
                 {"craft-armor", 1f },

@@ -360,9 +360,6 @@ namespace NarrativePlanning
                         prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
                     else
                         prefRPG = FastForward.computeMultiPreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
-                    //if (next.Item1.StartsWith("move Player4 Room1"))
-                    //    PrintRPG(prefRPG);
-                    //if (current.steps[current.steps.Count - 1].Item1.StartsWith("shoot Player1 AutomatedTurrets") && next.Item1.StartsWith("move MainHall AirVent"))
                     Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
                     Tuple<string, WorldState> res = next;
                     //p.steps.Add(next);
@@ -370,7 +367,7 @@ namespace NarrativePlanning
                     if (heuristicData.Item1 == -1)
                         y = -1;
                     else
-                        y = heuristicData.Item1; // (1f - heuristicData.Item2); // heuristicData.Item1;// heuristicData.Item1;// + (1f - heuristicData.Item2);
+                        y = heuristicData.Item1;// + (1f - heuristicData.Item2);
                     UnityConsole.Log("        Value for " + next.Item1 + ": " + y, LOGMODE.PLANNER);
                     UnityConsole.Log("        Playstyle for " + next.Item1 + ": " + heuristicData.Item2, LOGMODE.PLANNER);
 
