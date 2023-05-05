@@ -102,6 +102,7 @@ namespace NarrativePlanning
             }*/
 
             //valheim_preference
+            /*
             {"Player1", new Dictionary<string, float>
             {
                 {"craft-armor", 1f },
@@ -153,7 +154,7 @@ namespace NarrativePlanning
                 {"mine", -1f },
                 {"deliver-ore", -1f }
             }
-            }
+            }*/
 
             //simple_multiagent
             /*
@@ -177,6 +178,21 @@ namespace NarrativePlanning
             }
             }
             */
+
+            //multipref
+            {"Red", new Dictionary<string, float>
+            {
+
+            }
+            },
+            {"Blue", new Dictionary<string, float>
+            {
+            }
+            },
+            {"Green", new Dictionary<string, float>
+            {
+            }
+            }
         };
 
         /*
@@ -191,22 +207,39 @@ namespace NarrativePlanning
                 {"deliver-hide", -1f }
          */
 
+        private const float _scaleval = 0;
+
+        private float _Scaled(float pref)
+        {
+            if (_scaleval == 0)
+                return pref;
+            if (pref >= 0)
+                return pref * (1 - _scaleval) + _scaleval;
+            else
+                return pref * (1 + _scaleval) + _scaleval;
+        }
+
         public float GetActionPreference(string action)
         {
             //Console.WriteLine("ACTIONPREF " + action);
             if (actionPrefs.ContainsKey(action))
-                return actionPrefs[action];
-            return 0;
+                return _Scaled(actionPrefs[action]);
+            return _Scaled(0);
         }
 
         public float GetActionPreferenceForCharacter(string character, string action)
         {
+            if (!characterActionPrefs.ContainsKey(character))
+            {
+                Console.WriteLine("Character [" + character + "] not found for action [" + action + "].");
+                return _Scaled(0);
+            }
             if (characterActionPrefs[character].ContainsKey(action))
             {
                 //Console.WriteLine("Character " + character + ": " + action + ", " + characterActionPrefs[character][action]);
-                return characterActionPrefs[character][action];
+                return _Scaled(characterActionPrefs[character][action]);
             }
-            return 0;
+            return _Scaled(0);
         }
 
         public float GetPropositionPreference(string prop, bool isTrue)
@@ -214,11 +247,11 @@ namespace NarrativePlanning
             if (propositionPrefs.ContainsKey(prop))
             {
                 if (isTrue)
-                    return propositionPrefs[prop];
+                    return _Scaled(propositionPrefs[prop]);
                 else
-                    return -propositionPrefs[prop];
+                    return _Scaled(-propositionPrefs[prop]);
             }
-            return 0;
+            return _Scaled(0);
         }
     }
 }

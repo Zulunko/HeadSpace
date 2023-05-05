@@ -1,0 +1,1210 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Mineable",
+            "type": "Object"
+        },
+        {
+            "name": "Choppable",
+            "type": "Object"
+        },
+        {
+            "name": "Gatherable",
+            "type": "Object"
+        },
+        {
+            "name": "Puzzle",
+            "type": "Object"
+        },
+        {
+            "name": "Equippable",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Red",
+            "type": "Player"
+        },
+        {
+            "name": "Green",
+            "type": "Player"
+        },
+        {
+            "name": "Blue",
+            "type": "Player"
+        },
+        {
+            "name": "Act1",
+            "type": "Location"
+        },
+        {
+            "name": "Act2",
+            "type": "Location"
+        },
+        {
+            "name": "Act3",
+            "type": "Location"
+        },
+        {
+            "name": "ComingHome",
+            "type": "Location"
+        },
+        {
+            "name": "Stone",
+            "type": "Mineable"
+        },
+        {
+            "name": "Iron",
+            "type": "Mineable"
+        },
+        {
+            "name": "Wood",
+            "type": "Choppable"
+        },
+        {
+            "name": "ChameleonHerb",
+            "type": "Gatherable"
+        },
+        {
+            "name": "SleepHerb",
+            "type": "Gatherable"
+        },
+        {
+            "name": "RockPuzzle",
+            "type": "Puzzle"
+        },
+        {
+            "name": "MonolithPuzzle",
+            "type": "Puzzle"
+        },
+        {
+            "name": "DisableButton",
+            "type": "Object"
+        },
+        {
+            "name": "Sword",
+            "type": "Equippable"
+        },
+        {
+            "name": "ChameleonSalve",
+            "type": "Equippable"
+        },
+        {
+            "name": "MortarAndPestle",
+            "type": "Object"
+        },
+        {
+            "name": "GoldCoin",
+            "type": "Gatherable"
+        },
+        {
+            "name": "Flint",
+            "type": "Gatherable"
+        },
+        {
+            "name": "Vine",
+            "type": "Gatherable"
+        },
+        {
+            "name": "Torch",
+            "type": "Equippable"
+        },
+        {
+            "name": "FireSprite",
+            "type": "Gatherable"
+        },
+        {
+            "name": "Coal",
+            "type": "Mineable"
+        },
+        {
+            "name": "Sticks",
+            "type": "Gatherable"
+        },
+        {
+            "name": "FireSuit",
+            "type": "Equippable"
+        },
+        {
+            "name": "SleepHerb",
+            "type": "Gatherable"
+        },
+        {
+            "name": "SleepBomb",
+            "type": "Equippable"
+        },
+        {
+            "name": "DemoBomb",
+            "type": "Equippable"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //all: proceed
+        {
+            "name": "proceed",
+            "args": [
+                {
+                    "name": "?l1",
+                    "type": "Location"
+                },
+                {
+                    "name": "?l2",
+                    "type": "Location"
+                }
+            ],
+            "char": "Red",
+            "loc": "?l1",
+            "pre-t": [
+                "(connected ?l1 ?l2)",
+                "(at Red ?l1)",
+                "(at Green ?l1)",
+                "(at Blue ?l1)",
+                "(readyto ?l2)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(at Red ?l2)",
+                "(at Green ?l2)",
+                "(at Blue ?l2)"
+            ],
+            "eff-f": [
+                "(at Red ?l1)",
+                "(at Green ?l1)",
+                "(at Blue ?l1)",
+                "(readyto ?l2)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: acquire-boat
+        {
+            "name": "acquire-boat",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)"
+            ],
+            "pre-f": [
+                "(defended Boat)"
+            ],
+            "eff-t": [
+                "(readyto Act2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: disembark
+        {
+            "name": "disembark",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(known Act3)"
+            ],
+            "pre-f": [],
+            "eff-t": [
+                "(readyto Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: exit
+        {
+            "name": "exit",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)"
+            ],
+            "pre-f": [
+                "(active Monolith)"
+            ],
+            "eff-t": [
+                "(readyto ComingHome)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //all: mine (makes mineable "available")
+        {
+            "name": "mine",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?m",
+                    "type": "Mineable"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?m ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available ?m ?l)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //all: chop (makes choppable "available")
+        {
+            "name": "chop",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?c",
+                    "type": "Choppable"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?c ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available ?c ?l)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //all: gather (makes gatherable "available")
+        {
+            "name": "gather",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?g",
+                    "type": "Gatherable"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?g ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available ?g ?l)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: craft-mortar-and-pestle
+        {
+            "name": "craft-mortar-and-pestle",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)",
+                "(available Stone Act1)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has MortarAndPestle ?p)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: craft-chameleon-salve
+        {
+            "name": "craft-chameleon-salve",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)",
+                "(available ChameleonHerb Act1)",
+                "(has MortarAndPestle ?p)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available ChameleonSalve Act1)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: craft-sword
+        {
+            "name": "craft-sword",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)",
+                "(available Iron Act1)",
+                "(available Wood Act1)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available Sword Act1)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1+3: solve-puzzle
+        {
+            "name": "solve-puzzle",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?z",
+                    "type": "Puzzle"
+                },
+                {
+                    "name": "?r",
+                    "type": "Object"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?z ?l)",
+                "(reward-for ?z ?r)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?r ?l)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //all: equip
+        {
+            "name": "equip",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?e",
+                    "type": "Equippable"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(available ?e ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(equipped ?p ?e)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: attack-camp
+        {
+            "name": "attack-camp",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)",
+                "(equipped ?p Sword)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(defended Boat)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A1: sneak-by-camp
+        {
+            "name": "sneak-by-camp",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "Act1",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act1",
+            "pre-t": [
+                "(at ?p Act1)",
+                "(equipped ?p ChameleonSalve)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(defended Boat)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: fight-bandits (should spawn gatherable gold coin)
+        {
+            "name": "fight-bandits",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(equipped ?p Sword)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at GoldCoin Act2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: craft-torch
+        {
+            "name": "craft-torch",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(available Flint Act2)",
+                "(available Wood Act2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available Torch Act2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: craft-rope
+        {
+            "name": "craft-rope",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(available Vine Act2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available Rope Act2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: craft-house
+        {
+            "name": "craft-house",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(available Rope Act2)",
+                "(available Wood Act2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at House Act2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: pay-goblin (using gold coin from bandits)
+        {
+            "name": "pay-goblin",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(available GoldCoin Act2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(known Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: threaten-goblin (using torch created from wood+flint)
+        {
+            "name": "threaten-goblin",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(equipped ?p Torch)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(known Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A2: gift-goblin (crafted house)
+        {
+            "name": "gift-goblin",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act2",
+            "pre-t": [
+                "(at ?p Act2)",
+                "(at House Act2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(known Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: fight-elementals (sword, spawns gatherable firesprite)
+        {
+            "name": "fight-elementals",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(equipped ?p Sword)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at FireSprite Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: craft-firesuit
+        {
+            "name": "craft-firesuit",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(available Sticks Act3)",
+                "(available Coal Act3)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available FireSuit Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: sneak-elementals (firesuit, spawns gatherable firesprite)
+        {
+            "name": "sneak-elementals",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(equipped ?p FireSuit)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at FireSprite Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: craft-sleepbomb (firesprite + sleepherb)
+        {
+            "name": "craft-sleepbomb",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(available FireSprite Act3)",
+                "(available SleepHerb Act3)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available SleepBomb Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: craft-demobomb (firesprite + stone)
+        {
+            "name": "craft-demobomb",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(available FireSprite Act3)",
+                "(available Stone Act3)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(available DemoBomb Act3)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: fight-ritualists (sword)
+        {
+            "name": "fight-ritualists",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(equipped ?p Sword)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(defended Monolith)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: sleep-ritualists (sleepbomb)
+        {
+            "name": "sleep-ritualists",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(equipped ?p SleepBomb)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(defended Monolith)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: destroy-monolith (demobomb)
+        {
+            "name": "destroy-monolith",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(equipped ?p DemoBomb)"
+            ],
+            "pre-f": [
+                "(defended Monolith)"
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(active Monolith)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //A3: disable-monolith (activated by puzzle, pushes a button)
+        {
+            "name": "disable-monolith",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Act3",
+            "pre-t": [
+                "(at ?p Act3)",
+                "(at DisableButton Act3)"
+            ],
+            "pre-f": [
+                "(defended Monolith)"
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(active Monolith)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            "(at Red Act1)",
+            "(at Blue Act1)",
+            "(at Green Act1)",
+            "(connected Act1 Act2)",
+            "(connected Act2 Act3)",
+            "(connected Act3 ComingHome)",
+
+            "(at Stone Act1)",
+            "(at Iron Act1)",
+            "(at RockPuzzle Act1)",
+            "(reward-for RockPuzzle ChameleonHerb)",
+            "(at Wood Act1)",
+
+            "(at Flint Act2)",
+            "(at Vine Act2)",
+            "(at Wood Act2)",
+
+            "(at Sticks Act3)",
+            "(at Coal Act3)",
+            "(at SleepHerb Act3)",
+            "(at Stone Act3)",
+            "(defended Monolith)",
+            "(at MonolithPuzzle Act3)",
+            "(reward-for MonolithPuzzle DisableButton)",
+
+            //Testing shortcuts
+            //  Act2 skip
+            //"(known Act3)"
+        ],
+        "f": [
+            //Testing shortcuts
+            //  Act1 skip
+            //"(defended Boat)",
+            //  Act3 skip
+            //"(active Monolith)"
+        ],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Green",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at Red ComingHome)",
+            "(at Blue ComingHome)",
+            "(at Green ComingHome)"
+        ],
+        "f": [],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Green",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

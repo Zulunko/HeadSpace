@@ -316,6 +316,8 @@ namespace NarrativePlanning
                 {
                     if (current.steps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.tWorld.Count &&
                         current.steps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.fWorld.Count)
+                        //XXX 9/7/22: memoization checks for truth only.
+                        // Above: this is a hack to make incomplete domains work. I have disabled the hack for now.
                     {
                         UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1, LOGMODE.MEMOIZE);
                         //RewindAndEliminateAction(current, current.steps.Count - 1 - i);

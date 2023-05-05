@@ -45,7 +45,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/valheim_preference.json", new Preferences());
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/multi_pref.json", new Preferences());
 
 
             // UNCOMMENT THIS IF YOU WANT TO RECREATE OR UPDATE DOMAIN USING TXT FILES
@@ -84,7 +84,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = 0;
+        public static LOGMODE logmode = LOGMODE.MEMOIZE | LOGMODE.PLANNER;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);
