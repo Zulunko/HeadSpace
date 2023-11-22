@@ -9,6 +9,76 @@ namespace NarrativePlanning
     // Will work into parsing later. For now, manually filling data for domains.
     public class Preferences
     {
+        //multipref
+        private static Dictionary<string, float> NoPrefs = new Dictionary<string, float>()
+        {
+        };
+        private static Dictionary<string, float> Tactician = new Dictionary<string, float>() {
+                {"solve-puzzle", 1f},
+                {"sneak-by-camp", 1f },
+                {"sneak-elementals", 1f },
+                {"sleep-ritualists", 1f },
+                {"fight-ritualists", -1f }
+        };
+        private static Dictionary<string, float> Harvester = new Dictionary<string, float>()
+        {
+                {"gather", 1f },
+                {"chop", 1f },
+                {"mine", 1f }
+        };
+        private static Dictionary<string, float> Crafter = new Dictionary<string, float>()
+        {
+                {"craft-mortar-and-pestle", 1f },
+                {"craft-chameleon-salve", 1f },
+                {"craft-sword", 1f },
+                {"craft-torch", 1f },
+                {"craft-rope", 1f },
+                {"craft-house", 1f },
+                {"craft-firesuit", 1f },
+                {"craft-sleepbomb", 1f },
+                {"craft-demobomb", 1f }
+        };
+        private static Dictionary<string, float> Fighter = new Dictionary<string, float>()
+        {
+            {"attack-camp", 1f },
+            {"fight-bandits", 1f },
+            {"threaten-goblin", 1f },
+            {"fight-elementals", 1f },
+            {"fight-ritualists", 1f },
+            {"destroy-monolith", 1f }
+        };
+        private static Dictionary<string, float> Helper = new Dictionary<string, float>()
+        {
+            {"captain-boat", 0.1f },
+            {"disembark", 0.1f },
+            {"exit", 0.1f },
+            {"mine", 0.1f },
+            {"chop", 0.1f },
+            {"gather", 0.1f },
+            {"craft-mortar-and-pestle", 0.1f },
+            {"craft-chameleon-salve", 0.1f },
+            {"craft-sword", 0.1f },
+            {"craft-torch", 0.1f },
+            {"craft-rope", 0.1f },
+            {"craft-house", 0.1f },
+            {"craft-firesuit", 0.1f },
+            {"craft-sleepbomb", 0.1f },
+            {"craft-demobomb", 0.1f },
+            {"solve-puzzle", 0.1f },
+            {"attack-camp", 0.1f },
+            {"sneak-by-camp", 0.1f },
+            {"fight-bandits", 0.1f },
+            {"pay-goblin", 0.1f },
+            {"threaten-goblin", 0.1f },
+            {"gift-goblin", 0.1f },
+            {"fight-elementals", 0.1f },
+            {"sneak-elementals", 0.1f },
+            {"fight-ritualists", 0.1f },
+            {"sleep-ritualists", 0.1f },
+            {"destroy-monolith", 0.1f },
+            {"disable-monolith", 0.1f }
+        };
+
         private Dictionary<string, float> actionPrefs = new Dictionary<string, float>()
         {
             //{"shoot", 1f },
@@ -180,19 +250,9 @@ namespace NarrativePlanning
             */
 
             //multipref
-            {"Red", new Dictionary<string, float>
-            {
-
-            }
-            },
-            {"Blue", new Dictionary<string, float>
-            {
-            }
-            },
-            {"Green", new Dictionary<string, float>
-            {
-            }
-            }
+            {"Red", NoPrefs },
+            {"Blue", NoPrefs },
+            {"Green", NoPrefs }
         };
 
         /*
@@ -231,7 +291,7 @@ namespace NarrativePlanning
         {
             if (!characterActionPrefs.ContainsKey(character))
             {
-                Console.WriteLine("Character [" + character + "] not found for action [" + action + "].");
+                UnityConsole.Log("Character [" + character + "] not found for action [" + action + "].", LOGMODE.HEURISTIC);
                 return _Scaled(0);
             }
             if (characterActionPrefs[character].ContainsKey(action))

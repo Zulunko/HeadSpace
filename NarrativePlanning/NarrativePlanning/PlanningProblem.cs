@@ -403,6 +403,10 @@ namespace NarrativePlanning
                 }
 
                 UnityConsole.Log("STEP SELECTED: " + best.Item1 + "\n", LOGMODE.PLANNER);
+                //if (best.Item1 == "proceed Act2 Act3")
+                //{
+                //    UnityConsole.Log("stop.", LOGMODE.PLANNER);
+                //}
                 //UnityConsole.Write("----------\n");
                 if (tmp > bfactor)
                     bfactor = tmp;
@@ -413,7 +417,7 @@ namespace NarrativePlanning
                 {
                     //solution found!
                     solutionPlan = current;
-                    //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                     Console.WriteLine("---------------------PLANNING PROCESS ENDED");
                     return solutionPlan;
                 }

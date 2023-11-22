@@ -84,7 +84,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = LOGMODE.MEMOIZE | LOGMODE.PLANNER;
+        public static LOGMODE logmode = 0; // LOGMODE.PLANNER | LOGMODE.HEURISTIC;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);

@@ -80,7 +80,7 @@ namespace NarrativePlanning
                 foreach(Operator o in At){
                     l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), o);
                 }
-                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState)){
+                if ((l.F[t] as WorldState).HasntChangedFrom(l.F[t - 1] as WorldState)){
                     l.k = t;
                     return l;
                 }
@@ -122,7 +122,7 @@ namespace NarrativePlanning
                 {
                     l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), o);
                 }
-                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                if ((l.F[t] as WorldState).HasntChangedFrom(l.F[t - 1] as WorldState))
                 {
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
@@ -167,7 +167,7 @@ namespace NarrativePlanning
                 {
                     l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), tuple);
                 }
-                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                if ((l.F[t] as WorldState).HasntChangedFrom(l.F[t - 1] as WorldState))
                 {
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
@@ -194,6 +194,7 @@ namespace NarrativePlanning
             l = new Layers();
             l.F.Add(0, initial);
 
+            int dumb = 1;
             while (true)
             {
                 t++;
@@ -212,7 +213,8 @@ namespace NarrativePlanning
                 {
                     l.F[t] = WorldState.getNextRelaxedState(((WorldState)l.F[t]), tuple);
                 }
-                if ((l.F[t] as WorldState).HasChangedFrom(l.F[t - 1] as WorldState))
+                if ((t-dumb) >= 0 && (l.F[t] as WorldState).HasntChangedFrom(l.F[t - dumb] as WorldState))
+                    //&& SameOperators(l.A[t] as List<Tuple<Operator, float>>, l.A[t - 1] as List<Tuple<Operator, float>>))
                 {
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
@@ -222,6 +224,24 @@ namespace NarrativePlanning
                     return l;
                 }
             }
+        }
+
+        public static bool SameOperators(List<Tuple<Operator, float>> a, List<Tuple<Operator, float>> b)
+        {
+            if (b == null) return false;
+            List<string> aOpText = new List<string>();
+            foreach(Tuple<Operator, float> t in a)
+            {
+                aOpText.Add(t.Item1.text);
+            }
+            aOpText = aOpText.Distinct().ToList();
+            List<string> bOpText = new List<string>();
+            foreach (Tuple<Operator, float> t in b)
+            {
+                bOpText.Add(t.Item1.text);
+            }
+            bOpText = bOpText.Distinct().ToList();
+            return aOpText.Count == (aOpText.Union<string>(bOpText).Count<string>());
         }
 
         /// <summary>
@@ -767,6 +787,7 @@ namespace NarrativePlanning
             return new Tuple<int, float>(selectedActions, prefMatch);
         }
 
+        static int eggs = 0;
         /// <summary>
         /// Extracts RP with preference data and sets pruned operators on the initial world state.
         /// </summary>
@@ -776,6 +797,9 @@ namespace NarrativePlanning
         /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
         public static Tuple<int, float> extractPrefRPSizeAndPrunedOps(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
         {
+            eggs++;
+            Console.WriteLine("Heuristic runs: " + eggs);
+            printRPG(l);
             HashSet<string> selectedActions = new HashSet<string>();
 
             if (!((WorldState)l.F[l.k]).isGoalState(g))
@@ -839,6 +863,7 @@ namespace NarrativePlanning
             // 3. Iterate from final first level layer and work backwards.
             for (int t = m; t >= 1; --t)
             {
+                //Console.WriteLine("T: " + t);
                 // 3a. For each layer, merge the list of true and false goal predicates to simplify logic and prevent copy-pasting.
                 //  Also, extract preference values for convenience.
                 List<Tuple<string, bool, float>> goalData = new List<Tuple<string, bool, float>>();
@@ -871,8 +896,8 @@ namespace NarrativePlanning
                     List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
                     actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
                     UnityConsole.Log("SORTED?" + t, LOGMODE.HEURISTIC);
-                    foreach (Tuple<Operator, float> prefTuple in actTuples) // XXX Temp: the prefTuple for Player3 killing is not here. Probably wrong layer.
-                        UnityConsole.Log(prefTuple.Item1.text, LOGMODE.HEURISTIC);
+                    foreach (Tuple<Operator, float> prefTuple in actTuples)
+                        UnityConsole.Log(prefTuple.Item1.text + ": " + prefTuple.Item2, LOGMODE.HEURISTIC);
                     foreach (Tuple<Operator, float> prefTuple in actTuples)
                     {
                         bool found = false;
@@ -1267,7 +1292,7 @@ namespace NarrativePlanning
 
         public static void printRPG(Layers layers)
         {
-            UnityConsole.Log("LAYER 0", LOGMODE.HEURISTIC);
+            UnityConsole.Log("LAYER 0 of " + layers.k, LOGMODE.HEURISTIC);
             int i = 0;
             while (i <= layers.k)
             {
@@ -1284,9 +1309,9 @@ namespace NarrativePlanning
                 i++;
                 UnityConsole.Log("\n\n\nLAYER " + i, LOGMODE.HEURISTIC);
                 UnityConsole.Log("\nACTIONS", LOGMODE.HEURISTIC);
-                foreach (Operator op in (List<Operator>)layers.A[i])
+                foreach (Tuple<Operator, float> op in (List<Tuple<Operator, float>>)layers.A[i])
                 {
-                    UnityConsole.Log(op.name + " ", LOGMODE.HEURISTIC);
+                    UnityConsole.Log(op.Item1.name + " " + op.Item2, LOGMODE.HEURISTIC);
                 }
             }
         }

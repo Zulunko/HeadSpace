@@ -123,7 +123,7 @@ namespace NarrativePlanning
             Intention i = obj as Intention;
             bool x = this.character.Equals(i.character);
             bool a = this.goals.Equals(i.goals);
-            bool b = this.state.HasChangedFrom(i.state);
+            bool b = this.state.HasntChangedFrom(i.state);
             bool c = this.motivations.Equals(i.motivations);
             return a && b && c && x;
         }

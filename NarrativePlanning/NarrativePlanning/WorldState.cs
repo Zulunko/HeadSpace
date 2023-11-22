@@ -842,7 +842,7 @@ namespace NarrativePlanning
             return a && b && c && d;
         }
 
-        public bool HasChangedFrom(object obj)
+        public bool HasntChangedFrom(object obj)
         {
             WorldState w = obj as WorldState;
             bool a = this.tWorld.Keys.Cast<string>().Union(w.tWorld.Keys.Cast<string>()).Count() == this.tWorld.Keys.Count && this.tWorld.Count == w.tWorld.Count;

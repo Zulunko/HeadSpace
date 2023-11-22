@@ -135,10 +135,6 @@
             "type": "Equippable"
         },
         {
-            "name": "SleepHerb",
-            "type": "Gatherable"
-        },
-        {
             "name": "SleepBomb",
             "type": "Equippable"
         },
@@ -192,9 +188,9 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //A1: acquire-boat
+        //A1: captain-boat
         {
-            "name": "acquire-boat",
+            "name": "captain-boat",
             "args": [
                 {
                     "name": "?p",
@@ -605,10 +601,6 @@
                 {
                     "name": "?p",
                     "type": "Player"
-                },
-                {
-                    "name": "Act1",
-                    "type": "Location"
                 }
             ],
             "char": "?p",
@@ -1145,7 +1137,7 @@
             "(at Stone Act3)",
             "(defended Monolith)",
             "(at MonolithPuzzle Act3)",
-            "(reward-for MonolithPuzzle DisableButton)",
+            "(reward-for MonolithPuzzle DisableButton)"
 
             //Testing shortcuts
             //  Act2 skip
