@@ -65,6 +65,8 @@
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
     <None Include="JSON Files\multi_pref.json" />
+    <None Include="JSON Files\multiprefknowledge_ship.json" />
+    <None Include="JSON Files\simple_knawledg.json" />
     <None Include="JSON Files\simple_multiagent.json" />
     <None Include="JSON Files\valheim_preference.json" />
     <None Include="JSON Files\simple_preference.json" />

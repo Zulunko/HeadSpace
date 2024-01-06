@@ -54,6 +54,201 @@ namespace NarrativePlanning
 
         delegate List<Tuple<Operator, float>> del3(Object obj);
 
+        // This is intended for location / acquisition observability ONLY, and as such should probably
+        // only be used for initial observability. Acquisition observability after initial observability
+        // should be handled by agents knowing the effects of their action, while location observability
+        // should have its own function that's called every time an agent changes location with that
+        // specific location.
+        public static WorldState ApplyInitialObservability(WorldState knowledge, WorldState real)
+        {
+            // First, we're going to do a pass for any proposition containing our character. We will also
+            // save all locations where characters are.
+            List<String> characterLocs = new List<String>();
+            foreach (DictionaryEntry entry in real.tWorld)
+            {
+                foreach (Character c in real.characters) {
+                    if (((String)entry.Key).Contains(c.name)) {
+                        if (!knowledge.tWorld.ContainsKey(entry.Key))
+                            knowledge.tWorld.Add(entry.Key, entry.Value);
+                        if (((String)entry.Key).StartsWith("at " + c.name + " "))
+                            characterLocs.Add(((String)entry.Key).Split(' ').Last());
+                    }
+                }
+            }
+            foreach (DictionaryEntry entry in real.fWorld)
+            {
+                foreach (Character c in real.characters)
+                {
+                    if (((String)entry.Key).Contains(c.name))
+                    {
+                        if (!knowledge.fWorld.ContainsKey(entry.Key))
+                            knowledge.fWorld.Add(entry.Key, entry.Value);
+                        if (((String)entry.Key).StartsWith("at " + c.name + " "))
+                            characterLocs.Add(((String)entry.Key).Split(' ').Last());
+                    }
+                }
+            }
+            // Next, we do a pass for any 'at' propositions containing any of our characters' locations.
+            foreach (DictionaryEntry entry in real.tWorld)
+            {
+                foreach (String loc in characterLocs)
+                {
+                    if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                    {
+                        if (!knowledge.tWorld.ContainsKey(entry.Key))
+                            knowledge.tWorld.Add(entry.Key, entry.Value);
+                    }
+                }
+            }
+            foreach (DictionaryEntry entry in real.fWorld)
+            {
+                foreach (String loc in characterLocs)
+                {
+                    if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                    {
+                        if (!knowledge.fWorld.ContainsKey(entry.Key))
+                            knowledge.fWorld.Add(entry.Key, entry.Value);
+                    }
+                }
+            }
+            return knowledge;
+        }
+
+        public static WorldState ApplyLocationObservabilityUpdate(WorldState knowledge, WorldState real, string lit)
+        {
+            // Extract location from literal "at agent location"
+            // First, ensure middle argument is a character.
+            string[] splits = lit.Split(' ');
+            bool match = false;
+            foreach (Character c in real.characters)
+            {
+                if (c.name == splits[1])
+                {
+                    match = true;
+                    break;
+                }
+            }
+            if (!match) return knowledge;
+
+            string loc = splits[2];
+
+            foreach (DictionaryEntry entry in real.tWorld)
+            {
+                if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                {
+                    if (!knowledge.tWorld.ContainsKey(entry.Key))
+                        knowledge.tWorld.Add(entry.Key, entry.Value);
+                }
+            }
+            foreach (DictionaryEntry entry in real.fWorld)
+            {
+                if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                {
+                    if (!knowledge.fWorld.ContainsKey(entry.Key))
+                        knowledge.fWorld.Add(entry.Key, entry.Value);
+                }
+            }
+            return knowledge;
+        }
+
+        public static WorldState CreateUnknownKnowledge(List<Operator> operators, WorldState knowledge)
+        {
+            foreach (Operator o in operators)
+            {
+                // For all preconditions that must hold true for an action...
+                foreach (String t in o.preT.Keys)
+                {
+                    // If we haven't already added this to our unknowns, and
+                    if (!knowledge.utWorld.ContainsKey(t) &&
+                        // We don't already know this to be true, and
+                        !knowledge.tWorld.ContainsKey(t) &&
+                        // We don't already know this to be false,
+                        !knowledge.fWorld.ContainsKey(t))
+                        // Then add it to our unknown truths.
+                        knowledge.utWorld.Add(t, Preferences.UnknownDiscount);
+                }
+                // For all preconditions that must hold false for an action...
+                foreach (String f in o.preF.Keys)
+                {
+                    // If we haven't already added this to our unknowns, and
+                    if (!knowledge.ufWorld.ContainsKey(f) &&
+                        // We don't already know this to be false, and
+                        !knowledge.fWorld.ContainsKey(f) &&
+                        // We don't already know this to be true,
+                        !knowledge.tWorld.ContainsKey(f))
+                        // Then add it to our unknown falses.
+                        knowledge.ufWorld.Add(f, Preferences.UnknownDiscount);
+                }
+            }
+            return knowledge;
+        }
+
+        // OPTIMIZATION this could be passed a set of changed propositions instead of iterating through all propositions
+        public static WorldState ApplyKnowledgeConsistency(WorldState knowledge)
+        {
+            foreach (DictionaryEntry tentry in knowledge.tWorld)
+            {
+                // at OBJ LOC
+                // has OBJ AGENT
+                if (((String)tentry.Key).StartsWith("at ") || ((String)tentry.Key).StartsWith("has "))
+                {
+                    // Extract "at OBJ " or "has OBJ "
+                    String objkey = ((String)tentry.Key);
+                    objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
+                    // move all false at unknowns for this object to false knowns (and delete the one matching this proposition)
+                    List<object> keysToRemove = new List<object>();
+                    foreach (DictionaryEntry ufentry in knowledge.ufWorld)
+                    {
+                        if (((String)ufentry.Key).StartsWith(objkey))
+                        {
+                            if (!((String)ufentry.Key).Equals(((String)tentry.Key)))
+                                knowledge.fWorld.Add(ufentry.Key, 0);
+                            keysToRemove.Add(ufentry.Key);
+                        }
+                    }
+                    foreach (object toRemove in keysToRemove)
+                    {
+                        knowledge.ufWorld.Remove(toRemove);
+                    }
+                    // XXX remove all true at unknowns for this object
+                    keysToRemove.Clear();
+                    foreach (DictionaryEntry utentry in knowledge.utWorld)
+                    {
+                        if (((String)utentry.Key).StartsWith(objkey))
+                        {
+                            keysToRemove.Add(utentry.Key);
+                        }
+                    }
+                    foreach (object toRemove in keysToRemove)
+                    {
+                        knowledge.utWorld.Remove(toRemove);
+                    }
+                }
+                // If we know something to be true, it shouldn't be in either unknown set.
+                if (knowledge.utWorld.ContainsKey(tentry.Key))
+                {
+                    knowledge.utWorld.Remove(tentry.Key);
+                }
+                if (knowledge.ufWorld.ContainsKey(tentry.Key))
+                {
+                    knowledge.ufWorld.Remove(tentry.Key);
+                }
+            }
+            foreach (DictionaryEntry fentry in knowledge.fWorld)
+            {
+                // If we know something to be false, it shouldn't be in either unknown set.
+                if (knowledge.utWorld.ContainsKey(fentry.Key))
+                {
+                    knowledge.utWorld.Remove(fentry.Key);
+                }
+                if (knowledge.ufWorld.ContainsKey(fentry.Key))
+                {
+                    knowledge.ufWorld.Remove(fentry.Key);
+                }
+            }
+            return knowledge;
+        }
+
         /// <summary>
         /// Computes the relaxed plan graph for a given input
         /// </summary>
@@ -215,6 +410,55 @@ namespace NarrativePlanning
                 }
                 if ((t-dumb) >= 0 && (l.F[t] as WorldState).HasntChangedFrom(l.F[t - dumb] as WorldState))
                     //&& SameOperators(l.A[t] as List<Tuple<Operator, float>>, l.A[t - 1] as List<Tuple<Operator, float>>))
+                {
+                    l.k = t;
+                    if (!((WorldState)l.F[t]).isGoalState(goal))
+                    {
+                        Console.WriteLine("HEY U HECCIN FAILED");
+                    }
+                    return l;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes the relaxed plan graph for a given input to the fixed point with preference metadata
+        /// </summary>
+        /// <param name="operators">Grounded operators</param>
+        /// <param name="initial">Initial world state</param>
+        /// <param name="goal">Goal worldstate</param>
+        /// <param name="preferences">Preference set</param>
+        /// <returns>Returns the RPG in a Layers form.</returns>
+        public static Layers computeMultiPreferenceKnowledgeRPG(List<Operator> operators, WorldState initialKnowledge, WorldState goal, Preferences preferences)
+        {
+            Layers l = null;
+            int t = 0;
+            l = new Layers();
+            l.F.Add(0, initialKnowledge);
+
+            // Dumb is f, the amount past the fixed point to search.
+            // Is this one less than the amount past? I think we already search 1 past fixed point at dumb=0.
+            int dumb = 1;
+            while (true)
+            {
+                t++;
+                List<Tuple<Operator, float>> At = new List<Tuple<Operator, float>>();
+                // Add operators for every executable op
+                foreach (Operator o in operators)
+                {
+                    if (WorldState.isPotentiallyExecutable(o, ((WorldState)l.F[t - 1])))
+                    {
+                        At.Add(new Tuple<Operator, float>(o, WorldState.getMultiPrefForActionInstanceKnowledge(o, (WorldState)l.F[t - 1], preferences)));
+                    }
+                }
+                l.A.Add(t, At);
+                l.F.Add(t, ((WorldState)l.F[t - 1]).clone());
+                foreach (Tuple<Operator, float> tuple in At)
+                {
+                    l.F[t] = WorldState.getNextRelaxedKnowledgeState(((WorldState)l.F[t]), tuple);
+                }
+                if ((t - dumb) >= 0 && (l.F[t] as WorldState).HasntChangedFrom(l.F[t - dumb] as WorldState))
+                //&& SameOperators(l.A[t] as List<Tuple<Operator, float>>, l.A[t - 1] as List<Tuple<Operator, float>>))
                 {
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
@@ -991,6 +1235,212 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Knawledg variant.
+        /// </summary>
+        /// <param name="l">The layers</param>
+        /// <param name="g">Goal worldstate</param>
+        /// <param name="i">Initial worldstate, solely passed in to add pruned operators</param>
+        /// <returns> A heuristic number, -1 for failure. Lower number is better.</returns>
+        public static Tuple<List<Operator>, List<float>, float> extractRPKnowledge(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
+        {
+            eggs++;
+            Console.WriteLine("Heuristic runs: " + eggs);
+            printRPG(l);
+            List<Operator> selectedActions = new List<Operator>();
+            List<float> actionPrefs = new List<float>();
+
+            if (!((WorldState)l.F[l.k]).isGoalState(g))
+            {
+                UnityConsole.Log("ERROR: Final layer did not contain goal state.", LOGMODE.ERROR);
+                return new Tuple<List<Operator>, List<float>, float>(selectedActions, actionPrefs, 0);
+            }
+
+            // 1. Calculate max level for any goal literal at first equivalent value to final layer.
+            // Goals must be known to have been completed by players, so we only check known propositions.
+            int goalCount = 0;
+            float prefMatch = 0;
+            List<int> firstlevels = new List<int>();
+            foreach (String lit in g.tWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, true, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            foreach (String lit in g.fWorld.Keys)
+            {
+                //firstlevels.Add(firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld));
+                float goalVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                firstlevels.Add(firstEqualPrefLevel(l.k, lit, l.F, false, goalVal));
+                prefMatch += goalVal;
+                goalCount++;
+            }
+            prefMatch /= goalCount;
+            //Console.WriteLine("------Pref match value: " + prefMatch);
+            //character states ignored!!
+            int m = firstlevels.Max();
+            //Console.WriteLine("MAX CONSIDERED: " + m + " OUT OF " + l.k);
+
+            // 2. Add first equivalent level (to final layer) goal props to goal set at that layer.
+            Hashtable Gt = new Hashtable();
+            for (int t = 0; t <= m; t++)
+            {
+                WorldState w = new WorldState(new Hashtable(), new Hashtable(), null);
+                foreach (String lit in g.tWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).tWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).tWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, true, prefVal) == t)
+                    {
+                        w.tWorld.Add(lit, prefVal);
+                    }
+                }
+                foreach (String lit in g.fWorld.Keys)
+                {
+                    float prefVal = Convert.ToSingle(((WorldState)l.F[l.k]).fWorld[lit]);
+                    //if (firstLevel(lit, l.F, (obj) => ((WorldState)obj).fWorld) == t)
+                    if (firstEqualPrefLevel(l.k, lit, l.F, false, prefVal) == t)
+                    {
+                        w.fWorld.Add(lit, prefVal);
+                    }
+                }
+                Gt.Add(t, w);
+            }
+
+            //HashSet<string> satisfiedGoals = new HashSet<string>();
+            // 3. Iterate from final first level layer and work backwards.
+            for (int t = m; t >= 1; --t)
+            {
+                //Console.WriteLine("T: " + t);
+                // 3a. For each layer, merge the list of true and false goal predicates to simplify logic and prevent copy-pasting.
+                //  Also, extract preference values for convenience.
+                List<Tuple<string, bool, float>> goalData = new List<Tuple<string, bool, float>>();
+                foreach (string lit in (Gt[t] as WorldState).tWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, true, Convert.ToSingle((Gt[t] as WorldState).tWorld[lit])));
+                }
+                foreach (string lit in (Gt[t] as WorldState).fWorld.Keys)
+                {
+                    goalData.Add(new Tuple<string, bool, float>(lit, false, Convert.ToSingle((Gt[t] as WorldState).fWorld[lit])));
+                }
+                // 3b. Sort the goal literals in order of highest preference to lowest preference to ensure we fulfill the highest preference goal first.
+                goalData.Sort((a, b) => b.Item3.CompareTo(a.Item3));
+
+                HashSet<string> satisfiedGoals = new HashSet<string>();
+                // 3c. Iterate through each goal to find an action that provides that goal.
+                foreach (Tuple<string, bool, float> goalLit in goalData)
+                {
+                    //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
+                    //Check if this goal has already been satisfied by actions added in this layer.
+                    //Console.WriteLine("Checking satsifaction for: " + goalLit.Item1 + "!" + goalLit.Item2.ToString());
+                    if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
+                    {
+                        UnityConsole.Log("IGNORING GOAL " + goalLit.Item1, LOGMODE.HEURISTIC);
+                        continue;
+                    }
+
+                    // 3c1. Sort the operators that can fulfill this goal to try to find the best operator first.
+                    string lit = goalLit.Item1;
+                    List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
+                    actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
+                    UnityConsole.Log("SORTED?" + t, LOGMODE.HEURISTIC);
+                    foreach (Tuple<Operator, float> prefTuple in actTuples)
+                        UnityConsole.Log(prefTuple.Item1.text + ": " + prefTuple.Item2, LOGMODE.HEURISTIC);
+                    foreach (Tuple<Operator, float> prefTuple in actTuples)
+                    {
+                        bool found = false;
+                        Operator o = prefTuple.Item1;
+
+                        // 3c1a. Item2 says whether the literal is positive or negative, so we check if the literal is positive whether
+                        //  it's in the positive effects of this action and if it's negative whether it's in the negative effects of this action.
+                        //check if effects of action have literal as a component
+                        if ((goalLit.Item2 && o.effT.Contains(lit)) || (!goalLit.Item2 && o.effF.Contains(lit)))
+                        {
+                            // EWL: The below is unnecessary because we want to add the highest-value action which this one is guaranteed
+                            //  to be. We don't care if it's the first time the action has appeared, as it provides more preference-matching
+                            //  actions prior to this layer if not.
+                            //check if that action appeared first time at t
+                            //if (firstLevelIgnorePrefs(o, l.A, ((obj) => (obj as List<Tuple<Operator, float>>))) == t)
+                            //{
+
+                            // 3c1a1. We have found an action that provides our goal. This action is guaranteed to be the highest-value action
+                            //  available because of our operation sorting, so we select this action and set all of its preconditions as subgoals.
+                            if (found) continue;
+                            found = true;
+                            string action = o.text;
+                            //foreach (string arg in o.args.Keys)
+                            //{
+                            //    action += arg + "!";
+                            //}
+                            UnityConsole.Log("Selected: " + o.text + " for goal " + goalLit.Item2 + " - " + lit + "(val: " + prefTuple.Item2 + ")", LOGMODE.HEURISTIC);
+                            if (selectedActions.Contains(o))
+                                UnityConsole.Log("Already added action " + action + ", ignoring...", LOGMODE.HEURISTIC);
+                            else
+                            {
+                                selectedActions.Add(o);
+                                actionPrefs.Add(prefTuple.Item2);
+                                if (i.prunedOperators == null)
+                                    i.prunedOperators = new List<Operator>();
+                                i.prunedOperators.Add(o);
+                            }
+                            //PRUNING
+                            //if (t == 1)
+                            //{
+                            //Console.WriteLine("----PRUNING LAYER");
+                            //Console.Write(o.text);
+                            //Console.WriteLine();
+                            //    if (i.prunedOperators == null)
+                            //        i.prunedOperators = new List<Operator>();
+                            //    i.prunedOperators.Add(o);
+                            //Console.WriteLine("----");
+                            //}
+                            //now add all of its preconditions as subgoals in Gts
+                            foreach (String prelit in o.preT.Keys)
+                            {
+                                // 3c1a1a. We add the precond as a subgoal to the lowest proposition level where this precond has a value equal to
+                                //  its current value.
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).tWorld[prelit]); //XXX MIKEL: This was a huge mistake; it said "lit" instead of "prelit".
+                                int level = firstEqualPrefLevelK(t - 1, prelit, l.F, true, prefVal);
+                                if (!(Gt[level] as WorldState).tWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).tWorld.Add(prelit, ((WorldState)l.F[level]).tWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
+                            }
+                            foreach (String prelit in o.preF.Keys)
+                            {
+                                float prefVal = Convert.ToSingle(((WorldState)l.F[t - 1]).fWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
+                                int level = firstEqualPrefLevelK(t - 1, prelit, l.F, false, prefVal);
+                                if (!(Gt[level] as WorldState).fWorld.Contains(prelit))
+                                    (Gt[level] as WorldState).fWorld.Add(prelit, ((WorldState)l.F[level]).fWorld[prelit]); //XXX: This was a huge mistake; it said "lit" instead of "prelit".
+                            }
+
+                            // Register goals that were satisfied by this action, regardless of whether they're the goal we're seeking.
+                            foreach (String efflit in o.effT.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + true.ToString());
+                                //Console.WriteLine("Satisfied " + efflit + "!" + true.ToString());
+                            }
+                            foreach (String efflit in o.effF.Keys)
+                            {
+                                satisfiedGoals.Add(efflit + "!" + false.ToString());
+                                //Console.WriteLine("Satisfied " + efflit + "!" + false.ToString());
+                            }
+
+                            // EWL: Once we find an action for this goal, we should really just break so we can continue to the next goal.
+                            break;
+                            //}
+                        }
+                    }
+                }
+            }
+            UnityConsole.Log("SELECTED ACTIONS:", LOGMODE.RELAXEDPLAN);
+            foreach (Operator s in selectedActions)
+            {
+                UnityConsole.Log(" " + s.text, LOGMODE.RELAXEDPLAN);
+            }
+            return new Tuple<List<Operator>, List<float>, float>(selectedActions, actionPrefs, prefMatch);
+        }
+
+        /// <summary>
         /// Finds the hueristic measure for the character RPG
         /// </summary>
         /// <param name="l">Layers</param>
@@ -1257,6 +1707,48 @@ namespace NarrativePlanning
             return 0;
         }
 
+        /// <summary>
+        /// Returns the first level where this prop matches the given prefVal.
+        /// </summary>
+        /// <param name="layer">The layer to start looking back from in the RPG (typically the precondition layer for the action providing a goal).</param>
+        /// <param name="lit">The proposition being searched for.</param>
+        /// <param name="propLayers">The proposition layers of the RPG.</param>
+        /// <param name="isTrue">Whether this is a true or a false proposition.</param>
+        /// <param name="prefVal">The current value of the proposition.</param>
+        /// <returns></returns>
+        private static int firstEqualPrefLevelK(int layer, string lit, Hashtable propLayers, bool isTrue, float prefVal)
+        {
+            //Shortcut for if this is true in the initial state.
+            if (isTrue && (((WorldState)propLayers[0]).tWorld.Contains(lit)))// || ((WorldState)propLayers[0]).utWorld.Contains(lit)))
+                return 0;
+            else if (!isTrue && (((WorldState)propLayers[0]).fWorld.Contains(lit)))// || ((WorldState)propLayers[0]).ufWorld.Contains(lit)))
+                return 0;
+
+            //Console.WriteLine("STARTING PREF LEVEL EVAL AT: " + layer);
+            for (int i = layer-1; i >= 0; i--)
+            {
+                if (isTrue)
+                {
+                    // IF NOT (the proposition is in the next world layer and the next world layer's preference value is at least our stored preference value) OR (The proposition is in the next world layer unknown state and the next world layer unknown state's preference value is at least our)
+                    if (!((((WorldState)propLayers[i]).tWorld.Contains(lit) && Convert.ToSingle(((WorldState)propLayers[i]).tWorld[lit]) >= prefVal) || (((WorldState)propLayers[i]).utWorld.Contains(lit) && Convert.ToSingle(((WorldState)propLayers[i]).utWorld[lit]) >= prefVal)))
+                    {
+                        //Console.WriteLine("PREF EVAL FINISHED AT: " + (i+1));
+                        return i + 1;
+                    }
+                }
+                else
+                {
+                    if (!((((WorldState)propLayers[i]).fWorld.Contains(lit) && Convert.ToSingle(((WorldState)propLayers[i]).fWorld[lit]) >= prefVal) || (((WorldState)propLayers[i]).ufWorld.Contains(lit) && Convert.ToSingle(((WorldState)propLayers[i]).ufWorld[lit]) >= prefVal)))
+                    {
+                        //Console.WriteLine("PREF EVAL FINISHED AT: " + (i+1));
+                        return i + 1;
+                    }
+                }
+            }
+            //Console.WriteLine("PREF EVAL FINISHED AT: " + 0);
+            return 0;
+        }
+
         // Return the first instance of a specific operation in a prop layer?
         private static int firstLevel(Operator l, Hashtable table, del2 accessor)
         {
@@ -1311,7 +1803,7 @@ namespace NarrativePlanning
                 UnityConsole.Log("\nACTIONS", LOGMODE.HEURISTIC);
                 foreach (Tuple<Operator, float> op in (List<Tuple<Operator, float>>)layers.A[i])
                 {
-                    UnityConsole.Log(op.Item1.name + " " + op.Item2, LOGMODE.HEURISTIC);
+                    UnityConsole.Log(op.Item1.text + "   " + op.Item2, LOGMODE.HEURISTIC);
                 }
             }
         }

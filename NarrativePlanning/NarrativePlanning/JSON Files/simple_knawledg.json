@@ -1,0 +1,233 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "KeycardPile",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Red",
+            "type": "Player"
+        },
+        {
+            "name": "Blue",
+            "type": "Player"
+        },
+        {
+            "name": "Start",
+            "type": "Location"
+        },
+        {
+            "name": "Room1",
+            "type": "Location"
+        },
+        {
+            "name": "Goal",
+            "type": "Location"
+        },
+        {
+            "name": "KeycardPile1",
+            "type": "KeycardPile"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(locked ?from ?to)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //move-keycard
+        {
+            "name": "move-keycard",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(connected ?from ?to)",
+                "(locked ?from ?to)",
+                "(has-keycard ?p)",
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pickup-keycard
+        {
+            "name": "pickup-keycard",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?keypile",
+                    "type": "KeycardPile"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?keypile ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has-keycard ?p)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            //Map
+            "(connected Start Room1)",
+            "(connected Room1 Start)",
+            "(connected Room1 Goal)",
+            "(connected Goal Room1)",
+
+            //Objects
+            "(at KeycardPile1 Start)",
+            "(locked Room1 Goal)",
+
+            //Players
+            "(at Red Start)",
+            "(at Blue Start)"
+        ],
+        "f": [
+            "(connected Start Goal)",
+            "(connected Goal Start)",
+            "(at Red Room1)",
+            "(at Red Goal)",
+            "(at Blue Room1)",
+            "(at Blue Goal)",
+            "(locked Room1 Start)",
+            "(locked Start Room1)",
+            "(locked Goal Room1)",
+            "(at KeycardPile1 Room1)",
+            "(at KeycardPile1 Goal)",
+            "(has-keycard Red)",
+            "(has-keycard Blue)"
+        ],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at Red Goal)",
+            "(at Blue Goal)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

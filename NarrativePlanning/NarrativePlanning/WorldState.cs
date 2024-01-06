@@ -29,6 +29,22 @@ namespace NarrativePlanning
             set;
         }
 
+        /// <summary>
+        /// Unknown true literals. Used for partial knowledge in RPG layers.
+        /// </summary>
+        public Hashtable utWorld {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Unknown false literals. Used for partial knowledge in RPG layers.
+        /// </summary>
+        public Hashtable ufWorld {
+            get;
+            set;
+        }
+
         //public List<Literal> tWorld;
         //public List<Literal> fWorld;
         /// <summary>
@@ -49,11 +65,23 @@ namespace NarrativePlanning
         public List<Operator> prunedOperators = null;
         public List<string> eliminatedOperators = null;
 
+        public WorldState()
+        {
+            this.tWorld = new Hashtable();
+            this.fWorld = new Hashtable();
+            this.utWorld = new Hashtable();
+            this.ufWorld = new Hashtable();
+            this.characters = new List<Character>();
+            this.intentions = new List<Intention>();
+        }
+
         public WorldState(Hashtable tWorld, Hashtable fWorld, List<Character> characters)
         {
             
             this.tWorld = tWorld;
             this.fWorld = fWorld;
+            this.utWorld = new Hashtable();
+            this.ufWorld = new Hashtable();
             this.characters = characters;
             this.intentions = new List<Intention>();
         }
@@ -61,6 +89,12 @@ namespace NarrativePlanning
         public WorldState(Hashtable tWorld, Hashtable fWorld, List<Character> characters, List<Intention> intentions1) : this(tWorld, fWorld, characters)
         {
             this.intentions = intentions1;
+        }
+
+        public WorldState(Hashtable tWorld, Hashtable fWorld, Hashtable utWorld, Hashtable ufWorld, List<Character> characters, List<Intention> intentions1) : this(tWorld, fWorld, characters, intentions1)
+        {
+            this.utWorld = utWorld;
+            this.ufWorld = ufWorld;
         }
 
         /// <summary>
@@ -201,6 +235,27 @@ namespace NarrativePlanning
         }
 
         /// <summary>
+        /// Checks whether an operation might be executable given the agents' knowledge.
+        /// </summary>
+        /// <param name="gop">The grounded operator</param>
+        /// <param name="w">The world state</param>
+        /// <returns>True if executable.</returns>
+        public static bool isPotentiallyExecutable(Operator gop, WorldState knowledge)
+        {
+            foreach (String gl in gop.preT.Keys)
+            {
+                if (!knowledge.tWorld.Contains(gl) && !knowledge.utWorld.Contains(gl))
+                    return false;
+            }
+            foreach (String gl in gop.preF.Keys)
+            {
+                if (!knowledge.fWorld.Contains(gl) && !knowledge.ufWorld.Contains(gl))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns the action preference given the previous world state and a preference set.
         /// At the moment this does the following calculation:
         /// [average precond preferences from previous world state] +
@@ -263,7 +318,6 @@ namespace NarrativePlanning
         /// <returns></returns>
         public static float getMultiPrefForActionInstance(Operator op, WorldState prev, Preferences preferences)
         {
-            //XXX: Only taking into account action preference.
             // Raw preference for this action
             float aPref = preferences.GetActionPreferenceForCharacter(op.character, op.name);
             // Preference inherited from previous world state
@@ -296,6 +350,80 @@ namespace NarrativePlanning
             ePref /= eCount;
             float pref = (aPref + pPref + ePref) / 3;
             //Console.WriteLine("Returning preference " + pref + " for action " + op.name);
+            // Return the average of the three preference sources
+            return pref;
+        }
+
+        /// <summary>
+        /// Returns the action preference given the previous world state and a preference set.
+        /// At the moment this does the following calculation:
+        /// [average precond preferences from previous world state] +
+        /// [action preference from preferences set] +
+        /// [average effect preferences from preferences set]
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="prev"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
+        public static float getMultiPrefForActionInstanceKnowledge(Operator op, WorldState prev, Preferences preferences)
+        {
+            // Raw preference for this action
+            float aPref = preferences.GetActionPreferenceForCharacter(op.character, op.name);
+            // Preference inherited from previous world state
+            float pPref = 0;
+            int pCount = 0;
+            int uPre = 0; // Unknown preconditions
+            foreach (string preT in op.preT.Keys)
+            {
+                if (prev.tWorld.Contains(preT))
+                    pPref += Convert.ToSingle(prev.tWorld[preT]);
+                else
+                {
+                    pPref += Convert.ToSingle(prev.utWorld[preT]) + preferences.GetExploratoryPreferenceForCharacter(op.character);
+                    uPre++;
+                }
+                pCount++;
+            }
+            foreach (string preF in op.preF.Keys)
+            {
+                if (prev.fWorld.Contains(preF))
+                    pPref += Convert.ToSingle(prev.fWorld[preF]);
+                else
+                {
+                    pPref += Convert.ToSingle(prev.ufWorld[preF]) + preferences.GetExploratoryPreferenceForCharacter(op.character);
+                    uPre++;
+                }
+                pCount++;
+            }
+            pPref /= pCount;
+            // Preference from action effects
+            float ePref = 0;
+            int eCount = 0;
+            int uEff = 0; // Unknown effects
+            foreach (string effT in op.effT.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effT, true);
+                if (!prev.tWorld.Contains(effT) && !prev.fWorld.Contains(effT))
+                {
+                    ePref += preferences.GetExploratoryPreferenceForCharacter(op.character);
+                    uEff++;
+                }
+                eCount++;
+            }
+            foreach (string effF in op.effF.Keys)
+            {
+                ePref += preferences.GetPropositionPreference(effF, false);
+                if (!prev.fWorld.Contains(effF) && !prev.tWorld.Contains(effF))
+                {
+                    ePref += preferences.GetExploratoryPreferenceForCharacter(op.character);
+                    uEff++;
+                }
+                eCount++;
+            }
+            ePref /= eCount;
+            float pref = (aPref + pPref + ePref) / 3;
+            //Console.WriteLine(op.character + ": Returning preference " + pref + " for action " + op.text);
+            //Console.WriteLine("upre: " + uPre + ", ueff: " + uEff);
             // Return the average of the three preference sources
             return pref;
         }
@@ -518,6 +646,69 @@ namespace NarrativePlanning
 			return newState;
           }
 
+        public static Tuple<WorldState, WorldState> getNextStateWithKnowledgeUpdate(WorldState current, Operator ground, WorldState knowledge)
+        {
+            WorldState newState = current.clone();
+            foreach (String lit in ground.effT.Keys)
+            {
+                if (newState.fWorld.Contains(lit))
+                    newState.fWorld.Remove(lit);
+                if (!newState.tWorld.Contains(lit))
+                    newState.tWorld.Add(lit, 0);
+
+                if (knowledge.fWorld.Contains(lit))
+                    knowledge.fWorld.Remove(lit);
+                if (knowledge.ufWorld.Contains(lit))
+                    knowledge.ufWorld.Remove(lit);
+                if (knowledge.utWorld.Contains(lit))
+                    knowledge.utWorld.Remove(lit);
+                if (!knowledge.tWorld.Contains(lit))
+                    knowledge.tWorld.Add(lit, 0);
+
+                if (lit.StartsWith("at "))
+                {
+                    knowledge = FastForward.ApplyLocationObservabilityUpdate(knowledge, current, lit);
+                }
+            }
+            foreach (String lit in ground.effF.Keys)
+            {
+                if (newState.tWorld.Contains(lit))
+                    newState.tWorld.Remove(lit);
+                if (!newState.fWorld.Contains(lit))
+                    newState.fWorld.Add(lit, 0);
+
+                if (knowledge.tWorld.Contains(lit))
+                    knowledge.tWorld.Remove(lit);
+                if (knowledge.utWorld.Contains(lit))
+                    knowledge.utWorld.Remove(lit);
+                if (knowledge.ufWorld.Contains(lit))
+                    knowledge.ufWorld.Remove(lit);
+                if (!knowledge.fWorld.Contains(lit))
+                    knowledge.fWorld.Add(lit, 0);
+            }
+            return new Tuple<WorldState, WorldState>(newState, knowledge);
+        }
+
+        public static WorldState getKnowledgeUpdateActionPreconditions(WorldState current, Operator ground, WorldState knowledge)
+        {
+            WorldState kstate = knowledge.clone();
+            foreach (String lit in ground.preT.Keys)
+            {
+                if (current.tWorld.Contains(lit) && !kstate.tWorld.Contains(lit))
+                    kstate.tWorld.Add(lit, 0);
+                if (!current.tWorld.Contains(lit) && !kstate.fWorld.Contains(lit))
+                    kstate.fWorld.Add(lit, 0);
+            }
+            foreach (String lit in ground.preF.Keys)
+            {
+                if (current.fWorld.Contains(lit) && !kstate.fWorld.Contains(lit))
+                    kstate.fWorld.Add(lit, 0);
+                if (!current.fWorld.Contains(lit) && !kstate.tWorld.Contains(lit))
+                    kstate.tWorld.Add(lit, 0);
+            }
+            return kstate;
+        }
+
         /// <summary>
         /// Returns the resultant state when an action is applied on 
         /// a world state
@@ -678,6 +869,47 @@ namespace NarrativePlanning
             return newState;
         }
 
+        /// <summary>
+		/// Returns the relaxed next state, i.e. the WorldState when only the
+		/// add effects are applied and not delete effects. This particular variant
+        /// is used for preference calculations.
+		/// </summary>
+		/// <param name="current">Current world state</param>
+		/// <param name="prefTuple">A grounded operator / preference tuple</param>
+		/// <returns>Resulting relaxed world state.</returns>
+		public static WorldState getNextRelaxedKnowledgeState(WorldState current, Tuple<Operator, float> prefTuple)
+        {
+            // OPTIMIZATION this clone is probably unnecessary.
+            WorldState newState = current.clone();
+            foreach (String lit in prefTuple.Item1.effT.Keys)
+            {
+                if (newState.tWorld.Contains(lit))
+                    // Using Convert.ToSingle because casting to float doesn't work (packaged ints)
+                    if (prefTuple.Item2 > Convert.ToSingle(newState.tWorld[lit]))
+                        newState.tWorld[lit] = prefTuple.Item2;
+                if (!newState.tWorld.Contains(lit))
+                {
+                    newState.tWorld.Add(lit, prefTuple.Item2);
+                    // Remove the unknown version of this proposition (it may not exist, in which case this is a no-op).
+                    newState.utWorld.Remove(lit);
+                }
+            }
+            foreach (String lit in prefTuple.Item1.effF.Keys)
+            {
+                if (newState.fWorld.Contains(lit))
+                    if (prefTuple.Item2 > Convert.ToSingle(newState.fWorld[lit]))
+                        newState.fWorld[lit] = prefTuple.Item2;
+                if (!newState.fWorld.Contains(lit))
+                {
+                    newState.fWorld.Add(lit, prefTuple.Item2);
+                    // Remove the unknown version of this proposition (it may not exist, in which case this is a no-op).
+                    newState.ufWorld.Remove(lit);
+                }
+            }
+
+            return newState;
+        }
+
         private static List<string> getCharactersThatObserveThis(WorldState world, Operator ground, EffectTuple effect)
 		{
 			//run the function specified in the effect tuple observability and send the correct args
@@ -811,6 +1043,8 @@ namespace NarrativePlanning
         public WorldState clone(){
             Hashtable t = this.tWorld.Clone() as Hashtable;
             Hashtable f = this.fWorld.Clone() as Hashtable;
+            Hashtable ut = this.utWorld.Clone() as Hashtable;
+            Hashtable uf = this.ufWorld.Clone() as Hashtable;
             List<Character> cs = new List<Character>();
             List<Intention> intentions = new List<Intention>();
             foreach(Character c in this.characters){
@@ -820,7 +1054,7 @@ namespace NarrativePlanning
             {
                 intentions.Add(i.clone());
             }
-            return new WorldState(t, f, cs, intentions);
+            return new WorldState(t, f, ut, uf, cs, intentions);
         }
 
         public override bool Equals(object obj)
@@ -874,6 +1108,28 @@ namespace NarrativePlanning
                 UnityConsole.Log("("+de.Key+")", LOGMODE.WORLDSTATE);
             }
             foreach (DictionaryEntry de in fWorld)
+            {
+                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
+            }
+        }
+
+        public void PrintFullStateWithUnknowns()
+        {
+            UnityConsole.Log("KNOWN:", LOGMODE.WORLDSTATE);
+            foreach (DictionaryEntry de in tWorld)
+            {
+                UnityConsole.Log("(" + de.Key + ")", LOGMODE.WORLDSTATE);
+            }
+            foreach (DictionaryEntry de in fWorld)
+            {
+                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
+            }
+            UnityConsole.Log("UNKNOWN:", LOGMODE.WORLDSTATE);
+            foreach (DictionaryEntry de in utWorld)
+            {
+                UnityConsole.Log("(" + de.Key + ")", LOGMODE.WORLDSTATE);
+            }
+            foreach (DictionaryEntry de in ufWorld)
             {
                 UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
             }

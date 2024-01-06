@@ -1,0 +1,705 @@
+﻿{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Pickup",
+            "type": "Object"
+        },
+        {
+            "name": "PowerCell",
+            "type": "Pickup"
+        },
+        {
+            "name": "Galaxy",
+            "type": "Object"
+        },
+        {
+            "name": "Button",
+            "type": "Object"
+        },
+        {
+            "name": "MetaCondition",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "Red",
+            "type": "Player"
+        },
+        {
+            "name": "Blue",
+            "type": "Player"
+        },
+        {
+            "name": "Green",
+            "type": "Player"
+        },
+        {
+            "name": "Rear",
+            "type": "Location"
+        },
+        {
+            "name": "Command",
+            "type": "Location"
+        },
+        {
+            "name": "Engineering",
+            "type": "Location"
+        },
+        {
+            "name": "Storage",
+            "type": "Location"
+        },
+        {
+            "name": "EngineTools",
+            "type": "Pickup"
+        },
+        {
+            "name": "OriginalPowerCell",
+            "type": "PowerCell"
+        },
+        {
+            "name": "StoragePowerCell",
+            "type": "PowerCell"
+        },
+        {
+            "name": "JumpStabilizer",
+            "type": "Button"
+        },
+        {
+            "name": "JumpStarter",
+            "type": "Object"
+        },
+        {
+            "name": "AirlockControls",
+            "type": "Button"
+        },
+        {
+            "name": "JumpControls",
+            "type": "Button"
+        },
+        {
+            "name": "NavigationControls",
+            "type": "Button"
+        },
+        {
+            "name": "StartGalaxy",
+            "type": "Galaxy"
+        },
+        {
+            "name": "AttackGalaxy",
+            "type": "Galaxy"
+        },
+        {
+            "name": "HomeGalaxy",
+            "type": "Galaxy"
+        },
+        {
+            "name": "JumpStarted",
+            "type": "MetaCondition"
+        },
+        {
+            "name": "ShipPowered",
+            "type": "MetaCondition"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Location"
+                },
+                {
+                    "name": "?to",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?from",
+            "pre-t": [
+                "(at ?p ?from)"
+            ],
+            "pre-f": [
+                "(movelocked ?p)"
+            ],
+            "eff-t": [
+                "(at ?p ?to)"
+            ],
+            "eff-f": [
+                "(at ?p ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //jump
+        {
+            "name": "jump",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?from",
+                    "type": "Galaxy"
+                },
+                {
+                    "name": "?to",
+                    "type": "Galaxy"
+                }
+            ],
+            "char": "?p",
+            "loc": "Command",
+            "pre-t": [
+                "(active JumpControls ?p)",
+                "(ship-at ?from)",
+                "(jump-route ?from ?to)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(ship-at ?to)"
+            ],
+            "eff-f": [
+                "(ship-at ?from)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //press-button
+        {
+            "name": "press-button",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?c",
+                    "type": "MetaCondition"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?b ?l)",
+                "(needs ?b ?c)",
+                "(condition ?c)"
+            ],
+            "pre-f": [
+                "(movelocked ?p)"
+            ],
+            "eff-t": [
+                "(movelocked ?p)",
+                "(active ?b ?p)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //release-button
+        {
+            "name": "release-button",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(active ?b ?p)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(movelocked ?p)",
+                "(active ?b ?p)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //turn-on-ship
+        {
+            "name": "turn-on-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?cell",
+                    "type": "PowerCell"
+                }
+            ],
+            "char": "?p",
+            "loc": "Engineering",
+            "pre-t": [
+                "(at ?p Engineering)",
+                "(in-engine ?cell)",
+                "(stable ?cell)",
+                "(engine-repaired)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(condition ShipPowered)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //remove-powercell
+        {
+            "name": "remove-powercell",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?cell1",
+                    "type": "PowerCell"
+                },
+                {
+                    "name": "?cell2",
+                    "type": "PowerCell"
+                }
+            ],
+            "char": "?p",
+            "loc": "Engineering",
+            "pre-t": [
+                "(at ?p Engineering)",
+                "(in-engine ?cell1)"
+            ],
+            "pre-f": [
+                "(in-engine ?cell2)"
+            ],
+            "eff-t": [
+                "(has ?cell1 ?p)"
+            ],
+            "eff-f": [
+                "(in-engine ?cell1)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //insert-powercell
+        {
+            "name": "insert-powercell",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?cell1",
+                    "type": "PowerCell"
+                },
+                {
+                    "name": "?cell2",
+                    "type": "PowerCell"
+                }
+            ],
+            "char": "?p",
+            "loc": "Engineering",
+            "pre-t": [
+                "(at ?p Engineering)",
+                "(has ?cell1 ?p)"
+            ],
+            "pre-f": [
+                "(in-engine ?cell2)"
+            ],
+            "eff-t": [
+                "(in-engine ?cell1)"
+            ],
+            "eff-f": [
+                "(has ?cell1 ?p)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pick-up
+        {
+            "name": "pick-up",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?k",
+                    "type": "Pickup"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at ?k ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?k ?p)"
+            ],
+            "eff-f": [
+                "(at ?k ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //airlock-jettison
+        {
+            "name": "airlock-jettison",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?k",
+                    "type": "Pickup"
+                },
+                {
+                    "name": "?p2",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Rear",
+            "pre-t": [
+                "(at ?p Rear)",
+                "(has ?k ?p)",
+                "(active AirlockControls ?p2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(jettisoned ?k)"
+            ],
+            "eff-f": [
+                "(has ?k ?p)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //repair-engine
+        {
+            "name": "repair-engine",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "Engineering",
+            "pre-t": [
+                "(at ?p Engineering)",
+                "(has EngineTools ?p)"
+            ],
+            "pre-f": [
+                "(in-engine OriginalPowerCell)",
+                "(in-engine StoragePowerCell)",
+                "(engine-repaired)"
+            ],
+            "eff-t": [
+                "(engine-repaired)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //start-jumpdrive
+        {
+            "name": "start-jumpdrive",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?p2",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?p ?l)",
+                "(at JumpStarter ?l)",
+                "(active JumpStabilizer ?p2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(condition JumpStarted)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            //Players
+            "(at Red Rear)",
+            "(at Blue Rear)",
+            "(at Green Rear)",
+
+            "(at StoragePowerCell Storage)",
+            "(at EngineTools Storage)",
+            "(at JumpStabilizer Engineering)",
+            "(at JumpStarter Rear)",
+            "(at AirlockControls Command)",
+            "(at JumpControls Command)",
+            "(at NavigationControls Command)",
+
+            "(stable StoragePowerCell)",
+            "(in-engine OriginalPowerCell)",
+
+            "(jump-route StartGalaxy AttackGalaxy)",
+            "(jump-route AttackGalaxy HomeGalaxy)",
+
+            "(needs JumpControls JumpStarted)",
+            "(needs NavigationControls ShipPowered)",
+            "(needs AirlockControls ShipPowered)",
+            "(needs JumpStabilizer ShipPowered)"
+        ],
+        "f": [
+            "(movelocked Blue)",
+            "(movelocked Red)",
+            "(movelocked Green)",
+            "(stable OriginalPowerCell)",
+            "(in-engine StoragePowerCell)",
+            "(condition JumpStarted)",
+            "(condition ShipPowered)",
+            "(engine-repaired)",
+
+            // Location negations!
+            "(at Red Storage)",
+            "(at Red Engineering)",
+            "(at Red Command)",
+            "(at Blue Storage)",
+            "(at Blue Engineering)",
+            "(at Blue Command)",
+            "(at Green Storage)",
+            "(at Green Engineering)",
+            "(at Green Command)",
+            "(at StoragePowerCell Rear)",
+            "(at StoragePowerCell Engineering)",
+            "(at StoragePowerCell Command)",
+            "(at OriginalPowerCell Rear)",
+            "(at OriginalPowerCell Storage)",
+            "(at OriginalPowerCell Engineering)",
+            "(at OriginalPowerCell Command)",
+            "(at EngineTools Rear)",
+            "(at EngineTools Engineering)",
+            "(at EngineTools Command)",
+            "(at JumpStabilizer Rear)",
+            "(at JumpStabilizer Storage)",
+            "(at JumpStabilizer Command)",
+            "(at JumpStarter Storage)",
+            "(at JumpStarter Engineering)",
+            "(at JumpStarter Command",
+            "(at AirlockControls Rear)",
+            "(at AirlockControls Storage)",
+            "(at AirlockControls Engineering)",
+            "(at JumpControls Rear)",
+            "(at JumpControls Storage)",
+            "(at JumpControls Engineering)",
+            "(at NavigationControls Rear)",
+            "(at NavigationControls Storage)",
+            "(at NavigationControls Engineering)",
+
+            // Galaxy connetion negations!
+            "(jump-route StartGalaxy HomeGalaxy)",
+            "(jump-route AttackGalaxy StartGalaxy)",
+            "(jump-route HomeGalaxy AttackGalaxy)",
+            "(jump-route HomeGalaxy StartGalaxy)",
+
+            // Control negations!
+            "(active JumpControls Red)",
+            "(active JumpControls Blue)",
+            "(active JumpControls Green)",
+            "(active JumpStabilizer Red)",
+            "(active JumpStabilizer Blue)",
+            "(active JumpStabilizer Green)",
+            "(active AirlockControls Red)",
+            "(active AirlockControls Blue)",
+            "(active AirlockControls Green)",
+            "(active NavigationControls Red)",
+            "(active NavigationControls Blue)",
+            "(active NavigationControls Green)",
+
+            // Has negations!
+            "(has OriginalPowerCell Red)",
+            "(has OriginalPowerCell Blue)",
+            "(has OriginalPowerCell Green)",
+            "(has StoragePowerCell Red)",
+            "(has StoragePowerCell Blue)",
+            "(has StoragePowerCell Green)",
+            "(has EngineTools Red)",
+            "(has EngineTools Blue)",
+            "(has EngineTools Green)",
+
+            // Jettisoned negations!
+            "(jettisoned OriginalPowerCell)",
+            "(jettisoned StoragePowerCell)",
+            "(jettisoned EngineTools)"
+        ],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Green",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(jettisoned OriginalPowerCell)",
+            "(ship-at AttackGalaxy)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "Red",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Blue",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "Green",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

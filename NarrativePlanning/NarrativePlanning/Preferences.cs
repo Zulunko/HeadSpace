@@ -9,6 +9,8 @@ namespace NarrativePlanning
     // Will work into parsing later. For now, manually filling data for domains.
     public class Preferences
     {
+        public static float UnknownDiscount = 0.1f;
+        public static float ExploratoryPreference = 0.1f;
         //multipref
         private static Dictionary<string, float> NoPrefs = new Dictionary<string, float>()
         {
@@ -251,8 +253,13 @@ namespace NarrativePlanning
 
             //multipref
             {"Red", NoPrefs },
-            {"Blue", NoPrefs },
+            {"Blue", NoPrefs },//new Dictionary<string, float>{ { "move-keycard", 1f } } },
             {"Green", NoPrefs }
+        };
+
+        private List<string> exploratoryCharacters = new List<string>()
+        {
+            //"Red"
         };
 
         /*
@@ -312,6 +319,18 @@ namespace NarrativePlanning
                     return _Scaled(-propositionPrefs[prop]);
             }
             return _Scaled(0);
+        }
+
+        public float GetExploratoryPreferenceForCharacter(string character)
+        {
+            if (exploratoryCharacters.Contains(character))
+            {
+                return ExploratoryPreference;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }

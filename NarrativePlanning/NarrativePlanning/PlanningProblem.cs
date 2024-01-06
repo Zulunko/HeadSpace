@@ -7,6 +7,13 @@ using System.Linq;
 
 namespace NarrativePlanning
 {
+    public enum PLANNING_MODE
+    {
+        SINGLE,
+        MULTI,
+        KNOWLEDGE
+    }
+
     [Serializable]
     public class PlanningProblem
     {
@@ -203,7 +210,7 @@ namespace NarrativePlanning
                     if (!WorldState.isExecutable(op, w))
                     {
                         NarrativePlanning.Operator failedop = NarrativePlanning.Operator.getFailedOperator(groundedoperators, op);
-                        res = new Tuple<string, WorldState>(failedop.text, WorldState.getNextState(w, failedop));
+                        res = new Tuple<string, WorldState, WorldState>(failedop.text, WorldState.getNextState(w, failedop));
                         p.steps.Add(res);
                         x = FastForward.extractRPSize(FastForward.computeRPG(groundedoperators, res.Item2, this.goal), this.goal, groundedoperators);
                     }
@@ -292,7 +299,7 @@ namespace NarrativePlanning
         /// Returns a plan using a FF-based solution.
         /// </summary>
         /// <returns> A solution plan</returns>
-        public Plan FFPreferenceSolution(bool isMulti)
+        public Plan FFPreferenceSolution(PLANNING_MODE mode)
         {
             Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
             int depth = 1;
@@ -334,10 +341,18 @@ namespace NarrativePlanning
                 // XXX PRUNING
                 if (w.prunedOperators != null && w.prunedOperators.Count > 0) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
                 else n = w.getPossibleNextStatesTuplesWithPrefs(groundedoperators, preferences);
-                if (!isMulti)
-                    n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
-                else
-                    n.Sort((a, b) => preferences.GetActionPreferenceForCharacter(b.Item1.Split(' ')[1], b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreferenceForCharacter(a.Item1.Split(' ')[1], a.Item1.Split(' ')[0])));
+                switch (mode)
+                {
+                    case PLANNING_MODE.SINGLE:
+                        n.Sort((a, b) => preferences.GetActionPreference(b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreference(a.Item1.Split(' ')[0])));
+                        break;
+                    case PLANNING_MODE.MULTI:
+                        n.Sort((a, b) => preferences.GetActionPreferenceForCharacter(b.Item1.Split(' ')[1], b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreferenceForCharacter(a.Item1.Split(' ')[1], a.Item1.Split(' ')[0])));
+                        break;
+                    case PLANNING_MODE.KNOWLEDGE:
+                        UnityConsole.Log("FAIL: PLANNING_MODE must be either SINGLE or MULTI.", LOGMODE.ERROR);
+                        return null;
+                }
                 //foreach (Tuple<String, WorldState> t in n)
                 //{
                 //    Console.WriteLine("ACT: " + t.Item1);
@@ -358,10 +373,18 @@ namespace NarrativePlanning
                     //String charactername = op.character;
                     //Console.WriteLine();
                     FastForward.Layers prefRPG;
-                    if (!isMulti)
-                        prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
-                    else
-                        prefRPG = FastForward.computeMultiPreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                    switch (mode)
+                    {
+                        case PLANNING_MODE.SINGLE:
+                            prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                            break;
+                        case PLANNING_MODE.MULTI:
+                            prefRPG = FastForward.computeMultiPreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                            break;
+                        default:
+                            UnityConsole.Log("FAIL: PLANNING_MODE must be either SINGLE or MULTI.", LOGMODE.ERROR);
+                            return null;
+                    }
                     Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
                     Tuple<string, WorldState> res = next;
                     //p.steps.Add(next);
@@ -433,7 +456,217 @@ namespace NarrativePlanning
         /// Returns a plan using a FF-based solution.
         /// </summary>
         /// <returns> A solution plan</returns>
-        public Plan FFNoPreferenceSolution()
+        public Plan FFKnowledgePrefSolution(PLANNING_MODE mode)
+        {
+            if (mode != PLANNING_MODE.KNOWLEDGE)
+            {
+                UnityConsole.Log("FAIL: PLANNING_MODE must be KNOWLEDGE.", LOGMODE.ERROR);
+                return null;
+            }
+            Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
+            int depth = 1;
+            int bfactor = 0;
+            int avg_branching_factor = 0;
+            int nnodes = 0;
+            Plan current = new Plan(this);
+            //Queue<Plan> queue = new Queue<Plan>();
+            float min = -1;
+            float ps = -1;
+            Tuple<String, WorldState> best = null;
+            WorldState w = current.steps.Last().Item2;
+
+            WorldState agentKnowledge = w.clone();
+            agentKnowledge.tWorld.Clear();
+            agentKnowledge.fWorld.Clear();
+            // XXX HERE: ADD KNOWN KNOWLEDGE FROM DESIGNER
+            agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w);
+            agentKnowledge.tWorld.Add("connected Start Room1", 0);
+            agentKnowledge.tWorld.Add("connected Room1 Start", 0);
+            agentKnowledge.tWorld.Add("connected Room1 Goal", 0);
+            agentKnowledge.tWorld.Add("connected Goal Room1", 0);
+            agentKnowledge.fWorld.Add("connected Start Goal", 0);
+            agentKnowledge.fWorld.Add("connected Goal Start", 0);
+
+            agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
+            agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge);
+
+            while (true)
+            {
+                min = 100;
+                w = current.steps.Last().Item2;
+
+                // XXX Check if w is in our memoized states. If it is, rewind to the step that matches and
+                // restore prune list but remove operator that was chosen last time.
+                // ELIMINATING MEMOIZATION FOR NOW
+                for (int i = 0; i < current.steps.Count - 1; i++)
+                {
+                    if (current.steps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.tWorld.Count &&
+                        current.steps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.fWorld.Count)
+                    //XXX 9/7/22: memoization checks for truth only.
+                    // Above: this is a hack to make incomplete domains work. I have disabled the hack for now.
+                    {
+                        UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1, LOGMODE.MEMOIZE);
+                        //RewindAndEliminateAction(current, current.steps.Count - 1 - i);
+                        RewindAndEliminateAction(current, 1);
+                        w = current.steps[current.steps.Count - 1].Item2;
+                        break;
+                    }
+                }
+                w.PrintFullState();
+
+                FastForward.Layers prefRPG = FastForward.computeMultiPreferenceKnowledgeRPG(groundedoperators, agentKnowledge, goal, preferences);
+                Tuple<List<Operator>, List<float>, float> heuristicData = FastForward.extractRPKnowledge(prefRPG, goal, agentKnowledge);
+                List<Operator> suggestedActions = heuristicData.Item1;
+                List<float> actionPrefs = heuristicData.Item2;
+                suggestedActions.Reverse();
+                actionPrefs.Reverse();
+                Operator selectedAction = null;
+                float selectedPref = -1;
+                Operator moveAction = null;
+                float movePref = -1;
+                for (int i = 0; i < suggestedActions.Count; i++)
+                {
+                    Operator possible = suggestedActions[i];
+                    float currPref = actionPrefs[i];
+                    if (possible.name == "move")
+                    {
+                        if (moveAction != null && currPref <= movePref) continue;
+                        else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
+                        {
+                            moveAction = possible;
+                            movePref = currPref;
+                        }
+                    }
+                    else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
+                    {
+                        if (currPref <= selectedPref)
+                            continue;
+                        else
+                        {
+                            selectedAction = possible;
+                            selectedPref = currPref;
+                        }
+                    }
+                }
+                if (selectedAction == null) selectedAction = moveAction;
+                // Apply observability of preconds (happens regardless of success)
+                WorldState newKnowledge = WorldState.getKnowledgeUpdateActionPreconditions(w, selectedAction, agentKnowledge);
+                if (WorldState.isExecutable(selectedAction, w))
+                {
+                    // Apply world state changes / observability of effects
+                    Tuple<WorldState, WorldState> newStates = WorldState.getNextStateWithKnowledgeUpdate(w, selectedAction, newKnowledge);
+                    WorldState newWorld = newStates.Item1;
+                    newKnowledge = newStates.Item2;
+                    current.steps.Add(new Tuple<string, WorldState>(selectedAction.text, newWorld));
+                    UnityConsole.Log(current.steps.Last().Item1, LOGMODE.ERROR);
+                    if (newWorld.isGoalState(goal))
+                    {
+                        return current;
+                    }
+                } else
+                {
+                    current.steps.Add(new Tuple<string, WorldState>("FAIL " + selectedAction.text, w.clone()));
+                    UnityConsole.Log(current.steps.Last().Item1, LOGMODE.ERROR);
+                }
+                // XXX We may need to store knowledge states for memoization, but for now we just let it pass.
+                agentKnowledge = FastForward.ApplyKnowledgeConsistency(newKnowledge);
+            }
+            return null;
+
+            // XXX EWLANG THIS NOW NEEDS TO BE MODIFIED TO EVALUATE CURRENT STATE!
+            /*int tmp = 0;
+            List<Tuple<String, WorldState>> n;
+            if (w.prunedOperators != null && w.prunedOperators.Count > 0) n = w.getPrunedNextStatesTuplesWithPrefs(preferences);
+            else n = w.getPossibleNextStatesTuplesWithPrefs(groundedoperators, preferences);
+            n.Sort((a, b) => preferences.GetActionPreferenceForCharacter(b.Item1.Split(' ')[1], b.Item1.Split(' ')[0]).CompareTo(preferences.GetActionPreferenceForCharacter(a.Item1.Split(' ')[1], a.Item1.Split(' ')[0])));
+
+            //check every node in the frontier
+            foreach (Tuple<String, WorldState> next in n)
+            {
+                if (next.Item1.Contains("-false"))
+                    continue;
+                nnodes++;
+                tmp++;
+                Plan p = new Plan(this);
+                Operator op = groundedoperators.Find(xy => xy.text.Equals(next.Item1));
+
+                FastForward.Layers prefRPG;
+                switch (mode)
+                {
+                    case PLANNING_MODE.SINGLE:
+                        prefRPG = FastForward.computePreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                        break;
+                    case PLANNING_MODE.MULTI:
+                        prefRPG = FastForward.computeMultiPreferenceRPG(groundedoperators, next.Item2, this.goal, this.preferences);
+                        break;
+                    default:
+                        UnityConsole.Log("FAIL: PLANNING_MODE must be either SINGLE or MULTI.", LOGMODE.ERROR);
+                        return null;
+                }
+                Tuple<int, float> heuristicData = FastForward.extractPrefRPSizeAndPrunedOps(prefRPG, this.goal, next.Item2);
+                Tuple<string, WorldState> res = next;
+
+                float y;
+                if (heuristicData.Item1 == -1)
+                    y = -1;
+                else
+                    y = heuristicData.Item1;// + (1f - heuristicData.Item2);
+                UnityConsole.Log("        Value for " + next.Item1 + ": " + y, LOGMODE.PLANNER);
+                UnityConsole.Log("        Playstyle for " + next.Item1 + ": " + heuristicData.Item2, LOGMODE.PLANNER);
+
+                if (y != -1)
+                {
+                    if (y < min || (y == min && heuristicData.Item2 > ps) || (y == min && heuristicData.Item2 == ps && best.Item1.Contains("move") && !res.Item1.Contains("move")))
+                    {
+                        best = res;
+                        min = y;
+                        ps = heuristicData.Item2;
+                    }
+                }
+            }
+
+            // XXX MEMOIZATION: rewind if n.Count == 0
+            if (n.Count == 0)
+            {
+                // Possibly here: instead keep a list of eliminated actions, redo this add without pruned actions but while still avoiding eliminated actions
+                RewindAndEliminateAction(current, 1);
+                continue;
+                //return null;
+            }
+
+            UnityConsole.Log("STEP SELECTED: " + best.Item1 + "\n", LOGMODE.PLANNER);
+            //if (best.Item1 == "proceed Act2 Act3")
+            //{
+            //    UnityConsole.Log("stop.", LOGMODE.PLANNER);
+            //}
+            //UnityConsole.Write("----------\n");
+            if (tmp > bfactor)
+                bfactor = tmp;
+
+            //add best node to plan
+            current.steps.Add(best);
+            if (current.steps[current.steps.Count - 1].Item2.isGoalState(this.goal))
+            {
+                //solution found!
+                solutionPlan = current;
+                UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                Console.WriteLine("---------------------PLANNING PROCESS ENDED");
+                return solutionPlan;
+            }
+
+            // XXX MEMO: removed this, can change to make more accurate maybe
+            //depth++;
+        }
+        Console.WriteLine("---------------------PLANNING PROCESS ENDED");
+        return solutionPlan;
+        }*/
+        }
+
+            /// <summary>
+            /// Returns a plan using a FF-based solution.
+            /// </summary>
+            /// <returns> A solution plan</returns>
+            public Plan FFNoPreferenceSolution()
         {
             int depth = 1;
             int bfactor = 0;
