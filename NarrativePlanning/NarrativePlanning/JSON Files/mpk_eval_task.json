@@ -1,0 +1,352 @@
+﻿/*
+    XXX WIP: This is an implementation of the evaluation task for my final user study for my dissertation.
+    Full task description can be seen here: https://docs.google.com/document/d/1WtC1EeW9-7jmB5TiVBgLORV8jpPVdvNP8VBYHFrak9U/edit
+*/
+{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Key",
+            "type": "Object"
+        },
+        {
+            "name": "Wand",
+            "type": "Object"
+        },
+        {
+            "name": "Box",
+            "type": "Object"
+        },
+        {
+            "name": "Door",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "RedPlayer",
+            "type": "Player"
+        },
+        {
+            "name": "BluePlayer",
+            "type": "Player"
+        },
+        {
+            "name": "StartRoom",
+            "type": "Location"
+        },
+        {
+            "name": "GoalRoom",
+            "type": "Location"
+        },
+        {
+            "name": "GoalKey",
+            "type": "Key"
+        },
+        {
+            "name": "HoverWand",
+            "type": "Wand"
+        },
+        {
+            "name": "Chest",
+            "type": "Box"
+        },
+        {
+            "name": "GoalDoor",
+            "type": "Door"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move-to-goal
+        {
+            "name": "move-to-goal",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(connected StartRoom GoalRoom)",
+                "(at ?p StartRoom)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p GoalRoom)"
+            ],
+            "eff-f": [
+                "(at ?p StartRoom)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //open-goal-door
+        {
+            "name": "open-goal-door",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p StartRoom)"
+            ],
+            "pre-f": [
+                "(locked GoalDoor)",
+                "(open GoalDoor)"
+            ],
+            "eff-t": [
+                "(connected StartRoom GoalRoom)",
+                "(open GoalDoor)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //unlock-goal-door
+        {
+            "name": "unlock-goal-door",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p StartRoom)",
+                "(has GoalKey ?p)",
+                "(locked GoalDoor)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+            ],
+            "eff-f": [
+                "(locked GoalDoor)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pickup-goal-key
+        {
+            "name": "pickup-goal-key",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p StartRoom)",
+                "(hovering ?p)"
+            ],
+            "pre-f": [
+                "(has GoalKey ?p)"
+            ],
+            "eff-t": [
+                "(has GoalKey ?p)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //cast-hover-spell
+        {
+            "name": "cast-hover-spell",
+            "args": [
+                {
+                    "name": "?p1",
+                    "type": "Player"
+                },
+                {
+                    "name": "?p2",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p1",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p1 StartRoom)",
+                "(has HoverWand ?p1)",
+                "(at ?p2 StartRoom)"
+            ],
+            "pre-f": [
+                "(hovering ?p2)"
+            ],
+            "eff-t": [
+                "(hovering ?p2)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //open-chest
+        {
+            "name": "open-chest",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p StartRoom)"
+            ],
+            "pre-f": [
+                "(open Chest)"
+            ],
+            "eff-t": [
+                "(open Chest)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pickup-hover-wand
+        {
+            "name": "pickup-hover-wand",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "StartRoom",
+            "pre-t": [
+                "(at ?p StartRoom)",
+                "(open Chest)"
+            ],
+            "pre-f": [
+                "(empty Chest)"
+            ],
+            "eff-t": [
+                "(has HoverWand ?p)",
+                "(empty Chest)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "initial": {
+        "t": [
+            //Map
+            "(at RedPlayer StartRoom)",
+            "(at BluePlayer StartRoom)",
+
+            "(locked GoalDoor)"
+        ],
+        "f": [
+            "(empty Chest)",
+            "(open Chest)",
+            "(hovering RedPlayer)",
+            "(hovering BluePlayer)",
+            "(connected StartRoom GoalRoom)",
+            "(has GoalKey RedPlayer)",
+            "(has GoalKey BluePlayer)",
+            "(has HoverWand RedPlayer)",
+            "(has HoverWand BluePlayer)",
+            "(at RedPlayer GoalRoom)",
+            "(at BluePlayer GoalRoom)",
+            "(open GoalDoor)"
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at RedPlayer GoalRoom)",
+            "(at BluePlayer GoalRoom)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

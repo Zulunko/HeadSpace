@@ -13,10 +13,6 @@
             "type": "Object"
         },
         {
-            "name": "PowerCell",
-            "type": "Pickup"
-        },
-        {
             "name": "Galaxy",
             "type": "Object"
         },
@@ -63,12 +59,8 @@
             "type": "Pickup"
         },
         {
-            "name": "OriginalPowerCell",
-            "type": "PowerCell"
-        },
-        {
-            "name": "StoragePowerCell",
-            "type": "PowerCell"
+            "name": "PowerCell",
+            "type": "Pickup"
         },
         {
             "name": "JumpStabilizer",
@@ -137,7 +129,6 @@
                 "(at ?p ?from)"
             ],
             "pre-f": [
-                "(movelocked ?p)"
             ],
             "eff-t": [
                 "(at ?p ?to)"
@@ -173,9 +164,10 @@
             "char": "?p",
             "loc": "Command",
             "pre-t": [
-                "(active JumpControls ?p)",
+                "(active JumpControls)",
                 "(ship-at ?from)",
-                "(jump-route ?from ?to)"
+                "(jump-route ?from ?to)",
+                "(at ?p Command)"
             ],
             "pre-f": [
             ],
@@ -223,51 +215,12 @@
                 "(condition ?c)"
             ],
             "pre-f": [
-                "(movelocked ?p)"
+                "(active ?b)"
             ],
             "eff-t": [
-                "(movelocked ?p)",
-                "(active ?b ?p)"
+                "(active ?b)"
             ],
             "eff-f": [
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
-        //release-button
-        {
-            "name": "release-button",
-            "args": [
-                {
-                    "name": "?p",
-                    "type": "Player"
-                },
-                {
-                    "name": "?b",
-                    "type": "Button"
-                },
-                {
-                    "name": "?l",
-                    "type": "Location"
-                }
-            ],
-            "char": "?p",
-            "loc": "?l",
-            "pre-t": [
-                "(active ?b ?p)"
-            ],
-            "pre-f": [
-            ],
-            "eff-t": [
-            ],
-            "eff-f": [
-                "(movelocked ?p)",
-                "(active ?b ?p)"
             ],
             "pre-bplus": [],
             "pre-bminus": [],
@@ -284,18 +237,13 @@
                 {
                     "name": "?p",
                     "type": "Player"
-                },
-                {
-                    "name": "?cell",
-                    "type": "PowerCell"
                 }
             ],
             "char": "?p",
             "loc": "Engineering",
             "pre-t": [
                 "(at ?p Engineering)",
-                "(in-engine ?cell)",
-                "(stable ?cell)",
+                "(in-engine PowerCell)",
                 "(engine-repaired)"
             ],
             "pre-f": [
@@ -313,46 +261,6 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //remove-powercell
-        {
-            "name": "remove-powercell",
-            "args": [
-                {
-                    "name": "?p",
-                    "type": "Player"
-                },
-                {
-                    "name": "?cell1",
-                    "type": "PowerCell"
-                },
-                {
-                    "name": "?cell2",
-                    "type": "PowerCell"
-                }
-            ],
-            "char": "?p",
-            "loc": "Engineering",
-            "pre-t": [
-                "(at ?p Engineering)",
-                "(in-engine ?cell1)"
-            ],
-            "pre-f": [
-                "(in-engine ?cell2)"
-            ],
-            "eff-t": [
-                "(has ?cell1 ?p)"
-            ],
-            "eff-f": [
-                "(in-engine ?cell1)"
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
         //insert-powercell
         {
             "name": "insert-powercell",
@@ -360,30 +268,21 @@
                 {
                     "name": "?p",
                     "type": "Player"
-                },
-                {
-                    "name": "?cell1",
-                    "type": "PowerCell"
-                },
-                {
-                    "name": "?cell2",
-                    "type": "PowerCell"
                 }
             ],
             "char": "?p",
             "loc": "Engineering",
             "pre-t": [
                 "(at ?p Engineering)",
-                "(has ?cell1 ?p)"
+                "(has PowerCell ?p)"
             ],
             "pre-f": [
-                "(in-engine ?cell2)"
             ],
             "eff-t": [
-                "(in-engine ?cell1)"
+                "(in-engine PowerCell)"
             ],
             "eff-f": [
-                "(has ?cell1 ?p)"
+                "(has PowerCell ?p)"
             ],
             "pre-bplus": [],
             "pre-bminus": [],
@@ -443,10 +342,6 @@
                 {
                     "name": "?k",
                     "type": "Pickup"
-                },
-                {
-                    "name": "?p2",
-                    "type": "Player"
                 }
             ],
             "char": "?p",
@@ -454,7 +349,7 @@
             "pre-t": [
                 "(at ?p Rear)",
                 "(has ?k ?p)",
-                "(active AirlockControls ?p2)"
+                "(active AirlockControls)"
             ],
             "pre-f": [
             ],
@@ -488,8 +383,7 @@
                 "(has EngineTools ?p)"
             ],
             "pre-f": [
-                "(in-engine OriginalPowerCell)",
-                "(in-engine StoragePowerCell)",
+                "(in-engine PowerCell)",
                 "(engine-repaired)"
             ],
             "eff-t": [
@@ -516,10 +410,6 @@
                 {
                     "name": "?l",
                     "type": "Location"
-                },
-                {
-                    "name": "?p2",
-                    "type": "Player"
                 }
             ],
             "char": "?p",
@@ -527,9 +417,10 @@
             "pre-t": [
                 "(at ?p ?l)",
                 "(at JumpStarter ?l)",
-                "(active JumpStabilizer ?p2)"
+                "(active JumpStabilizer)"
             ],
             "pre-f": [
+                "(condition JumpStarted)"
             ],
             "eff-t": [
                 "(condition JumpStarted)"
@@ -552,17 +443,15 @@
             "(at Blue Rear)",
             "(at Green Rear)",
 
-            "(at StoragePowerCell Storage)",
+            "(at PowerCell Storage)",
             "(at EngineTools Storage)",
-            "(at JumpStabilizer Engineering)",
+            "(at JumpStabilizer Command)",
             "(at JumpStarter Rear)",
             "(at AirlockControls Command)",
             "(at JumpControls Command)",
             "(at NavigationControls Command)",
 
-            "(stable StoragePowerCell)",
-            "(in-engine OriginalPowerCell)",
-
+            "(ship-at StartGalaxy)",
             "(jump-route StartGalaxy AttackGalaxy)",
             "(jump-route AttackGalaxy HomeGalaxy)",
 
@@ -572,14 +461,15 @@
             "(needs JumpStabilizer ShipPowered)"
         ],
         "f": [
-            "(movelocked Blue)",
-            "(movelocked Red)",
-            "(movelocked Green)",
-            "(stable OriginalPowerCell)",
-            "(in-engine StoragePowerCell)",
+            "(in-engine PowerCell)",
             "(condition JumpStarted)",
             "(condition ShipPowered)",
             "(engine-repaired)",
+
+            "(needs JumpControls ShipPowered)",
+            "(needs NavigationControls JumpStarted)",
+            "(needs AirlockControls JumpStarted)",
+            "(needs JumpStabilizer JumpStarted)",
 
             // Location negations!
             "(at Red Storage)",
@@ -591,19 +481,15 @@
             "(at Green Storage)",
             "(at Green Engineering)",
             "(at Green Command)",
-            "(at StoragePowerCell Rear)",
-            "(at StoragePowerCell Engineering)",
-            "(at StoragePowerCell Command)",
-            "(at OriginalPowerCell Rear)",
-            "(at OriginalPowerCell Storage)",
-            "(at OriginalPowerCell Engineering)",
-            "(at OriginalPowerCell Command)",
+            "(at PowerCell Rear)",
+            "(at PowerCell Engineering)",
+            "(at PowerCell Command)",
             "(at EngineTools Rear)",
             "(at EngineTools Engineering)",
             "(at EngineTools Command)",
             "(at JumpStabilizer Rear)",
             "(at JumpStabilizer Storage)",
-            "(at JumpStabilizer Command)",
+            "(at JumpStabilizer Engineering)",
             "(at JumpStarter Storage)",
             "(at JumpStarter Engineering)",
             "(at JumpStarter Command",
@@ -616,6 +502,8 @@
             "(at NavigationControls Rear)",
             "(at NavigationControls Storage)",
             "(at NavigationControls Engineering)",
+            "(ship-at AttackGalaxy)",
+            "(ship-at HomeGalaxy)",
 
             // Galaxy connetion negations!
             "(jump-route StartGalaxy HomeGalaxy)",
@@ -624,34 +512,18 @@
             "(jump-route HomeGalaxy StartGalaxy)",
 
             // Control negations!
-            "(active JumpControls Red)",
-            "(active JumpControls Blue)",
-            "(active JumpControls Green)",
-            "(active JumpStabilizer Red)",
-            "(active JumpStabilizer Blue)",
-            "(active JumpStabilizer Green)",
-            "(active AirlockControls Red)",
-            "(active AirlockControls Blue)",
-            "(active AirlockControls Green)",
-            "(active NavigationControls Red)",
-            "(active NavigationControls Blue)",
-            "(active NavigationControls Green)",
+            "(active JumpControls)",
+            "(active JumpStabilizer)",
+            "(active AirlockControls)",
+            "(active NavigationControls)",
 
             // Has negations!
-            "(has OriginalPowerCell Red)",
-            "(has OriginalPowerCell Blue)",
-            "(has OriginalPowerCell Green)",
-            "(has StoragePowerCell Red)",
-            "(has StoragePowerCell Blue)",
-            "(has StoragePowerCell Green)",
+            "(has PowerCell Red)",
+            "(has PowerCell Blue)",
+            "(has PowerCell Green)",
             "(has EngineTools Red)",
             "(has EngineTools Blue)",
-            "(has EngineTools Green)",
-
-            // Jettisoned negations!
-            "(jettisoned OriginalPowerCell)",
-            "(jettisoned StoragePowerCell)",
-            "(jettisoned EngineTools)"
+            "(has EngineTools Green)"
         ],
         "characters": [
             {
@@ -676,7 +548,6 @@
     },
     "final": {
         "t": [
-            "(jettisoned OriginalPowerCell)",
             "(ship-at AttackGalaxy)"
         ],
         "f": [

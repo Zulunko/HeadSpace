@@ -1383,6 +1383,9 @@ namespace NarrativePlanning
                                 if (i.prunedOperators == null)
                                     i.prunedOperators = new List<Operator>();
                                 i.prunedOperators.Add(o);
+                                if (i.operatorPrefs == null)
+                                    i.operatorPrefs = new List<float>();
+                                i.operatorPrefs.Add(prefTuple.Item2);
                             }
                             //PRUNING
                             //if (t == 1)

@@ -46,7 +46,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/multiprefknowledge_ship.json", new Preferences());
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mpk_ship.json", new Preferences());
 
             // SMALL TEST
             /*WorldState knowledgeSet = new WorldState();
@@ -96,9 +96,6 @@ namespace NarrativePlanning
 
              NarrativePlanning.PlanningProblem problem = new NarrativePlanning.PlanningProblem(j.initial, j.goal, j.operators, new Preferences());
 
-            NarrativePlanning.Plan nullplan = problem.FFKnowledgePrefSolution(PLANNING_MODE.KNOWLEDGE);
-            UnityConsole.Log("Done.", LOGMODE.ERROR);
-
             /////// STEP 2: GENERATE PLAN 
             // Use planner to generate the plan and register it to mapper
             //problem.computeRPGToFixed();
@@ -110,7 +107,7 @@ namespace NarrativePlanning
             //UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
             //watch.Reset();
             watch.Start();
-            NarrativePlanning.Plan plan = problem.FFPreferenceSolution(PLANNING_MODE.MULTI);
+            NarrativePlanning.Plan plan = problem.FFKnowledgePrefSolution(PLANNING_MODE.KNOWLEDGE);
             watch.Stop();
             UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
             //NarrativePlanning.Plan plan = problem.FFSolution();

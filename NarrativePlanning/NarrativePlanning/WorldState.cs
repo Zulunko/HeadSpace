@@ -64,6 +64,7 @@ namespace NarrativePlanning
 
         public List<Operator> prunedOperators = null;
         public List<string> eliminatedOperators = null;
+        public List<float> operatorPrefs = null;
 
         public WorldState()
         {
@@ -667,7 +668,7 @@ namespace NarrativePlanning
 
                 if (lit.StartsWith("at "))
                 {
-                    knowledge = FastForward.ApplyLocationObservabilityUpdate(knowledge, current, lit);
+                    knowledge = FastForward.ApplyLocationObservabilityUpdate(knowledge, newState, lit);
                 }
             }
             foreach (String lit in ground.effF.Keys)

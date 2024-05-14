@@ -11,18 +11,22 @@ namespace NarrativePlanning
     {
         public PlanningProblem pp;
         public List<Tuple<String, WorldState>> steps;
-        
+        public List<Tuple<String, WorldState, WorldState>> knowledgeSteps;
+
         public Plan(PlanningProblem pp)
         {
             this.pp = pp;
             steps = new List<Tuple<String, WorldState>>();
             steps.Add(new Tuple<String, WorldState>("null", pp.w0));
-			
+            knowledgeSteps = new List<Tuple<String, WorldState, WorldState>>();
         }
 
         public String toString(){
             String s = "\n";
-            steps.ForEach(step=>s=s+step.Item1+"\n");
+            if (steps.Count > 0)
+                steps.ForEach(step=>s=s+step.Item1+"\n");
+            if (knowledgeSteps.Count > 0)
+                knowledgeSteps.ForEach(step => s = s + step.Item1 + "\n");
             return s;
         }
         
@@ -31,6 +35,11 @@ namespace NarrativePlanning
             p.steps = new List<Tuple<string, WorldState>>();
             foreach(Tuple<String, WorldState> t in this.steps){
                 p.steps.Add(t);
+            }
+            p.knowledgeSteps = new List<Tuple<String, WorldState, WorldState>>();
+            foreach (Tuple<String, WorldState, WorldState> t in this.knowledgeSteps)
+            {
+                p.knowledgeSteps.Add(t);
             }
             return p;
         }

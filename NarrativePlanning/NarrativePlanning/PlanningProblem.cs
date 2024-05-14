@@ -210,7 +210,7 @@ namespace NarrativePlanning
                     if (!WorldState.isExecutable(op, w))
                     {
                         NarrativePlanning.Operator failedop = NarrativePlanning.Operator.getFailedOperator(groundedoperators, op);
-                        res = new Tuple<string, WorldState, WorldState>(failedop.text, WorldState.getNextState(w, failedop));
+                        res = new Tuple<string, WorldState>(failedop.text, WorldState.getNextState(w, failedop));
                         p.steps.Add(res);
                         x = FastForward.extractRPSize(FastForward.computeRPG(groundedoperators, res.Item2, this.goal), this.goal, groundedoperators);
                     }
@@ -291,6 +291,44 @@ namespace NarrativePlanning
             {
                 if (w.eliminatedOperators == null) w.eliminatedOperators = new List<string>();
                 w.eliminatedOperators.Add(p.steps[i].Item1);
+            }
+            return p;
+        }
+
+        private Plan RewindAndEliminateActionKnowledge(Plan p, int numToRewind)
+        {
+            UnityConsole.Log("Rewinding " + numToRewind + " steps from current plan:", LOGMODE.MEMOIZE);
+            int i = p.knowledgeSteps.Count - 1 - numToRewind;
+            for (int j = 0; j < p.knowledgeSteps.Count - 1; j++)
+            {
+                UnityConsole.Log("    " + p.knowledgeSteps[j].Item1, LOGMODE.MEMOIZE);
+                if (j == i) UnityConsole.Log("    ----MEMOIZATION CUTOFF", LOGMODE.MEMOIZE);
+            }
+            String nextstep = p.knowledgeSteps[i + 1].Item1;
+            p.knowledgeSteps.RemoveRange(i + 1, p.knowledgeSteps.Count - i - 1);
+            // pruned ops are stored in knowledge worldstate
+            WorldState w = p.knowledgeSteps[i].Item3;
+            int toremove = -1;
+            if (w.prunedOperators != null)
+            {
+                for (int j = 0; j < w.prunedOperators.Count; j++)
+                {
+                    if (w.prunedOperators[j].text == nextstep)
+                    {
+                        toremove = j;
+                        break;
+                    }
+                }
+            }
+            if (toremove != -1)
+            {
+                w.prunedOperators.RemoveAt(toremove);
+                w.operatorPrefs.RemoveAt(toremove);
+            }
+            else
+            {
+                if (w.eliminatedOperators == null) w.eliminatedOperators = new List<string>();
+                w.eliminatedOperators.Add(p.knowledgeSteps[i].Item1);
             }
             return p;
         }
@@ -480,46 +518,88 @@ namespace NarrativePlanning
             agentKnowledge.fWorld.Clear();
             // XXX HERE: ADD KNOWN KNOWLEDGE FROM DESIGNER
             agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w);
-            agentKnowledge.tWorld.Add("connected Start Room1", 0);
-            agentKnowledge.tWorld.Add("connected Room1 Start", 0);
-            agentKnowledge.tWorld.Add("connected Room1 Goal", 0);
-            agentKnowledge.tWorld.Add("connected Goal Room1", 0);
-            agentKnowledge.fWorld.Add("connected Start Goal", 0);
-            agentKnowledge.fWorld.Add("connected Goal Start", 0);
+            /* mpk_eval_tutorial
+            agentKnowledge.fWorld.Add("connected StartRoom GoalRoom", 0);
+            agentKnowledge.fWorld.Add("open Chest", 0);
+            */
+            /* mpk_ship */
+            agentKnowledge.tWorld.Add("ship-at StartGalaxy", 0);
+            agentKnowledge.tWorld.Add("jump-route StartGalaxy AttackGalaxy", 0);
+            agentKnowledge.tWorld.Add("jump-route AttackGalaxy HomeGalaxy", 0);
+
+            agentKnowledge.tWorld.Add("needs JumpControls JumpStarted", 0);
+            agentKnowledge.tWorld.Add("needs NavigationControls ShipPowered", 0);
+            agentKnowledge.tWorld.Add("needs AirlockControls ShipPowered", 0);
+            agentKnowledge.tWorld.Add("needs JumpStabilizer ShipPowered", 0);
+
+            agentKnowledge.fWorld.Add("needs JumpControls ShipPowered", 0);
+            agentKnowledge.fWorld.Add("needs NavigationControls JumpStarted", 0);
+            agentKnowledge.fWorld.Add("needs AirlockControls JumpStarted", 0);
+            agentKnowledge.fWorld.Add("needs JumpStabilizer JumpStarted", 0);
+
+            agentKnowledge.fWorld.Add("ship-at AttackGalaxy", 0);
+            agentKnowledge.fWorld.Add("ship-at HomeGalaxy", 0);
+            agentKnowledge.fWorld.Add("jump-route StartGalaxy HomeGalaxy", 0);
 
             agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
             agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge);
 
+            current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(current.steps.Last().Item1, current.steps.Last().Item2, agentKnowledge));
+            current.steps.Clear();
+
             while (true)
             {
                 min = 100;
-                w = current.steps.Last().Item2;
+                w = current.knowledgeSteps.Last().Item2;
+                agentKnowledge = current.knowledgeSteps.Last().Item3;
 
                 // XXX Check if w is in our memoized states. If it is, rewind to the step that matches and
                 // restore prune list but remove operator that was chosen last time.
                 // ELIMINATING MEMOIZATION FOR NOW
-                for (int i = 0; i < current.steps.Count - 1; i++)
+                for (int i = 0; i < current.knowledgeSteps.Count - 1; i++)
                 {
-                    if (current.steps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.tWorld.Count &&
-                        current.steps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.steps[i].Item2.fWorld.Count)
-                    //XXX 9/7/22: memoization checks for truth only.
-                    // Above: this is a hack to make incomplete domains work. I have disabled the hack for now.
+                    if (current.knowledgeSteps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.knowledgeSteps[i].Item2.tWorld.Count &&
+                        current.knowledgeSteps[i].Item2.fWorld.Cast<DictionaryEntry>().Union(w.fWorld.Cast<DictionaryEntry>()).Count() == current.knowledgeSteps[i].Item2.fWorld.Count &&
+                        current.knowledgeSteps[i].Item3.tWorld.Cast<DictionaryEntry>().Union(agentKnowledge.tWorld.Cast<DictionaryEntry>()).Count() == current.knowledgeSteps[i].Item3.tWorld.Count &&
+                        current.knowledgeSteps[i].Item3.fWorld.Cast<DictionaryEntry>().Union(agentKnowledge.fWorld.Cast<DictionaryEntry>()).Count() == current.knowledgeSteps[i].Item3.fWorld.Count)
+                    // XXX we probably only need to check the Item3 state here, not the Item2 state. World can't change without agent knowledge, so we don't need to check the real world state.
                     {
-                        UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1, LOGMODE.MEMOIZE);
-                        //RewindAndEliminateAction(current, current.steps.Count - 1 - i);
-                        RewindAndEliminateAction(current, 1);
-                        w = current.steps[current.steps.Count - 1].Item2;
+                        UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item1, LOGMODE.MEMOIZE);
+                        current = RewindAndEliminateActionKnowledge(current, current.knowledgeSteps.Count - 1 - i);
+                        //current = RewindAndEliminateActionKnowledge(current, 1);
+                        w = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item2;
+                        agentKnowledge = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item3;
                         break;
                     }
                 }
+                //UnityConsole.Log("t: " + current.knowledgeSteps.Last().Item2.tWorld.Count, LOGMODE.ERROR);
+                //UnityConsole.Log("f: " + current.knowledgeSteps.Last().Item2.fWorld.Count, LOGMODE.ERROR);
+                //UnityConsole.Log("kt: " + current.knowledgeSteps.Last().Item3.tWorld.Count, LOGMODE.ERROR);
+                //UnityConsole.Log("kf: " + current.knowledgeSteps.Last().Item3.fWorld.Count, LOGMODE.ERROR);
+                //foreach(string p in current.knowledgeSteps.Last().Item3.fWorld.Keys)
+                //{
+                //    UnityConsole.Log("  " + p, LOGMODE.ERROR);
+                //}
                 w.PrintFullState();
 
-                FastForward.Layers prefRPG = FastForward.computeMultiPreferenceKnowledgeRPG(groundedoperators, agentKnowledge, goal, preferences);
-                Tuple<List<Operator>, List<float>, float> heuristicData = FastForward.extractRPKnowledge(prefRPG, goal, agentKnowledge);
-                List<Operator> suggestedActions = heuristicData.Item1;
-                List<float> actionPrefs = heuristicData.Item2;
-                suggestedActions.Reverse();
-                actionPrefs.Reverse();
+                List<Operator> suggestedActions;
+                List<float> actionPrefs;
+                // pruned ops are stored in knowledge worldstate (item3).
+                if (current.knowledgeSteps.Last().Item3.prunedOperators == null)
+                {
+                    FastForward.Layers prefRPG = FastForward.computeMultiPreferenceKnowledgeRPG(groundedoperators, agentKnowledge, goal, preferences);
+                    Tuple<List<Operator>, List<float>, float> heuristicData = FastForward.extractRPKnowledge(prefRPG, goal, agentKnowledge);
+                    suggestedActions = heuristicData.Item1;
+                    actionPrefs = heuristicData.Item2;
+                    suggestedActions.Reverse();
+                    actionPrefs.Reverse();
+                } else
+                {
+                    suggestedActions = current.knowledgeSteps.Last().Item3.prunedOperators;
+                    actionPrefs = current.knowledgeSteps.Last().Item3.operatorPrefs;
+                }
+
+
                 Operator selectedAction = null;
                 float selectedPref = -1;
                 Operator moveAction = null;
@@ -549,6 +629,16 @@ namespace NarrativePlanning
                     }
                 }
                 if (selectedAction == null) selectedAction = moveAction;
+
+                //if (selectedAction == null)
+                //{
+                    UnityConsole.Log("DERP!", LOGMODE.ERROR);
+                    foreach (Operator o in suggestedActions)
+                    {
+                        UnityConsole.Log(o.text, LOGMODE.ERROR);
+                    }
+                //}
+
                 // Apply observability of preconds (happens regardless of success)
                 WorldState newKnowledge = WorldState.getKnowledgeUpdateActionPreconditions(w, selectedAction, agentKnowledge);
                 if (WorldState.isExecutable(selectedAction, w))
@@ -557,19 +647,17 @@ namespace NarrativePlanning
                     Tuple<WorldState, WorldState> newStates = WorldState.getNextStateWithKnowledgeUpdate(w, selectedAction, newKnowledge);
                     WorldState newWorld = newStates.Item1;
                     newKnowledge = newStates.Item2;
-                    current.steps.Add(new Tuple<string, WorldState>(selectedAction.text, newWorld));
-                    UnityConsole.Log(current.steps.Last().Item1, LOGMODE.ERROR);
+                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));
+                    UnityConsole.Log(current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                     if (newWorld.isGoalState(goal))
                     {
                         return current;
                     }
                 } else
                 {
-                    current.steps.Add(new Tuple<string, WorldState>("FAIL " + selectedAction.text, w.clone()));
-                    UnityConsole.Log(current.steps.Last().Item1, LOGMODE.ERROR);
+                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("FAIL " + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge)));
+                    UnityConsole.Log(current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                 }
-                // XXX We may need to store knowledge states for memoization, but for now we just let it pass.
-                agentKnowledge = FastForward.ApplyKnowledgeConsistency(newKnowledge);
             }
             return null;
 

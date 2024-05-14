@@ -157,6 +157,7 @@ namespace NarrativePlanning
             //{"on Player1 Horse", 1f }
             //{"at Player1 AirVent", 1f }
             //{ "has ChefKnife Player1", 1 },
+            {"at Green Command", 1f }
         };
 
         private Dictionary<string, Dictionary<string, float>> characterActionPrefs = new Dictionary<string, Dictionary<string, float>>
@@ -252,9 +253,9 @@ namespace NarrativePlanning
             */
 
             //multipref
-            {"Red", NoPrefs },
-            {"Blue", NoPrefs },//new Dictionary<string, float>{ { "move-keycard", 1f } } },
-            {"Green", NoPrefs }
+            {"Red", new Dictionary<string, float>{ { "repair-engine", 1f } } },
+            {"Blue", new Dictionary<string, float>{ { "start-jumpdrive", 1f }, { "turn-on-ship", 1f } } },
+            {"Green", new Dictionary<string, float>{  } },// { "jump", 1f } } }
         };
 
         private List<string> exploratoryCharacters = new List<string>()
