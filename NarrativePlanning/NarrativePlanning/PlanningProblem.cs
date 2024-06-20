@@ -325,11 +325,11 @@ namespace NarrativePlanning
                 w.prunedOperators.RemoveAt(toremove);
                 w.operatorPrefs.RemoveAt(toremove);
             }
-            else
-            {
+            //else
+            //{
                 if (w.eliminatedOperators == null) w.eliminatedOperators = new List<string>();
-                w.eliminatedOperators.Add(p.knowledgeSteps[i].Item1);
-            }
+                w.eliminatedOperators.Add(nextstep);
+            //}
             return p;
         }
 
@@ -490,6 +490,60 @@ namespace NarrativePlanning
             return solutionPlan;
         }
 
+        private Operator SelectAction(List<Operator> suggestedActions, List<float> actionPrefs, WorldState agentKnowledge)
+        {
+            Operator selectedAction = null;
+            float selectedPref = -1000;
+            Operator moveAction = null;
+            float movePref = -1000;
+            List<string> moveActions = new List<string> { "move", "enter-ship", "exit-ship", "drive-alien-transport", "enter-alien-transport", "exit-alien-transport", "takeoff-ship", "land-ship" };
+            for (int i = 0; i < suggestedActions.Count; i++)
+            {
+                Operator possible = suggestedActions[i];
+                float currPref = actionPrefs[i];
+                if (moveActions.Contains(possible.name))
+                {
+                    if (moveAction != null && currPref <= movePref) continue;
+                    else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
+                    {
+                        moveAction = possible;
+                        movePref = currPref;
+                    }
+                }
+                else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
+                {
+                    if (currPref <= selectedPref)
+                        continue;
+                    else
+                    {
+                        selectedAction = possible;
+                        selectedPref = currPref;
+                    }
+                }
+            }
+            if (selectedAction == null) selectedAction = moveAction;
+            return selectedAction;
+        }
+        private void RemoveEliminatedOps(List<Operator> suggestedActions, List<float> actionPrefs, List<string> eliminatedOperators)
+        {
+            UnityConsole.Log("eliminated actions: ", LOGMODE.MEMOIZE);
+            foreach (string s in eliminatedOperators)
+                UnityConsole.Log("    " + s, LOGMODE.MEMOIZE);
+            List<int> opsToRemove = new List<int>();
+            for (int i = 0; i < suggestedActions.Count; i++)
+            {
+                if (eliminatedOperators.Contains(suggestedActions[i].text) || eliminatedOperators.Contains("FAIL " + suggestedActions[i].text))
+                {
+                    opsToRemove.Add(i);
+                }
+            }
+            foreach (int i in opsToRemove)
+            {
+                suggestedActions.RemoveAt(i);
+                actionPrefs.RemoveAt(i);
+            }
+        }
+
         /// <summary>
         /// Returns a plan using a FF-based solution.
         /// </summary>
@@ -522,7 +576,7 @@ namespace NarrativePlanning
             agentKnowledge.fWorld.Add("connected StartRoom GoalRoom", 0);
             agentKnowledge.fWorld.Add("open Chest", 0);
             */
-            /* mpk_ship */
+            /* mpk_ship
             agentKnowledge.tWorld.Add("ship-at StartGalaxy", 0);
             agentKnowledge.tWorld.Add("jump-route StartGalaxy AttackGalaxy", 0);
             agentKnowledge.tWorld.Add("jump-route AttackGalaxy HomeGalaxy", 0);
@@ -540,6 +594,44 @@ namespace NarrativePlanning
             agentKnowledge.fWorld.Add("ship-at AttackGalaxy", 0);
             agentKnowledge.fWorld.Add("ship-at HomeGalaxy", 0);
             agentKnowledge.fWorld.Add("jump-route StartGalaxy HomeGalaxy", 0);
+            */
+            /* mpk_eval_task */
+            List<string> knownTruths = new List<string>()
+            {
+                "(known-location CraggyRocks)",
+                "(known-location AlienSettlement)",
+                "(ship-flying PlayerShip)",
+                "(flight-ready PlayerShip)",
+                "(on-ship Cargo CrashedShip)"
+            };
+            List<string> knownFalses = new List<string>()
+            {
+                "(at-ship PlayerShip CraggyRocks)",
+                "(at-ship PlayerShip Forest)",
+                "(at-ship PlayerShip AlienSettlement)",
+                "(ship-flying CrashedShip)",
+                "(known-location Forest)",
+                "(beacons-setup)",
+                "(damaged PlayerShip)",
+                "(explosives-ready)",
+                "(baydoors-open)",
+                "(on-transport Cargo)",
+                "(on-ship Cargo PlayerShip)",
+                "(victory)"
+            };
+
+            foreach (string s in knownTruths)
+            {
+                string k = s.Substring(1, s.Length - 2);
+                if (!agentKnowledge.tWorld.ContainsKey(k))
+                    agentKnowledge.tWorld.Add(s.Substring(1, s.Length - 2), 0);
+            }
+            foreach (string s in knownFalses)
+            {
+                string k = s.Substring(1, s.Length - 2);
+                if (!agentKnowledge.fWorld.ContainsKey(k))
+                    agentKnowledge.fWorld.Add(s.Substring(1, s.Length - 2), 0);
+            }
 
             agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
             agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge);
@@ -556,6 +648,7 @@ namespace NarrativePlanning
                 // XXX Check if w is in our memoized states. If it is, rewind to the step that matches and
                 // restore prune list but remove operator that was chosen last time.
                 // ELIMINATING MEMOIZATION FOR NOW
+                bool memoized = false;
                 for (int i = 0; i < current.knowledgeSteps.Count - 1; i++)
                 {
                     if (current.knowledgeSteps[i].Item2.tWorld.Cast<DictionaryEntry>().Union(w.tWorld.Cast<DictionaryEntry>()).Count() == current.knowledgeSteps[i].Item2.tWorld.Count &&
@@ -565,13 +658,17 @@ namespace NarrativePlanning
                     // XXX we probably only need to check the Item3 state here, not the Item2 state. World can't change without agent knowledge, so we don't need to check the real world state.
                     {
                         UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item1, LOGMODE.MEMOIZE);
-                        current = RewindAndEliminateActionKnowledge(current, current.knowledgeSteps.Count - 1 - i);
-                        //current = RewindAndEliminateActionKnowledge(current, 1);
-                        w = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item2;
-                        agentKnowledge = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item3;
+                        //current = RewindAndEliminateActionKnowledge(current, current.knowledgeSteps.Count - 1 - i);
+
+                        // ONLY EVER REWIND BY 1. This prevents situations where you eliminate actions that should remain.
+                        current = RewindAndEliminateActionKnowledge(current, 1);
+                        memoized = true;
+                        //w = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item2;
+                        //agentKnowledge = current.knowledgeSteps[current.knowledgeSteps.Count - 1].Item3;
                         break;
                     }
                 }
+                if (memoized) continue;
                 //UnityConsole.Log("t: " + current.knowledgeSteps.Last().Item2.tWorld.Count, LOGMODE.ERROR);
                 //UnityConsole.Log("f: " + current.knowledgeSteps.Last().Item2.fWorld.Count, LOGMODE.ERROR);
                 //UnityConsole.Log("kt: " + current.knowledgeSteps.Last().Item3.tWorld.Count, LOGMODE.ERROR);
@@ -582,10 +679,18 @@ namespace NarrativePlanning
                 //}
                 w.PrintFullState();
 
-                List<Operator> suggestedActions;
+                List<Operator> suggestedActions = null;
                 List<float> actionPrefs;
+                Operator selectedAction = null;
                 // pruned ops are stored in knowledge worldstate (item3).
-                if (current.knowledgeSteps.Last().Item3.prunedOperators == null)
+                if (current.knowledgeSteps.Last().Item3.prunedOperators != null)
+                {
+                    suggestedActions = current.knowledgeSteps.Last().Item3.prunedOperators;
+                    actionPrefs = current.knowledgeSteps.Last().Item3.operatorPrefs;
+                    RemoveEliminatedOps(suggestedActions, actionPrefs, current.knowledgeSteps.Last().Item3.eliminatedOperators);
+                    selectedAction = SelectAction(suggestedActions, actionPrefs, agentKnowledge);
+                }
+                if (selectedAction == null)
                 {
                     FastForward.Layers prefRPG = FastForward.computeMultiPreferenceKnowledgeRPG(groundedoperators, agentKnowledge, goal, preferences);
                     Tuple<List<Operator>, List<float>, float> heuristicData = FastForward.extractRPKnowledge(prefRPG, goal, agentKnowledge);
@@ -593,51 +698,28 @@ namespace NarrativePlanning
                     actionPrefs = heuristicData.Item2;
                     suggestedActions.Reverse();
                     actionPrefs.Reverse();
-                } else
-                {
-                    suggestedActions = current.knowledgeSteps.Last().Item3.prunedOperators;
-                    actionPrefs = current.knowledgeSteps.Last().Item3.operatorPrefs;
-                }
-
-
-                Operator selectedAction = null;
-                float selectedPref = -1;
-                Operator moveAction = null;
-                float movePref = -1;
-                for (int i = 0; i < suggestedActions.Count; i++)
-                {
-                    Operator possible = suggestedActions[i];
-                    float currPref = actionPrefs[i];
-                    if (possible.name == "move")
-                    {
-                        if (moveAction != null && currPref <= movePref) continue;
-                        else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
-                        {
-                            moveAction = possible;
-                            movePref = currPref;
-                        }
-                    }
-                    else if (WorldState.isPotentiallyExecutable(possible, agentKnowledge))
-                    {
-                        if (currPref <= selectedPref)
-                            continue;
-                        else
-                        {
-                            selectedAction = possible;
-                            selectedPref = currPref;
-                        }
-                    }
-                }
-                if (selectedAction == null) selectedAction = moveAction;
-
-                //if (selectedAction == null)
-                //{
-                    UnityConsole.Log("DERP!", LOGMODE.ERROR);
+                    RemoveEliminatedOps(suggestedActions, actionPrefs, current.knowledgeSteps.Last().Item3.eliminatedOperators);
+                    UnityConsole.Log("Heuristic relaxed plan actions (post-elimination):", LOGMODE.HEURISTIC);
                     foreach (Operator o in suggestedActions)
                     {
-                        UnityConsole.Log(o.text, LOGMODE.ERROR);
+                        UnityConsole.Log("    " + o.text, LOGMODE.HEURISTIC);
                     }
-                //}
+                    selectedAction = SelectAction(suggestedActions, actionPrefs, agentKnowledge);
+                }
+
+                if (selectedAction == null)
+                {
+                    UnityConsole.Log("SelectedAction null! SuggestedActions and their executability: ", LOGMODE.ERROR);
+                    foreach (Operator o in suggestedActions)
+                    {
+                        UnityConsole.Log("    " + o.text, LOGMODE.ERROR);
+                        UnityConsole.Log("    " + WorldState.isPotentiallyExecutable(o, agentKnowledge).ToString(), LOGMODE.ERROR);
+                    }
+                    current = RewindAndEliminateActionKnowledge(current, 1);
+                    memoized = true;
+                    continue;
+                    //this is dead somehow
+                }
 
                 // Apply observability of preconds (happens regardless of success)
                 WorldState newKnowledge = WorldState.getKnowledgeUpdateActionPreconditions(w, selectedAction, agentKnowledge);
@@ -648,7 +730,11 @@ namespace NarrativePlanning
                     WorldState newWorld = newStates.Item1;
                     newKnowledge = newStates.Item2;
                     current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));
-                    UnityConsole.Log(current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
+                    UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
+                    if (current.knowledgeSteps.Last().Item1.StartsWith("takeoff-ship BluePlayer CrashedShip Forest"))
+                    {
+                        UnityConsole.Log("Stop", LOGMODE.ERROR);
+                    }
                     if (newWorld.isGoalState(goal))
                     {
                         return current;
@@ -656,7 +742,7 @@ namespace NarrativePlanning
                 } else
                 {
                     current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("FAIL " + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge)));
-                    UnityConsole.Log(current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
+                    UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                 }
             }
             return null;

@@ -13,19 +13,7 @@
             "type": "Object"
         },
         {
-            "name": "Key",
-            "type": "Object"
-        },
-        {
-            "name": "Wand",
-            "type": "Object"
-        },
-        {
-            "name": "Box",
-            "type": "Object"
-        },
-        {
-            "name": "Door",
+            "name": "Ship",
             "type": "Object"
         }
     ],
@@ -39,183 +27,246 @@
             "type": "Player"
         },
         {
-            "name": "StartRoom",
+            "name": "GreenPlayer",
+            "type": "Player"
+        },
+        {
+            "name": "AlienSettlement",
             "type": "Location"
         },
         {
-            "name": "GoalRoom",
+            "name": "CraggyRocks",
             "type": "Location"
         },
         {
-            "name": "GoalKey",
-            "type": "Key"
+            "name": "Forest",
+            "type": "Location"
         },
         {
-            "name": "HoverWand",
-            "type": "Wand"
+            "name": "Cargo",
+            "type": "Object"
         },
         {
-            "name": "Chest",
-            "type": "Box"
+            "name": "Explosives",
+            "type": "Object"
         },
         {
-            "name": "GoalDoor",
-            "type": "Door"
+            "name": "SolarPanels",
+            "type": "Object"
+        },
+        {
+            "name": "AlienTransport",
+            "type": "Object"
+        },
+        {
+            "name": "PowerCell",
+            "type": "Object"
+        },
+        {
+            "name": "PlayerShip",
+            "type": "Ship"
+        },
+        {
+            "name": "CrashedShip",
+            "type": "Ship"
         }
     ],
     "desires": [],
     "counteractions": [],
     "operators": [
-        //move-to-goal
+        //land-ship
         {
-            "name": "move-to-goal",
+            "name": "land-ship",
             "args": [
                 {
                     "name": "?p",
-                    "type": "Player"
-                }
-            ],
-            "char": "?p",
-            "loc": "StartRoom",
-            "pre-t": [
-                "(connected StartRoom GoalRoom)",
-                "(at ?p StartRoom)"
-            ],
-            "pre-f": [
-            ],
-            "eff-t": [
-                "(at ?p GoalRoom)"
-            ],
-            "eff-f": [
-                "(at ?p StartRoom)"
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
-        //open-goal-door
-        {
-            "name": "open-goal-door",
-            "args": [
-                {
-                    "name": "?p",
-                    "type": "Player"
-                }
-            ],
-            "char": "?p",
-            "loc": "StartRoom",
-            "pre-t": [
-                "(at ?p StartRoom)"
-            ],
-            "pre-f": [
-                "(locked GoalDoor)",
-                "(open GoalDoor)"
-            ],
-            "eff-t": [
-                "(connected StartRoom GoalRoom)",
-                "(open GoalDoor)"
-            ],
-            "eff-f": [
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
-        //unlock-goal-door
-        {
-            "name": "unlock-goal-door",
-            "args": [
-                {
-                    "name": "?p",
-                    "type": "Player"
-                }
-            ],
-            "char": "?p",
-            "loc": "StartRoom",
-            "pre-t": [
-                "(at ?p StartRoom)",
-                "(has GoalKey ?p)",
-                "(locked GoalDoor)"
-            ],
-            "pre-f": [
-            ],
-            "eff-t": [
-            ],
-            "eff-f": [
-                "(locked GoalDoor)"
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
-        //pickup-goal-key
-        {
-            "name": "pickup-goal-key",
-            "args": [
-                {
-                    "name": "?p",
-                    "type": "Player"
-                }
-            ],
-            "char": "?p",
-            "loc": "StartRoom",
-            "pre-t": [
-                "(at ?p StartRoom)",
-                "(hovering ?p)"
-            ],
-            "pre-f": [
-                "(has GoalKey ?p)"
-            ],
-            "eff-t": [
-                "(has GoalKey ?p)"
-            ],
-            "eff-f": [
-            ],
-            "pre-bplus": [],
-            "pre-bminus": [],
-            "pre-u": [],
-            "eff-bplus": [],
-            "eff-bminus": [],
-            "eff-u": [],
-            "isPrivate": false
-        },
-        //cast-hover-spell
-        {
-            "name": "cast-hover-spell",
-            "args": [
-                {
-                    "name": "?p1",
                     "type": "Player"
                 },
                 {
-                    "name": "?p2",
-                    "type": "Player"
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?s",
+                    "type": "Ship"
                 }
             ],
-            "char": "?p1",
-            "loc": "StartRoom",
+            "char": "?p",
+            "loc": "",
             "pre-t": [
-                "(at ?p1 StartRoom)",
-                "(has HoverWand ?p1)",
-                "(at ?p2 StartRoom)"
+                "(on-ship RedPlayer ?s)",
+                "(on-ship BluePlayer ?s)",
+                "(on-ship GreenPlayer ?s)",
+                "(ship-flying ?s)",
+                "(known-location ?l)"
             ],
             "pre-f": [
-                "(hovering ?p2)"
             ],
             "eff-t": [
-                "(hovering ?p2)"
+                "(at-ship ?s ?l)"
+            ],
+            "eff-f": [
+                "(ship-flying ?s)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //exit-ship
+        {
+            "name": "exit-ship",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?s",
+                    "type": "Ship"
+                }
+            ],
+            "char": "",
+            "loc": "",
+            "pre-t": [
+                "(on-ship RedPlayer ?s)",
+                "(on-ship BluePlayer ?s)",
+                "(on-ship GreenPlayer ?s)",
+                "(at-ship ?s ?l)"
+            ],
+            "pre-f": [
+                "(ship-flying ?s)"
+            ],
+            "eff-t": [
+                "(at RedPlayer ?l)",
+                "(at BluePlayer ?l)",
+                "(at GreenPlayer ?l)"
+            ],
+            "eff-f": [
+                "(on-ship RedPlayer ?s)",
+                "(on-ship BluePlayer ?s)",
+                "(on-ship GreenPlayer ?s)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //enter-ship
+        {
+            "name": "enter-ship",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?s",
+                    "type": "Ship"
+                }
+            ],
+            "char": "",
+            "loc": "",
+            "pre-t": [
+                "(at-ship ?s ?l)",
+                "(at RedPlayer ?l)",
+                "(at GreenPlayer ?l)",
+                "(at BluePlayer ?l)",
+                "(open ?s)"
+            ],
+            "pre-f": [
+                "(ship-flying ?s)"
+            ],
+            "eff-t": [
+                "(on-ship RedPlayer ?s)",
+                "(on-ship BluePlayer ?s)",
+                "(on-ship GreenPlayer ?s)"
+            ],
+            "eff-f": [
+                "(at RedPlayer ?l)",
+                "(at GreenPlayer ?l)",
+                "(at BluePlayer ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //takeoff-ship
+        {
+            "name": "takeoff-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?s",
+                    "type": "Ship"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p ?s)",
+                "(flight-ready ?s)",
+                "(at-ship ?s ?l)"
+            ],
+            "pre-f": [
+                "(ship-flying ?s)",
+                "(damaged ?s)"
+            ],
+            "eff-t": [
+                "(ship-flying ?s)"
+            ],
+            "eff-f": [
+                "(at-ship ?s ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //setup-triangulation-beacons
+        {
+            "name": "setup-triangulation-beacons",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at-ship PlayerShip ?l)",
+                "(at ?p ?l)"
+            ],
+            "pre-f": [
+                "(ship-flying PlayerShip)"
+            ],
+            "eff-t": [
+                "(at-beacons ?l)"
             ],
             "eff-f": [
             ],
@@ -227,25 +278,29 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //open-chest
+        //triangulate-ship
         {
-            "name": "open-chest",
+            "name": "triangulate-ship",
             "args": [
                 {
                     "name": "?p",
                     "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
                 }
             ],
             "char": "?p",
-            "loc": "StartRoom",
+            "loc": "",
             "pre-t": [
-                "(at ?p StartRoom)"
+                "(at ?p ?l)",
+                "(at-beacons ?l)"
             ],
             "pre-f": [
-                "(open Chest)"
             ],
             "eff-t": [
-                "(open Chest)"
+                "(known-location Forest)"
             ],
             "eff-f": [
             ],
@@ -257,9 +312,9 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //pickup-hover-wand
+        //ask-aliens-about-ship
         {
-            "name": "pickup-hover-wand",
+            "name": "ask-aliens-about-ship",
             "args": [
                 {
                     "name": "?p",
@@ -267,17 +322,835 @@
                 }
             ],
             "char": "?p",
-            "loc": "StartRoom",
+            "loc": "",
             "pre-t": [
-                "(at ?p StartRoom)",
-                "(open Chest)"
+                "(at ?p AlienSettlement)",
+                "(aliens-friendly)"
             ],
             "pre-f": [
-                "(empty Chest)"
             ],
             "eff-t": [
-                "(has HoverWand ?p)",
-                "(empty Chest)"
+                "(known-location Forest)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //threaten-aliens-for-information
+        {
+            "name": "threaten-aliens-for-information",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p AlienSettlement)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(known-location Forest)"
+            ],
+            "eff-f": [
+                "(aliens-friendly)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //rent-alien-transport
+        {
+            "name": "rent-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p AlienSettlement)",
+                "(aliens-friendly)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(transport-available)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //threaten-aliens-for-transport
+        {
+            "name": "threaten-aliens-for-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p AlienSettlement)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(transport-available)"
+            ],
+            "eff-f": [
+                "(friendly-aliens)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //enter-alien-transport
+        {
+            "name": "enter-alien-transport",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "",
+            "loc": "",
+            "pre-t": [
+                "(at RedPlayer ?l)",
+                "(at BluePlayer ?l)",
+                "(at GreenPlayer ?l)",
+                "(at-transport ?l)",
+                "(transport-available)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(on-transport RedPlayer)",
+                "(on-transport BluePlayer)",
+                "(on-transport GreenPlayer)"
+            ],
+            "eff-f": [
+                "(at RedPlayer ?l)",
+                "(at BluePlayer ?l)",
+                "(at GreenPlayer ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //drive-alien-transport
+        {
+            "name": "drive-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l1",
+                    "type": "Location"
+                },
+                {
+                    "name": "?l2",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-transport RedPlayer)",
+                "(on-transport BluePlayer)",
+                "(on-transport GreenPlayer)",
+                "(at-transport ?l1)",
+                "(known-location ?l2)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at-transport ?l2)"
+            ],
+            "eff-f": [
+                "(at-transport ?l1)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //exit-alien-transport
+        {
+            "name": "exit-alien-transport",
+            "args": [
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "",
+            "loc": "",
+            "pre-t": [
+                "(at-transport ?l)",
+                "(on-transport RedPlayer)",
+                "(on-transport BluePlayer)",
+                "(on-transport GreenPlayer)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at RedPlayer ?l)",
+                "(at BluePlayer ?l)",
+                "(at GreenPlayer ?l)"
+            ],
+            "eff-f": [
+                "(on-transport RedPlayer)",
+                "(on-transport BluePlayer)",
+                "(on-transport GreenPlayer)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //load-explosives-on-alien-transport
+        {
+            "name": "load-explosives-on-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at-ship PlayerShip ?l)",
+                "(at ?p ?l)",
+                "(at-transport ?l)",
+                "(explosives-on-ship)"
+            ],
+            "pre-f": [
+                "(explosives-on-transport)"
+            ],
+            "eff-t": [
+                "(explosives-on-transport)"
+            ],
+            "eff-f": [
+                "(explosives-on-ship)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //prepare-explosives-from-alien-transport
+        {
+            "name": "prepare-explosives-from-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(at-transport Forest)",
+                "(explosives-on-transport)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(explosives-ready)"
+            ],
+            "eff-f": [
+                "(explosives-on-transport)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //prepare-explosives-from-ship
+        {
+            "name": "prepare-explosives-from-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(at-ship PlayerShip Forest)",
+                "(explosives-on-ship)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(explosives-ready)"
+            ],
+            "eff-f": [
+                "(explosives-on-ship)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //explode-ship-door
+        {
+            "name": "explode-ship-door",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(explosives-ready)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(open CrashedShip)",
+                "(damaged CrashedShip)"
+            ],
+            "eff-f": [
+                "(explosives-ready)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //hack-ship-door
+        {
+            "name": "hack-ship-door",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(at-ship PlayerShip Forest)",
+                "(powered-crashed-ship)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(open CrashedShip)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //power-ship-with-player-ship
+        {
+            "name": "power-ship-with-player-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(at-ship PlayerShip Forest)"
+            ],
+            "pre-f": [
+                "(powered-crashed-ship)"
+            ],
+            "eff-t": [
+                "(powered-crashed-ship)",
+                "(temporary-power)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //power-ship-with-alien-transport
+        {
+            "name": "power-ship-with-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)",
+                "(at-transport Forest)"
+            ],
+            "pre-f": [
+                "(powered-crashed-ship)"
+            ],
+            "eff-t": [
+                "(powered-crashed-ship)",
+                "(temporary-power)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //inspect-ship-hull
+        {
+            "name": "inspect-ship-hull",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(at ?p Forest)"
+            ],
+            "pre-f": [
+                "(open CrashedShip)"
+            ],
+            "eff-t": [
+                "(open CrashedShip)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //replace-power-cell
+        {
+            "name": "replace-power-cell",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)"
+            ],
+            "pre-f": [
+                "(crashed-ship-reactor-stable)"
+            ],
+            "eff-t": [
+                "(crashed-ship-reactor-stable)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //turn-on-ship
+        {
+            "name": "turn-on-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(crashed-ship-reactor-stable)",
+                "(on-ship ?p CrashedShip)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(powered-crashed-ship)"
+            ],
+            "eff-f": [
+                "(temporary-power)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //repair-ship-teleporter
+        {
+            "name": "repair-ship-teleporter",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)",
+                "(powered-crashed-ship)"
+            ],
+            "pre-f": [
+                "(teleporter-working)"
+            ],
+            "eff-t": [
+                "(teleporter-working)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //teleport-cargo
+        {
+            "name": "teleport-cargo",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship Cargo CrashedShip)",
+                "(on-ship ?p CrashedShip)",
+                "(powered-crashed-ship)",
+                "(teleporter-working)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(on-ship Cargo PlayerShip)"
+            ],
+            "eff-f": [
+                "(on-ship Cargo CrashedShip)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //open-bay-doors
+        {
+            "name": "open-bay-doors",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)",
+                "(powered-crashed-ship)"
+            ],
+            "pre-f": [
+                "(baydoors-open)"
+            ],
+            "eff-t": [
+                "(baydoors-open)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //tractor-beam-cargo
+        {
+            "name": "tractor-beam-cargo",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p PlayerShip)",
+                "(on-ship Cargo CrashedShip)",
+                "(baydoors-open)",
+                "(ship-flying PlayerShip)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(on-ship Cargo PlayerShip)"
+            ],
+            "eff-f": [
+                "(on-ship Cargo CrashedShip)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //load-cargo-on-alien-transport
+        {
+            "name": "load-cargo-on-alien-transport",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)",
+                "(on-ship Cargo CrashedShip)",
+                "(baydoors-open)",
+                "(at-transport Forest)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(on-transport Cargo)"
+            ],
+            "eff-f": [
+                "(on-ship Cargo CrashedShip)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //move-cargo-from-transport-to-ship
+        {
+            "name": "move-cargo-from-transport-to-ship",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-transport Cargo)",
+                "(at-transport ?l)",
+                "(at-ship PlayerShip ?l)",
+                "(at ?p ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(on-ship Cargo PlayerShip)"
+            ],
+            "eff-f": [
+                "(on-transport Cargo)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //repair-engine
+        {
+            "name": "repair-engine",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)"
+            ],
+            "pre-f": [
+                "(engine-working)"
+            ],
+            "eff-t": [
+                "(engine-working)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //start-ship-engine
+        {
+            "name": "start-engine",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                }
+            ],
+            "char": "?p",
+            "loc": "",
+            "pre-t": [
+                "(on-ship ?p CrashedShip)",
+                "(engine-working)",
+                "(powered-crashed-ship)"
+            ],
+            "pre-f": [
+                "(temporary-power)"
+            ],
+            "eff-t": [
+                "(flight-ready CrashedShip)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //warp-home
+        {
+            "name": "warp-home",
+            "args": [
+                {
+                    "name": "?s",
+                    "type": "Ship"
+                }
+            ],
+            "char": "",
+            "loc": "",
+            "pre-t": [
+                "(on-ship RedPlayer ?s)",
+                "(on-ship BluePlayer ?s)",
+                "(on-ship GreenPlayer ?s)",
+                "(on-ship Cargo ?s)",
+                "(ship-flying ?s)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(victory)"
             ],
             "eff-f": [
             ],
@@ -292,25 +1165,76 @@
     ],
     "initial": {
         "t": [
-            //Map
-            "(at RedPlayer StartRoom)",
-            "(at BluePlayer StartRoom)",
-
-            "(locked GoalDoor)"
+            "(on-ship RedPlayer PlayerShip)",
+            "(on-ship BluePlayer PlayerShip)",
+            "(on-ship GreenPlayer PlayerShip)",
+            "(known-location CraggyRocks)",
+            "(known-location AlienSettlement)",
+            "(ship-flying PlayerShip)",
+            "(at-ship CrashedShip Forest)",
+            "(aliens-friendly)",
+            "(at-transport AlienSettlement)",
+            "(flight-ready PlayerShip)",
+            "(open PlayerShip)",
+            "(explosives-on-ship)",
+            "(on-ship Cargo CrashedShip)"
         ],
         "f": [
-            "(empty Chest)",
-            "(open Chest)",
-            "(hovering RedPlayer)",
-            "(hovering BluePlayer)",
-            "(connected StartRoom GoalRoom)",
-            "(has GoalKey RedPlayer)",
-            "(has GoalKey BluePlayer)",
-            "(has HoverWand RedPlayer)",
-            "(has HoverWand BluePlayer)",
-            "(at RedPlayer GoalRoom)",
-            "(at BluePlayer GoalRoom)",
-            "(open GoalDoor)"
+            "(at RedPlayer CraggyRocks)",
+            "(at BluePlayer CraggyRocks)",
+            "(at GreenPlayer CraggyRocks)",
+            "(at-ship PlayerShip CraggyRocks)",
+            "(at RedPlayer Forest)",
+            "(at BluePlayer Forest)",
+            "(at GreenPlayer Forest)",
+            "(at-ship PlayerShip Forest)",
+            "(at RedPlayer AlienSettlement)",
+            "(at BluePlayer AlienSettlement)",
+            "(at GreenPlayer AlienSettlement)",
+            "(at-ship PlayerShip AlienSettlement)",
+
+            "(at-ship CrashedShip CraggyRocks)",
+            "(at-ship CrashedShip AlienSettlement)",
+
+            "(on-transport RedPlayer)",
+            "(on-transport BluePlayer)",
+            "(on-transport GreenPlayer)",
+
+            "(at-transport CraggyRocks)",
+            "(at-transport Forest)",
+
+            "(transport-available)",
+
+            "(on-ship RedPlayer CrashedShip)",
+            "(on-ship BluePlayer CrashedShip)",
+            "(on-ship GreenPlayer CrashedShip)",
+
+            "(at-beacons CraggyRocks)",
+            "(at-beacons AlienSettlement)",
+            "(at-beacons Forest)",
+            "(damaged PlayerShip)",
+
+            "(known-location Forest)",
+
+            "(ship-flying CrashedShip)",
+            "(open CrashedShip)",
+            "(flight-ready CrashedShip)",
+            "(damaged CrashedShip)",
+
+            "(explosives-on-transport)",
+
+            "(on-ship Cargo PlayerShip)",
+
+            "(crashed-ship-reactor-stable)",
+            "(temporary-power)",
+            "(baydoors-open)",
+            "(on-transport Cargo)",
+            "(teleporter-working)",
+            "(powered-crashed-ship)",
+            "(explosives-ready)",
+            "(engine-working)",
+
+            "(victory)"
         ],
         "characters": [
             {
@@ -321,6 +1245,12 @@
             },
             {
                 "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "GreenPlayer",
                 "bplus": [],
                 "bminus": [],
                 "unsure": []
@@ -329,8 +1259,9 @@
     },
     "final": {
         "t": [
-            "(at RedPlayer GoalRoom)",
-            "(at BluePlayer GoalRoom)"
+            //"(on-transport Cargo)"
+            //"(damaged CrashedShip)",
+            "(victory)"
         ],
         "f": [
         ],
@@ -343,6 +1274,12 @@
             },
             {
                 "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "GreenPlayer",
                 "bplus": [],
                 "bminus": [],
                 "unsure": []

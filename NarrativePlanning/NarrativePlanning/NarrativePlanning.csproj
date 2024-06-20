@@ -65,9 +65,10 @@
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
     <None Include="JSON Files\hostile_multiprefknowledge_ship - Copy.json" />
+    <None Include="JSON Files\mpk_eval_tutorial.json" />
     <None Include="JSON Files\multi_pref.json" />
     <None Include="JSON Files\mpk_ship.json" />
-    <None Include="JSON Files\mpk_eval_tutorial.json" />
+    <None Include="JSON Files\mpk_eval_task.json" />
     <None Include="JSON Files\simple_knawledg.json" />
     <None Include="JSON Files\simple_multiagent.json" />
     <None Include="JSON Files\valheim_preference.json" />

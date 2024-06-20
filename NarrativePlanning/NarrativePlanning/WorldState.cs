@@ -63,7 +63,7 @@ namespace NarrativePlanning
         }
 
         public List<Operator> prunedOperators = null;
-        public List<string> eliminatedOperators = null;
+        public List<string> eliminatedOperators = new List<string>();
         public List<float> operatorPrefs = null;
 
         public WorldState()

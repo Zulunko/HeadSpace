@@ -46,7 +46,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mpk_ship.json", new Preferences());
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mpk_eval_task.json", new Preferences());
 
             // SMALL TEST
             /*WorldState knowledgeSet = new WorldState();
@@ -123,7 +123,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = LOGMODE.ERROR | LOGMODE.MEMOIZE; // LOGMODE.PLANNER | LOGMODE.HEURISTIC;
+        public static LOGMODE logmode = LOGMODE.ERROR | LOGMODE.HEURISTIC; // LOGMODE.PLANNER | LOGMODE.MEMOIZE;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);

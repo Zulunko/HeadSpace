@@ -93,7 +93,7 @@ namespace NarrativePlanning
             {
                 foreach (String loc in characterLocs)
                 {
-                    if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                    if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
                     {
                         if (!knowledge.tWorld.ContainsKey(entry.Key))
                             knowledge.tWorld.Add(entry.Key, entry.Value);
@@ -104,7 +104,7 @@ namespace NarrativePlanning
             {
                 foreach (String loc in characterLocs)
                 {
-                    if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                    if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
                     {
                         if (!knowledge.fWorld.ContainsKey(entry.Key))
                             knowledge.fWorld.Add(entry.Key, entry.Value);
@@ -134,7 +134,7 @@ namespace NarrativePlanning
 
             foreach (DictionaryEntry entry in real.tWorld)
             {
-                if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
                 {
                     if (!knowledge.tWorld.ContainsKey(entry.Key))
                         knowledge.tWorld.Add(entry.Key, entry.Value);
@@ -142,7 +142,7 @@ namespace NarrativePlanning
             }
             foreach (DictionaryEntry entry in real.fWorld)
             {
-                if (((String)entry.Key).StartsWith("at ") && ((String)entry.Key).EndsWith(loc))
+                if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
                 {
                     if (!knowledge.fWorld.ContainsKey(entry.Key))
                         knowledge.fWorld.Add(entry.Key, entry.Value);
@@ -1139,7 +1139,7 @@ namespace NarrativePlanning
                     string lit = goalLit.Item1;
                     List<Tuple<Operator, float>> actTuples = (List<Tuple<Operator, float>>)l.A[t];
                     actTuples.Sort((a, b) => b.Item2.CompareTo(a.Item2));
-                    UnityConsole.Log("SORTED?" + t, LOGMODE.HEURISTIC);
+                    UnityConsole.Log("SORTED, LAYER " + t, LOGMODE.HEURISTIC);
                     foreach (Tuple<Operator, float> prefTuple in actTuples)
                         UnityConsole.Log(prefTuple.Item1.text + ": " + prefTuple.Item2, LOGMODE.HEURISTIC);
                     foreach (Tuple<Operator, float> prefTuple in actTuples)

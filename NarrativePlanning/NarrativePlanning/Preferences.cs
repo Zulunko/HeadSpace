@@ -157,7 +157,7 @@ namespace NarrativePlanning
             //{"on Player1 Horse", 1f }
             //{"at Player1 AirVent", 1f }
             //{ "has ChefKnife Player1", 1 },
-            {"at Green Command", 1f }
+            //{"at Green Command", 1f }
         };
 
         private Dictionary<string, Dictionary<string, float>> characterActionPrefs = new Dictionary<string, Dictionary<string, float>>
@@ -253,9 +253,31 @@ namespace NarrativePlanning
             */
 
             //multipref
+            /*
             {"Red", new Dictionary<string, float>{ { "repair-engine", 1f } } },
             {"Blue", new Dictionary<string, float>{ { "start-jumpdrive", 1f }, { "turn-on-ship", 1f } } },
             {"Green", new Dictionary<string, float>{  } },// { "jump", 1f } } }
+            */
+
+            //mpk_eval_task
+            {"RedPlayer", new Dictionary<string, float>{ 
+                //{ "land-ship", 1f },
+                //{ "takeoff-ship", 1f },
+                { "start-engine", 1f }
+            } },
+            {"BluePlayer", new Dictionary<string, float>{
+                { "triangulate-ship", 1f },
+                { "hack-ship-door", 1f },
+                { "replace-power-cell", 1f },
+                { "repair-teleporter", 1f }
+            } },
+            {"GreenPlayer", new Dictionary<string, float>{
+                { "ask-aliens-about-ship", 1f },
+                { "rent-alien-transport", 1f },
+                { "inspect-ship-hull", 1f },
+                { "repair-engine", 1f },
+                { "turn-on-ship", 1f }
+            } },
         };
 
         private List<string> exploratoryCharacters = new List<string>()
@@ -297,9 +319,13 @@ namespace NarrativePlanning
 
         public float GetActionPreferenceForCharacter(string character, string action)
         {
+            if (character == "")
+            {
+                return _Scaled(0);
+            }
             if (!characterActionPrefs.ContainsKey(character))
             {
-                UnityConsole.Log("Character [" + character + "] not found for action [" + action + "].", LOGMODE.HEURISTIC);
+                UnityConsole.Log("Character [" + character + "] not found for action [" + action + "].", LOGMODE.ERROR);
                 return _Scaled(0);
             }
             if (characterActionPrefs[character].ContainsKey(action))
