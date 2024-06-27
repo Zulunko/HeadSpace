@@ -602,8 +602,10 @@ namespace NarrativePlanning
                 "(known-location AlienSettlement)",
                 "(ship-flying PlayerShip)",
                 "(flight-ready PlayerShip)",
-                "(on-ship Cargo CrashedShip)"
-            };
+                "(on-ship Cargo CrashedShip)",
+                "(open PlayerShip)",
+                "(explosives-on-ship)"
+           };
             List<string> knownFalses = new List<string>()
             {
                 "(at-ship PlayerShip CraggyRocks)",
@@ -617,6 +619,7 @@ namespace NarrativePlanning
                 "(baydoors-open)",
                 "(on-transport Cargo)",
                 "(on-ship Cargo PlayerShip)",
+                "(explosives-on-transport)",
                 "(victory)"
             };
 
@@ -731,7 +734,7 @@ namespace NarrativePlanning
                     newKnowledge = newStates.Item2;
                     current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));
                     UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
-                    if (current.knowledgeSteps.Last().Item1.StartsWith("takeoff-ship BluePlayer CrashedShip Forest"))
+                    if (current.knowledgeSteps.Last().Item1.StartsWith("takeoff-ship GreenPlayer CrashedShip AlienSettlement"))
                     {
                         UnityConsole.Log("Stop", LOGMODE.ERROR);
                     }

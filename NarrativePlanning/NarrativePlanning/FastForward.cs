@@ -1792,10 +1792,12 @@ namespace NarrativePlanning
             while (i <= layers.k)
             {
                 UnityConsole.Log("\nPROPS", LOGMODE.HEURISTIC);
+                UnityConsole.Log("\ntrue", LOGMODE.HEURISTIC);
                 foreach (String lit in ((WorldState)layers.F[i]).tWorld.Keys)
                 {
                     UnityConsole.Log(lit + " ", LOGMODE.HEURISTIC);
                 }
+                UnityConsole.Log("\nfalse", LOGMODE.HEURISTIC);
                 foreach (String lit in ((WorldState)layers.F[i]).fWorld.Keys)
                 {
                     UnityConsole.Log(lit + " ", LOGMODE.HEURISTIC);

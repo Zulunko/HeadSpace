@@ -83,12 +83,12 @@
                     "type": "Player"
                 },
                 {
-                    "name": "?l",
-                    "type": "Location"
-                },
-                {
                     "name": "?s",
                     "type": "Ship"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
                 }
             ],
             "char": "?p",
@@ -1259,8 +1259,11 @@
     },
     "final": {
         "t": [
-            //"(on-transport Cargo)"
+            //"(on-ship GreenPlayer CrashedShip)",
             //"(damaged CrashedShip)",
+            //"(at-ship CrashedShip AlienSettlement)",
+            //"(at-transport AlienSettlement)",
+            //"(on-ship Cargo CrashedShip)",
             "(victory)"
         ],
         "f": [
