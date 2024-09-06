@@ -215,7 +215,8 @@
                 "(at ?p2 StartRoom)"
             ],
             "pre-f": [
-                "(hovering ?p2)"
+                "(hovering ?p2)",
+                "(has HoverWand ?p2)"
             ],
             "eff-t": [
                 "(hovering ?p2)"
@@ -242,7 +243,8 @@
             "char": "?p",
             "loc": "StartRoom",
             "pre-t": [
-                "(at ?p StartRoom)"
+                "(at ?p StartRoom)",
+                "(contains HoverWand)"
             ],
             "pre-f": [
                 "(open Chest)"
@@ -299,7 +301,8 @@
             "(at RedPlayer StartRoom)",
             "(at BluePlayer StartRoom)",
 
-            "(locked GoalDoor)"
+            "(locked GoalDoor)",
+            "(contains HoverWand)"
         ],
         "f": [
             "(empty Chest)",

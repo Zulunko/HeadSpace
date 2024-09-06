@@ -611,6 +611,9 @@ namespace NarrativePlanning
                 "(at-ship PlayerShip CraggyRocks)",
                 "(at-ship PlayerShip Forest)",
                 "(at-ship PlayerShip AlienSettlement)",
+                "(at-beacons CraggyRocks)",
+                "(at-beacons Forest)",
+                "(at-beacons AlienSettlement)",
                 "(ship-flying CrashedShip)",
                 "(known-location Forest)",
                 "(beacons-setup)",
@@ -734,10 +737,6 @@ namespace NarrativePlanning
                     newKnowledge = newStates.Item2;
                     current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));
                     UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
-                    if (current.knowledgeSteps.Last().Item1.StartsWith("takeoff-ship GreenPlayer CrashedShip AlienSettlement"))
-                    {
-                        UnityConsole.Log("Stop", LOGMODE.ERROR);
-                    }
                     if (newWorld.isGoalState(goal))
                     {
                         return current;

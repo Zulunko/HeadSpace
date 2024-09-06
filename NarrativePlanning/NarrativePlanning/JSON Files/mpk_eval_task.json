@@ -51,10 +51,6 @@
             "type": "Object"
         },
         {
-            "name": "SolarPanels",
-            "type": "Object"
-        },
-        {
             "name": "AlienTransport",
             "type": "Object"
         },
@@ -422,7 +418,7 @@
                 "(transport-available)"
             ],
             "eff-f": [
-                "(friendly-aliens)"
+                "(aliens-friendly)"
             ],
             "pre-bplus": [],
             "pre-bminus": [],
@@ -1097,7 +1093,7 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //start-ship-engine
+        //start-engine
         {
             "name": "start-engine",
             "args": [

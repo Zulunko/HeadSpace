@@ -9,8 +9,8 @@ namespace NarrativePlanning
     // Will work into parsing later. For now, manually filling data for domains.
     public class Preferences
     {
-        public static float UnknownDiscount = 0.1f;
-        public static float ExploratoryPreference = 0.1f;
+        public static float UnknownDiscount = 0.1f; // This is subtracted from unknown proposition preferences
+        public static float ExploratoryPreference = 0.1f; // Typically equal or less than the unknown discount
         //multipref
         private static Dictionary<string, float> NoPrefs = new Dictionary<string, float>()
         {
@@ -261,28 +261,30 @@ namespace NarrativePlanning
 
             //mpk_eval_task
             {"RedPlayer", new Dictionary<string, float>{ 
-                //{ "land-ship", 1f },
-                //{ "takeoff-ship", 1f },
-                { "start-engine", 1f }
+                { "land-ship", 1f },
+                { "takeoff-ship", 1f },
+                { "start-engine", 1f },
+                { "turn-on-ship", 1f },
+                { "drive-alien-transport", -1f }
             } },
             {"BluePlayer", new Dictionary<string, float>{
                 { "triangulate-ship", 1f },
                 { "hack-ship-door", 1f },
                 { "replace-power-cell", 1f },
+                { "repair-engine", 1f },
                 { "repair-teleporter", 1f }
             } },
             {"GreenPlayer", new Dictionary<string, float>{
-                { "ask-aliens-about-ship", 1f },
-                { "rent-alien-transport", 1f },
+                { "threaten-aliens-for-transport", 1f },
+                { "setup-triangulation-beacons", 1f },
                 { "inspect-ship-hull", 1f },
-                { "repair-engine", 1f },
-                { "turn-on-ship", 1f }
+                { "drive-alien-transport", -1f }
             } },
         };
 
         private List<string> exploratoryCharacters = new List<string>()
         {
-            //"Red"
+            //"GreenPlayer"
         };
 
         /*
