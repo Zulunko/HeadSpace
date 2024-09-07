@@ -1116,23 +1116,23 @@ namespace NarrativePlanning
 
         public void PrintFullStateWithUnknowns()
         {
-            UnityConsole.Log("KNOWN:", LOGMODE.WORLDSTATE);
+            UnityConsole.Log("KNOWN:", LOGMODE.ERROR);
             foreach (DictionaryEntry de in tWorld)
             {
-                UnityConsole.Log("(" + de.Key + ")", LOGMODE.WORLDSTATE);
+                UnityConsole.Log("(" + de.Key + ")", LOGMODE.ERROR);
             }
             foreach (DictionaryEntry de in fWorld)
             {
-                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
+                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.ERROR);
             }
-            UnityConsole.Log("UNKNOWN:", LOGMODE.WORLDSTATE);
+            UnityConsole.Log("UNKNOWN:", LOGMODE.ERROR);
             foreach (DictionaryEntry de in utWorld)
             {
-                UnityConsole.Log("(" + de.Key + ")", LOGMODE.WORLDSTATE);
+                UnityConsole.Log("(" + de.Key + ")", LOGMODE.ERROR);
             }
             foreach (DictionaryEntry de in ufWorld)
             {
-                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.WORLDSTATE);
+                UnityConsole.Log("(not (" + de.Key + "))", LOGMODE.ERROR);
             }
         }
     }

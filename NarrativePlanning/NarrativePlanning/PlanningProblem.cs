@@ -623,7 +623,8 @@ namespace NarrativePlanning
                 "(on-transport Cargo)",
                 "(on-ship Cargo PlayerShip)",
                 "(explosives-on-transport)",
-                "(victory)"
+                "(victory)",
+                "(transport-available)"
             };
 
             foreach (string s in knownTruths)
@@ -719,6 +720,12 @@ namespace NarrativePlanning
                     foreach (Operator o in suggestedActions)
                     {
                         UnityConsole.Log("    " + o.text, LOGMODE.ERROR);
+                        if (o.text == "exit-ship Forest PlayerShip")
+                        {
+                            UnityConsole.Log("EEEEEEEEEEEE", LOGMODE.ERROR);
+                            agentKnowledge.PrintFullStateWithUnknowns();
+                            UnityConsole.Log("AAAAAAAAAAAA", LOGMODE.ERROR);
+                        }
                         UnityConsole.Log("    " + WorldState.isPotentiallyExecutable(o, agentKnowledge).ToString(), LOGMODE.ERROR);
                     }
                     current = RewindAndEliminateActionKnowledge(current, 1);

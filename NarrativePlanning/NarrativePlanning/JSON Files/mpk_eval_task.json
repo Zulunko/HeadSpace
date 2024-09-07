@@ -679,9 +679,9 @@
             "eff-u": [],
             "isPrivate": false
         },
-        //hack-ship-door
+        //connect-to-ship
         {
-            "name": "hack-ship-door",
+            "name": "connect-to-ship",
             "args": [
                 {
                     "name": "?p",

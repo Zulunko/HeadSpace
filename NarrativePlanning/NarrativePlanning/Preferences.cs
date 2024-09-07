@@ -152,6 +152,7 @@ namespace NarrativePlanning
         };
         private Dictionary<string, float> propositionPrefs = new Dictionary<string, float>()
         {
+            {"at-ship PlayerShip AlienSettlement", -0.33f }
             //{"hired Sheriff", 1f },
             //{"hired Mercenaries", 1f },
             //{"on Player1 Horse", 1f }
@@ -260,25 +261,122 @@ namespace NarrativePlanning
             */
 
             //mpk_eval_task
-            {"RedPlayer", new Dictionary<string, float>{ 
-                { "land-ship", 1f },
-                { "takeoff-ship", 1f },
-                { "start-engine", 1f },
-                { "turn-on-ship", 1f },
-                { "drive-alien-transport", -1f }
+            /*
+            {"RedPlayer", new Dictionary<string, float>{
+                { "repair-engine", -1f },
+                { "repair-teleporter", -1f },
+
+                { "drive-alien-transport", 0f },
+                { "land-ship", 0f },
+                { "takeoff-ship", 0f },
             } },
             {"BluePlayer", new Dictionary<string, float>{
                 { "triangulate-ship", 1f },
-                { "hack-ship-door", 1f },
-                { "replace-power-cell", 1f },
+                { "connect-to-ship", 1f },
                 { "repair-engine", 1f },
-                { "repair-teleporter", 1f }
+                { "repair-teleporter", 1f },
+                { "turn-on-ship", 1f },
+                { "ask-aliens-about-ship", -1f },
+                { "rent-alien-transport", -1f },
+                { "threaten-aliens-for-transport", -1f },
+                { "threaten-aliens-for-information", -1f },
+
+                { "drive-alien-transport", -1f },
+                { "land-ship", -1f },
+                { "takeoff-ship", -1f },
             } },
             {"GreenPlayer", new Dictionary<string, float>{
-                { "threaten-aliens-for-transport", 1f },
                 { "setup-triangulation-beacons", 1f },
                 { "inspect-ship-hull", 1f },
-                { "drive-alien-transport", -1f }
+                { "replace-power-cell", 1f },
+                { "start-engine", 1f },
+
+                { "drive-alien-transport", -1f },
+                { "land-ship", -1f },
+                { "takeoff-ship", -1f },
+            } },
+            */
+
+            //mpk_eval_task reversed
+            /*
+            {"RedPlayer", new Dictionary<string, float>{
+                { "repair-engine", 1f },
+                { "repair-teleporter", 1f },
+
+                { "drive-alien-transport", -1f },
+                { "land-ship", -1f },
+                { "takeoff-ship", -1f },
+            } },
+            {"BluePlayer", new Dictionary<string, float>{
+                { "triangulate-ship", -1f },
+                { "connect-to-ship", -1f },
+                { "repair-engine", -1f },
+                { "repair-teleporter", -1f },
+                { "turn-on-ship", -1f },
+                { "ask-aliens-about-ship", 1f },
+                { "rent-alien-transport", 1f },
+                { "threaten-aliens-for-transport", 1f },
+                { "threaten-aliens-for-information", 1f },
+
+                { "drive-alien-transport", 0f },
+                { "land-ship", 0f },
+                { "takeoff-ship", 0f },
+            } },
+            {"GreenPlayer", new Dictionary<string, float>{
+                { "setup-triangulation-beacons", -1f },
+                { "inspect-ship-hull", -1f },
+                { "replace-power-cell", -1f },
+                { "start-engine", -1f },
+
+                { "drive-alien-transport", 0f },
+                { "land-ship", 0f },
+                { "takeoff-ship", 0f },
+            } },
+            */
+
+            //mpk_eval_task rotated
+            /*
+            {"GreenPlayer", new Dictionary<string, float>{
+                { "repair-engine", -1f },
+                { "repair-teleporter", -1f },
+
+                { "drive-alien-transport", 0f },
+                { "land-ship", 0f },
+                { "takeoff-ship", 0f },
+            } },
+            {"RedPlayer", new Dictionary<string, float>{
+                { "triangulate-ship", 1f },
+                { "connect-to-ship", 1f },
+                { "repair-engine", 1f },
+                { "repair-teleporter", 1f },
+                { "turn-on-ship", 1f },
+                { "ask-aliens-about-ship", -1f },
+                { "rent-alien-transport", -1f },
+                { "threaten-aliens-for-transport", -1f },
+                { "threaten-aliens-for-information", -1f },
+
+                { "drive-alien-transport", -1f },
+                { "land-ship", -1f },
+                { "takeoff-ship", -1f },
+            } },
+            {"BluePlayer", new Dictionary<string, float>{
+                { "setup-triangulation-beacons", 1f },
+                { "inspect-ship-hull", 1f },
+                { "replace-power-cell", 1f },
+                { "start-engine", 1f },
+
+                { "drive-alien-transport", -1f },
+                { "land-ship", -1f },
+                { "takeoff-ship", -1f },
+            } },
+            */
+
+            //mpk_eval_task neutral
+            {"GreenPlayer", new Dictionary<string, float>{
+            } },
+            {"RedPlayer", new Dictionary<string, float>{
+            } },
+            {"BluePlayer", new Dictionary<string, float>{
             } },
         };
 

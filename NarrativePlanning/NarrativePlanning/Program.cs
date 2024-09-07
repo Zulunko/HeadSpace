@@ -123,7 +123,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = LOGMODE.ERROR;// | LOGMODE.HEURISTIC; // LOGMODE.PLANNER | LOGMODE.MEMOIZE;
+        public static LOGMODE logmode = LOGMODE.ERROR | LOGMODE.MEMOIZE;// | LOGMODE.HEURISTIC; // LOGMODE.PLANNER | LOGMODE.MEMOIZE;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);
