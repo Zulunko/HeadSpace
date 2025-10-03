@@ -526,9 +526,13 @@ namespace NarrativePlanning
         }
         private void RemoveEliminatedOps(List<Operator> suggestedActions, List<float> actionPrefs, List<string> eliminatedOperators)
         {
+            UnityConsole.Log("suggested actions: ", LOGMODE.MEMOIZE);
+            foreach (Operator o in suggestedActions)
+                UnityConsole.Log("    " + o.text, LOGMODE.MEMOIZE);
+
             UnityConsole.Log("eliminated actions: ", LOGMODE.MEMOIZE);
             foreach (string s in eliminatedOperators)
-                UnityConsole.Log("    " + s, LOGMODE.MEMOIZE);
+                UnityConsole.Log("    '" + s + "'", LOGMODE.MEMOIZE);
             List<int> opsToRemove = new List<int>();
             for (int i = 0; i < suggestedActions.Count; i++)
             {
@@ -537,11 +541,15 @@ namespace NarrativePlanning
                     opsToRemove.Add(i);
                 }
             }
+            opsToRemove.Reverse();
             foreach (int i in opsToRemove)
             {
                 suggestedActions.RemoveAt(i);
                 actionPrefs.RemoveAt(i);
             }
+            UnityConsole.Log("after suggested actions:", LOGMODE.MEMOIZE);
+            foreach (Operator o in suggestedActions)
+                UnityConsole.Log("    '" + o.text + "'", LOGMODE.MEMOIZE);
         }
 
         /// <summary>
@@ -640,6 +648,8 @@ namespace NarrativePlanning
                     agentKnowledge.fWorld.Add(s.Substring(1, s.Length - 2), 0);
             }
 
+            // Should I be running a consistency check on the known agent knowledge here? Specifically to generate (not (at)) propositions.
+
             agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
             agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge);
 
@@ -654,7 +664,6 @@ namespace NarrativePlanning
 
                 // XXX Check if w is in our memoized states. If it is, rewind to the step that matches and
                 // restore prune list but remove operator that was chosen last time.
-                // ELIMINATING MEMOIZATION FOR NOW
                 bool memoized = false;
                 for (int i = 0; i < current.knowledgeSteps.Count - 1; i++)
                 {

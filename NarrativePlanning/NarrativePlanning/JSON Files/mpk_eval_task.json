@@ -692,7 +692,6 @@
             "loc": "",
             "pre-t": [
                 "(at ?p Forest)",
-                "(at-ship PlayerShip Forest)",
                 "(powered-crashed-ship)"
             ],
             "pre-f": [

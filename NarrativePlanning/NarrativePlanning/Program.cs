@@ -107,6 +107,7 @@ namespace NarrativePlanning
             //UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
             //watch.Reset();
             watch.Start();
+            //NarrativePlanning.Plan plan = problem.FFPreferenceSolution(PLANNING_MODE.MULTI);
             NarrativePlanning.Plan plan = problem.FFKnowledgePrefSolution(PLANNING_MODE.KNOWLEDGE);
             watch.Stop();
             UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
@@ -123,7 +124,7 @@ namespace NarrativePlanning
     
     public class UnityConsole
     {
-        public static LOGMODE logmode = LOGMODE.ERROR | LOGMODE.MEMOIZE;// | LOGMODE.HEURISTIC; // LOGMODE.PLANNER | LOGMODE.MEMOIZE;
+        public static LOGMODE logmode = LOGMODE.ERROR;// | LOGMODE.MEMOIZE;// | LOGMODE.HEURISTIC; // LOGMODE.PLANNER | LOGMODE.MEMOIZE;
         public static void WriteLine(String str)
         {
             Console.WriteLine(str);

@@ -192,6 +192,9 @@ namespace NarrativePlanning
                 // has OBJ AGENT
                 if (((String)tentry.Key).StartsWith("at ") || ((String)tentry.Key).StartsWith("has "))
                 {
+                    // XXX (post-dissertation): Should I be crossing these propositions? If an agent knows they "has" something,
+                    //  shouldn't they also know that it is (not (at)) any location?
+
                     // Extract "at OBJ " or "has OBJ "
                     String objkey = ((String)tentry.Key);
                     objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
