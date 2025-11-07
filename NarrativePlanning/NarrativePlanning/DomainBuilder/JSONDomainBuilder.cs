@@ -113,8 +113,37 @@ namespace NarrativePlanning.DomainBuilder
             counterActions = DomainBuilder.CounteractionBuilder.parseCounteractions(jsonDomain.Counteractions);
             desires = DomainBuilder.DesireBuilder.parseDesires(jsonDomain.Desires);
             initial = StateCreator.getState(jsonDomain.Initial, prefs);
+            initial = generateFalsesForCompleteState(initial, operators);
             goal = StateCreator.getState(jsonDomain.Final);
             UnityConsole.Write("Deserialized JSON file");
+        }
+        private WorldState generateFalsesForCompleteState(WorldState initial, List<NarrativePlanning.Operator> operators)
+        {
+            foreach (NarrativePlanning.Operator o in operators)
+            {
+                // Everything that is not explicitly marked true should be set to false.
+                foreach (String t in o.preT.Keys)
+                {
+                    if (!initial.tWorld.ContainsKey(t) && !initial.fWorld.ContainsKey(t))
+                        initial.fWorld.Add(t, 0);
+                }
+                foreach (String f in o.preF.Keys)
+                {
+                    if (!initial.tWorld.ContainsKey(f) && !initial.fWorld.ContainsKey(f))
+                        initial.fWorld.Add(f, 0);
+                }
+                foreach (String t in o.effT.Keys)
+                {
+                    if (!initial.tWorld.ContainsKey(t) && !initial.fWorld.ContainsKey(t))
+                        initial.fWorld.Add(t, 0);
+                }
+                foreach (String f in o.effF.Keys)
+                {
+                    if (!initial.tWorld.ContainsKey(f) && !initial.fWorld.ContainsKey(f))
+                        initial.fWorld.Add(f, 0);
+                }
+            }
+            return initial;
         }
     }
 

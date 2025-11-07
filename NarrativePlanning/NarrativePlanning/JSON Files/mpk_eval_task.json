@@ -1174,7 +1174,7 @@
             "(explosives-on-ship)",
             "(on-ship Cargo CrashedShip)"
         ],
-        "f": [
+        "f": [/*
             "(at RedPlayer CraggyRocks)",
             "(at BluePlayer CraggyRocks)",
             "(at GreenPlayer CraggyRocks)",
@@ -1229,7 +1229,7 @@
             "(explosives-ready)",
             "(engine-working)",
 
-            "(victory)"
+            "(victory)"*/
         ],
         "characters": [
             {
