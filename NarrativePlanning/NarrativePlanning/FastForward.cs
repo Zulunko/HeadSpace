@@ -179,6 +179,30 @@ namespace NarrativePlanning
                         // Then add it to our unknown falses.
                         knowledge.ufWorld.Add(f, Preferences.UnknownDiscount);
                 }
+                // For all true effects that could result from an action...
+                foreach (String t in o.effT.Keys)
+                {
+                    // If we haven't already added this to our unknowns, and
+                    if (!knowledge.utWorld.ContainsKey(t) &&
+                        // We don't already know this to be true, and
+                        !knowledge.tWorld.ContainsKey(t) &&
+                        // We don't already know this to be false,
+                        !knowledge.fWorld.ContainsKey(t))
+                        // Then add it to our unknown truths.
+                        knowledge.utWorld.Add(t, Preferences.UnknownDiscount);
+                }
+                // For all false effects that could result from an action...
+                foreach (String f in o.effF.Keys)
+                {
+                    // If we haven't already added this to our unknowns, and
+                    if (!knowledge.ufWorld.ContainsKey(f) &&
+                        // We don't already know this to be false, and
+                        !knowledge.fWorld.ContainsKey(f) &&
+                        // We don't already know this to be true,
+                        !knowledge.tWorld.ContainsKey(f))
+                        // Then add it to our unknown falses.
+                        knowledge.ufWorld.Add(f, Preferences.UnknownDiscount);
+                }
             }
             return knowledge;
         }
