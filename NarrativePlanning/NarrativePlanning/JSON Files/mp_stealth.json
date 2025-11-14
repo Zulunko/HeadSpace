@@ -791,13 +791,22 @@
       "isPrivate": false
     }
   ],
+  "initialknowledge": {
+      "t": [
+        // e.g.
+        //"(has Enemy9 DoorKey)"
+      ],
+      "f": [
+        // e.g.
+        //"(has Enemy1 DoorKey)"
+      ]
+  },
+  "observableprefixes": [
+      "at ",
+      "connected "
+  ],
   "initial": {
     "t": [
-        //ewl: simple test Map
-        "(at RedPlayer StartHallway)",
-        "(connected StartHallway CameraRoomHallway)"
-
-        /*
       //Map
       "(at RedPlayer StartHallway)",
       "(at BluePlayer StartHallway)",
@@ -900,10 +909,8 @@
       "(locked InnerRoom5_Door)",
 
       "(has Enemy9 DoorKey)"
-       */
     ],
     "f": [
-      /*
       "(has RedPlayer DoorKey)",
       "(has BluePlayer DoorKey)",
       "(has GreenPlayer DoorKey)",
@@ -917,7 +924,6 @@
       "(has RedPlayer Battery3)",
       "(has BluePlayer Battery3)",
       "(has GreenPlayer Battery3)"
-      */
     ],
     "characters": [
       {

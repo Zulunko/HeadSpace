@@ -261,6 +261,7 @@ namespace NarrativePlanning
             */
 
             //mpk_eval_task
+            
             {"RedPlayer", new Dictionary<string, float>{
                 { "repair-engine", -1f },
                 { "repair-teleporter", -1f },
@@ -294,6 +295,7 @@ namespace NarrativePlanning
                 { "land-ship", -1f },
                 { "takeoff-ship", -1f },
             } },
+            
 
             //mpk_eval_task reversed
             /*
@@ -369,14 +371,14 @@ namespace NarrativePlanning
             } },
             */
 
-            //mpk_eval_task neutral
+            //empty preferences
             /*
             {"GreenPlayer", new Dictionary<string, float>{
             } },
             {"RedPlayer", new Dictionary<string, float>{
             } },
             {"BluePlayer", new Dictionary<string, float>{
-            } },
+            } }
             */
         };
 

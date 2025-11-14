@@ -647,7 +647,7 @@ namespace NarrativePlanning
 			return newState;
           }
 
-        public static Tuple<WorldState, WorldState> getNextStateWithKnowledgeUpdate(WorldState current, Operator ground, WorldState knowledge, List<String> observablePrefixes)
+        public static Tuple<WorldState, WorldState> getNextStateWithKnowledgeUpdate(WorldState current, Operator ground, WorldState knowledge, string[] observablePrefixes)
         {
             WorldState newState = current.clone();
             foreach (String lit in ground.effT.Keys)

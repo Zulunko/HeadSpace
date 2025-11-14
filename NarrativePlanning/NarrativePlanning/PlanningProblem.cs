@@ -24,6 +24,7 @@ namespace NarrativePlanning
         public List<CounterAction> counteractions;
         public Preferences preferences;
         public WorldState agentKnowledge;
+        public string[] observablePrefixes;
 
         /// <summary>
         /// A Planning Problem consists of the initial state, the goal state
@@ -67,12 +68,16 @@ namespace NarrativePlanning
             initialize(initial, goal, operators, desires, counters);
         }
 
-        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p, WorldState initialKnowledge) {
+        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p, WorldState initialKnowledge, string[] observablePrefixes) {
             w0 = initial;
             this.goal = goal;
             this.groundedoperators = operators;
             this.preferences = p;
             this.agentKnowledge = initialKnowledge;
+            if (observablePrefixes == null)
+                this.observablePrefixes = new string[]{ "at", "at-"};
+            else
+                this.observablePrefixes = observablePrefixes;
         }
 
         public void initialize(WorldState initial, WorldState goal, List<Operator> operators, List<Desire> desires, List<CounterAction> counteractions)
@@ -575,11 +580,6 @@ namespace NarrativePlanning
             float ps = -1;
             Tuple<String, WorldState> best = null;
             WorldState w = current.steps.Last().Item2;
-
-            List<String> observablePrefixes = new List<String>() {
-                "at ",
-                "at-"
-            };
 
             // XXX HERE: ADD KNOWN KNOWLEDGE FROM DESIGNER
             agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w, observablePrefixes);

@@ -1282,6 +1282,10 @@
             "(transport-available)"
         ]
     },
+    "observableprefixes": [
+        "at ",
+        "at-"
+    ],
     "final": {
         "t": [
             //"(on-ship GreenPlayer CrashedShip)",
