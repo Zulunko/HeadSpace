@@ -446,7 +446,7 @@ namespace NarrativePlanning
             }
             if (!characterActionPrefs.ContainsKey(character))
             {
-                UnityConsole.Log("Character [" + character + "] not found for action [" + action + "].", LOGMODE.ERROR);
+                //UnityConsole.Log("Character [" + character + "] not found for action [" + action + "].", LOGMODE.ERROR);
                 return _Scaled(0);
             }
             if (characterActionPrefs[character].ContainsKey(action))

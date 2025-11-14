@@ -46,7 +46,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mpk_eval_task_initialknowledge.json");
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mp_stealth.json");
 
             // SMALL TEST
             /*WorldState knowledgeSet = new WorldState();

@@ -805,6 +805,15 @@
       "at ",
       "connected "
   ],
+  "characterpreferences": [
+      {
+          "name": "GreenPlayer",
+          "actionpreferences": [
+              { "name": "kill-enemy", "value": 1 }
+          ],
+          "propositionpreferences": []
+      }
+  ],
   "initial": {
     "t": [
       //Map
