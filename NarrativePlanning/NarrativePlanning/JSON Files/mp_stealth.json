@@ -1,0 +1,988 @@
+﻿/*
+  * How to handle moving to different rooms with different constraints (guards, cameras, etc)
+  * How to handle a player needing to be near location but not in location
+  * How to implement only one camera off rule
+  * When killing enemy need to set the room they are guarding to unguarded
+  * Maybe can use rooms being set to guarded/watched to false to determine if move is valid
+  * Need everything false from algorithm
+
+
+  *** Current errors ***
+  * Fails when Enemy 3 is inside Camera Room and player tries to disable camera
+  * Tries to move player from CameraRoom to CameraRoomHallway
+*/
+{
+  "types": [
+    {
+      "name": "Player",
+      "type": "Object"
+    },
+    {
+      "name": "Enemy",
+      "type": "Object"
+    },
+    {
+      "name": "Location",
+      "type": "Object"
+    },
+    {
+      "name": "Key",
+      "type": "Object"
+    },
+    {
+      "name": "Battery",
+      "type": "Object"
+    },
+    {
+      "name": "Camera",
+      "type": "Object"
+    },
+    {
+      "name": "Door",
+      "type": "Object"
+    },
+    {
+      "name": "Terminal",
+      "type": "Object"
+    }
+  ],
+  "instances": [
+    {
+      "name": "RedPlayer",
+      "type": "Player"
+    },
+    {
+      "name": "BluePlayer",
+      "type": "Player"
+    },
+    {
+      "name": "GreenPlayer",
+      "type": "Player"
+    },
+    {
+      "name": "StartHallway",
+      "type": "Location"
+    },
+    {
+      "name": "Stairway",
+      "type": "Location"
+    },
+    {
+      "name": "CameraRoomHallway",
+      "type": "Location"
+    },
+    {
+      "name": "CameraRoom",
+      "type": "Location"
+    },
+    {
+      "name": "Elevator",
+      "type": "Location"
+    },
+    {
+      "name": "OctagonRoom",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom1",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom2",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom3",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom4",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom5",
+      "type": "Location"
+    },
+    {
+      "name": "InnerRoom6",
+      "type": "Location"
+    },
+    {
+      "name": "DoorKey",
+      "type": "Key"
+    },
+    {
+      "name": "Battery1",
+      "type": "Battery"
+    },
+    {
+      "name": "Battery2",
+      "type": "Battery"
+    },
+    {
+      "name": "Battery3",
+      "type": "Battery"
+    },
+    {
+      "name": "Camera1",
+      "type": "Camera"
+    },
+    {
+      "name": "Camera2",
+      "type": "Camera"
+    },
+    {
+      "name": "Camera3",
+      "type": "Camera"
+    },
+    {
+      "name": "Camera4",
+      "type": "Camera"
+    },
+    {
+      "name": "Camera5",
+      "type": "Camera"
+    },
+    {
+      "name": "Camera6",
+      "type": "Camera"
+    },
+    {
+      "name": "InnerRoom5_Door",
+      "type": "Door"
+    },
+    {
+      "name": "ElevatorTerminal1",
+      "type": "Terminal"
+    },
+    {
+      "name": "ElevatorTerminal2",
+      "type": "Terminal"
+    },
+    {
+      "name": "ElevatorTerminal3",
+      "type": "Terminal"
+    },
+    {
+      "name": "Enemy1",
+      "type": "Enemy"
+    },
+    /*{
+      "name": "Enemy2",
+      "type": "Enemy"
+    },*/
+    {
+      "name": "Enemy3",
+      "type": "Enemy"
+    },
+    {
+      "name": "Enemy4",
+      "type": "Enemy"
+    },
+    {
+      "name": "ElevatorGuard1",
+      "type": "Enemy"
+    },
+    /*{
+      "name": "ElevatorGuard2",
+      "type": "Enemy"
+    },*/
+    {
+      "name": "Enemy7",
+      "type": "Enemy"
+    },
+    /*{
+      "name": "Enemy8",
+      "type": "Enemy"
+    },*/
+    {
+      "name": "Enemy9",
+      "type": "Enemy"
+    }
+  ],
+  "desires": [],
+  "counteractions": [],
+  "operators": [
+    {
+      //move (also requires camera to be off and enemy to be dead ???)
+      "name": "move",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        },
+        {
+          "name": "?from",
+          "type": "Location"
+        },
+        {
+          "name": "?to",
+          "type": "Location"
+        }
+      ],
+      "char": "?p",
+      "loc": "?from",
+      "pre-t": [
+        "(connected ?from ?to)",
+        "(at ?p ?from)",
+      ],
+      "pre-f": [
+        "(guarded ?to)",
+        "(watched ?to)"
+      ],
+      "eff-t": [
+        "(at ?p ?to)"
+      ],
+      "eff-f": [
+        "(at ?p ?from)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-elevator
+      "name": "move-to-elevator",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom Elevator)",
+        "(at ?p OctagonRoom)",
+        "(hack ElevatorTerminal1)",
+        "(hack ElevatorTerminal2)",
+        "(hack ElevatorTerminal3)"
+      ],
+      "pre-f": [
+        "(alive ElevatorGuard1)",
+        //"(alive ElevatorGuard2)",
+        "(charge Battery1)", //needed???
+        "(charge Battery2)", //needed???
+        "(charge Battery3)" //needed???
+      ],
+      "eff-t": [
+        "(at ?p Elevator)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    /*{
+//move-to-InnerRoom1
+
+      "name": "move-to-innerRoom1",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom1)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(alive Enemy4)",
+        "(active Camera1)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom1)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-InnerRoom2
+      "name": "move-to-innerRoom2",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom2)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(active Camera2)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom2)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-InnerRoom3
+      "name": "move-to-innerRoom3",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom3)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(active Camera3)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom3)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-InnerRoom4
+      "name": "move-to-innerRoom4",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom4)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(active Camera4)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom4)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-InnerRoom5
+      "name": "move-to-innerRoom5",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom5)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(active Camera5)",
+        "(locked InnerRoom_5)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom5)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-InnerRoom6
+      "name": "move-to-innerRoom6",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(connected OctagonRoom InnerRoom6)",
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(active Camera6)",
+        "(alive Enemy7)",
+        "(alive Enemy8)"
+      ],
+      "eff-t": [
+        "(at ?p InnerRoom6)"
+      ],
+      "eff-f": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    {
+      //move-to-CameraRoom
+      "name": "move-to-cameraRoom",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "CameraRoomHallway",
+      "pre-t": [
+        "(connected CameraRoomHallway CameraRoom)",
+        "(at ?p CameraRoomHallway)"
+      ],
+      "pre-f": [
+        "(alive Enemy1)",
+        "(alive Enemy2)"
+      ],
+      "eff-t": [
+        "(at ?p CameraRoom)"
+      ],
+      "eff-f": [
+        "(at ?p CameraRoomHallway)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    */
+    //open-InnerRoom5-Door
+    {
+      "name": "open-innerRoom5-door",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(at ?p OctagonRoom)"
+      ],
+      "pre-f": [
+        "(locked InnerRoom5_Door)",
+        "(open InnerRoom5_Door)"
+      ],
+      "eff-t": [
+        "(connected OctagonRoom InnerRoom5_Door)",
+        "(open InnerRoom5_Door)"
+      ],
+      "eff-f": [
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    //unlock-innerRoom5-door
+    {
+      "name": "unlock-innerRoom5-door",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(at ?p OctagonRoom)",
+        "(has DoorKey ?p)",
+        "(locked InnerRoom5_Door)"
+      ],
+      "pre-f": [
+      ],
+      "eff-t": [
+      ],
+      "eff-f": [
+        "(locked InnerRoom5_Door)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    //pickup-key
+    {
+      "name": "pickup-key",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        }
+      ],
+      "char": "?p",
+      "loc": "InnerRoom3",
+      "pre-t": [
+        "(at ?p InnerRoom3)",
+        "(has DoorKey Enemy9)"
+      ],
+      "pre-f": [
+        "(has DoorKey ?p)",
+        "(alive Enemy9)"
+      ],
+      "eff-t": [
+        "(has DoorKey ?p)"
+      ],
+      "eff-f": [
+        "(at DoorKey InnerRoom3)",
+        "(has DoorKey Enemy9)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    //pickup-battery
+    {
+      "name": "pickup-battery",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        },
+        {
+          "name": "?b",
+          "type": "Battery"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        }
+      ],
+      "char": "?p",
+      "loc": "?l",
+      "pre-t": [
+        "(at ?p ?l)",
+        "(at ?b ?l)"
+      ],
+      "pre-f": [
+        "(has ?b ?p)"
+      ],
+      "eff-t": [
+        "(has ?b ?p)"
+      ],
+      "eff-f": [
+        "(at ?b ?l)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    // disable-camera
+    {
+      "name": "disable-camera",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        },
+        {
+          "name": "?c",
+          "type": "Camera"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?gl",
+          "type": "Location"
+        }
+      ],
+      "char": "?p",
+      "loc": "CameraRoom",
+      "pre-t": [
+        "(at ?p CameraRoom)",
+        "(watching ?c ?gl)",
+        "(watched ?gl)",
+        "(active ?c)",
+        "(at ?c ?l)"
+      ],
+      "pre-f": [
+        //"(alive Enemy1)",
+        //"(alive Enemy2)",
+        "(alive Enemy3)"
+      ],
+      "eff-t": [
+        // make other cameras active?
+      ],
+      "eff-f": [
+        "(active ?c)",
+        "(watching ?c ?gl)",
+        "(watched ?gl)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    //hack-terminal
+    {
+      "name": "hack-terminal",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        },
+        {
+          "name": "?b",
+          "type": "Battery"
+        },
+        {
+          "name": "?t",
+          "type": "Terminal"
+        }
+      ],
+      "char": "?p",
+      "loc": "OctagonRoom",
+      "pre-t": [
+        "(at ?p OctagonRoom)",
+        "(has ?p ?b)",
+        "(charge ?b)"
+      ],
+      "pre-f": [
+        "(hack ?t)"
+      ],
+      "eff-t": [
+        "(hack ?t)"
+      ],
+      "eff-f": [
+        "(charge ?b)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    },
+    //kill-enemy
+    {
+      "name": "kill-enemy",
+      "args": [
+        {
+          "name": "?p",
+          "type": "Player"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
+        },
+        {
+          "name": "?e",
+          "type": "Enemy"
+        },
+        {
+          "name": "?gl",
+          "type": "Location"
+        }
+      ],
+      "char": "?p",
+      "loc": "?l",
+      "pre-t": [
+        "(at ?p ?l)",
+        "(at ?e ?l)",
+        "(alive ?e)",
+        "(guarding ?e ?gl)",
+        "(guarded ?gl)"
+      ],
+      "pre-f": [
+      ],
+      "eff-t": [
+      ],
+      "eff-f": [
+        "(alive ?e)",
+        "(guarding ?e ?gl)",
+        "(guarded ?gl)"
+      ],
+      "pre-bplus": [],
+      "pre-bminus": [],
+      "pre-u": [],
+      "eff-bplus": [],
+      "eff-bminus": [],
+      "eff-u": [],
+      "isPrivate": false
+    }
+  ],
+  "initial": {
+    "t": [
+      //Map
+      "(at RedPlayer StartHallway)",
+      "(at BluePlayer StartHallway)",
+      "(at GreenPlayer StartHallway)",
+      "(at Enemy1 CameraRoomHallway)",
+      //"(at Enemy2 CameraRoomHallway)",
+      //"(at Enemy3 CameraRoom)",
+      "(at Enemy4 OctagonRoom)",
+      "(at ElevatorGuard1 OctagonRoom)",
+      //"(at ElevatorGuard2 OctagonRoom)",
+      "(at Enemy7 OctagonRoom)",
+      //"(at Enemy8 OctagonRoom)",
+      "(at Enemy9 InnerRoom3)",
+      "(at Battery1 InnerRoom1)",
+      "(at Battery2 InnerRoom5)",
+      "(at Battery3 InnerRoom6)",
+      "(at ElevatorTerminal1 Elevator)",
+      "(at ElevatorTerminal2 Elevator)",
+      "(at ElevatorTerminal3 Elevator)",
+      "(at Camera1 OctagonRoom)",
+      "(at Camera2 OctagonRoom)",
+      "(at Camera3 OctagonRoom)",
+      "(at Camera4 OctagonRoom)",
+      "(at Camera5 OctagonRoom)",
+      "(at Camera6 OctagonRoom)",
+
+      "(connected StartHallway Stairway)",
+      "(connected Stairway CameraRoomHallway)",
+      "(connected StartHallway OctagonRoom)",
+      "(connected CameraRoomHallway CameraRoom)",
+      //"(connected OctagonRoom Elevator)",
+      //"(connected OctagonRoom InnerRoom1)",
+      //"(connected OctagonRoom InnerRoom2)",
+      //"(connected OctagonRoom InnerRoom3)",
+      "(connected OctagonRoom InnerRoom4)",
+      //"(connected OctagonRoom InnerRoom5)",
+      //"(connected OctagonRoom InnerRoom6)",
+
+      "(alive Enemy1)",
+      //"(alive Enemy2)",
+      //"(alive Enemy3)",
+      "(alive Enemy4)",
+      "(alive ElevatorGuard1)",
+      //"(alive ElevatorGuard2)",
+      "(alive Enemy7)",
+      //"(alive Enemy8)",
+      "(alive Enemy9)",
+
+      "(active Camera1)",
+      "(active Camera2)",
+      "(active Camera3)",
+      "(active Camera4)",
+      "(active Camera5)",
+      "(active Camera6)",
+
+      "(charge Battery1)",
+      "(charge Battery2)",
+      "(charge Battery3)",
+
+      "(guarding Enemy1 CameraRoom)",
+      //"(guarding Enemy2 CameraRoom)",
+      "(guarding Enemy4 InnerRoom1)",
+      "(guarding ElevatorGuard1 Elevator)",
+      //"(guarding ElevatorGuard2 Elevator)",
+      "(guarding Enemy7 InnerRoom6)",
+      //"(guarding Enemy8 InnerRoom6)",
+
+      "(guarded CameraRoom)",
+      "(guarded InnerRoom1)",
+      "(guarded InnerRoom6)",
+      "(guarded Elevator)",
+
+      "(watching Camera1 InnerRoom1)",
+      "(watching Camera2 InnerRoom2)",
+      "(watching Camera3 InnerRoom3)",
+      "(watching Camera4 InnerRoom4)",
+      "(watching Camera5 InnerRoom5)",
+      "(watching Camera6 InnerRoom6)",
+
+      "(watched InnerRoom1)",
+      "(watched InnerRoom2)",
+      "(watched InnerRoom3)",
+      "(watched InnerRoom4)",
+      "(watched InnerRoom5)",
+      "(watched InnerRoom6)",
+
+      "(locked InnerRoom5_Door)",
+
+      "(has Enemy9 DoorKey)"
+    ],
+    "f": [
+      "(has RedPlayer DoorKey)",
+      "(has BluePlayer DoorKey)",
+      "(has GreenPlayer DoorKey)",
+
+      "(has RedPlayer Battery1)",
+      "(has BluePlayer Battery1)",
+      "(has GreenPlayer Battery1)",
+      "(has RedPlayer Battery2)",
+      "(has BluePlayer Battery2)",
+      "(has GreenPlayer Battery2)",
+      "(has RedPlayer Battery3)",
+      "(has BluePlayer Battery3)",
+      "(has GreenPlayer Battery3)"
+    ],
+    "characters": [
+      {
+        "name": "RedPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "BluePlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "GreenPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }
+    ]
+  }, /* Real End Goal
+  "final": {
+    "t": [
+      "(at RedPlayer Elevator)",
+      "(at BluePlayer Elevator)",
+      "(at GreenPlayer Elevator)",
+      "(hack ElevatorTerminal1)",
+      "(hack ElevatorTerminal2)",
+      "(hack ElevatorTerminal3)"
+    ],
+    "f": [
+      "(charge Battery1)",
+      "(charge Battery2)",
+      "(charge Battery3)"
+    ],
+    "characters": [
+      {
+        "name": "RedPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "BluePlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "GreenPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }
+    ]
+  }
+}*/
+  // Debugging End Goal
+  "final": {
+    "t": [
+      "(at RedPlayer InnerRoom4)",
+      "(at BluePlayer InnerRoom4)",
+      "(at GreenPlayer InnerRoom4)"
+    ],
+    "f": [
+    ],
+    "characters": [
+      {
+        "name": "RedPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "BluePlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      },
+      {
+        "name": "GreenPlayer",
+        "bplus": [],
+        "bminus": [],
+        "unsure": []
+      }
+    ]
+  }
+}
