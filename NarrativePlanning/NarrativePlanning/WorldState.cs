@@ -647,7 +647,7 @@ namespace NarrativePlanning
 			return newState;
           }
 
-        public static Tuple<WorldState, WorldState> getNextStateWithKnowledgeUpdate(WorldState current, Operator ground, WorldState knowledge)
+        public static Tuple<WorldState, WorldState> getNextStateWithKnowledgeUpdate(WorldState current, Operator ground, WorldState knowledge, List<String> observablePrefixes)
         {
             WorldState newState = current.clone();
             foreach (String lit in ground.effT.Keys)
@@ -668,7 +668,7 @@ namespace NarrativePlanning
 
                 if (lit.StartsWith("at "))
                 {
-                    knowledge = FastForward.ApplyLocationObservabilityUpdate(knowledge, newState, lit);
+                    knowledge = FastForward.ApplyLocationObservabilityUpdate(knowledge, newState, lit, observablePrefixes);
                 }
             }
             foreach (String lit in ground.effF.Keys)

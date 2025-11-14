@@ -59,7 +59,7 @@ namespace NarrativePlanning
         // should be handled by agents knowing the effects of their action, while location observability
         // should have its own function that's called every time an agent changes location with that
         // specific location.
-        public static WorldState ApplyInitialObservability(WorldState knowledge, WorldState real)
+        public static WorldState ApplyInitialObservability(WorldState knowledge, WorldState real, List<String> prefixes)
         {
             // First, we're going to do a pass for any proposition containing our character. We will also
             // save all locations where characters are.
@@ -83,38 +83,16 @@ namespace NarrativePlanning
                     {
                         if (!knowledge.fWorld.ContainsKey(entry.Key))
                             knowledge.fWorld.Add(entry.Key, entry.Value);
-                        if (((String)entry.Key).StartsWith("at " + c.name + " "))
-                            characterLocs.Add(((String)entry.Key).Split(' ').Last());
+                        // ewl: this seems wrong (it adds characterlocs when characters are *not* at those locations)
+                        //if (((String)entry.Key).StartsWith("at " + c.name + " "))
+                        //    characterLocs.Add(((String)entry.Key).Split(' ').Last());
                     }
                 }
             }
-            // Next, we do a pass for any 'at' propositions containing any of our characters' locations.
-            foreach (DictionaryEntry entry in real.tWorld)
-            {
-                foreach (String loc in characterLocs)
-                {
-                    if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
-                    {
-                        if (!knowledge.tWorld.ContainsKey(entry.Key))
-                            knowledge.tWorld.Add(entry.Key, entry.Value);
-                    }
-                }
-            }
-            foreach (DictionaryEntry entry in real.fWorld)
-            {
-                foreach (String loc in characterLocs)
-                {
-                    if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
-                    {
-                        if (!knowledge.fWorld.ContainsKey(entry.Key))
-                            knowledge.fWorld.Add(entry.Key, entry.Value);
-                    }
-                }
-            }
-            return knowledge;
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, characterLocs, prefixes);
         }
 
-        public static WorldState ApplyLocationObservabilityUpdate(WorldState knowledge, WorldState real, string lit)
+        public static WorldState ApplyLocationObservabilityUpdate(WorldState knowledge, WorldState real, string lit, List<String> prefixes)
         {
             // Extract location from literal "at agent location"
             // First, ensure middle argument is a character.
@@ -132,20 +110,40 @@ namespace NarrativePlanning
 
             string loc = splits[2];
 
-            foreach (DictionaryEntry entry in real.tWorld)
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, loc, prefixes);
+        }
+
+        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, string loc, List<String> prefixes)
+        {
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, new List<String>() { loc }, prefixes);
+        }
+
+        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, List<String> locs, List<String> prefixes)
+        {
+            // We do a pass for any propositions containing any of our characters' locations with our specified prefixes and add them to character knowledge.
+            foreach (String prefix in prefixes)
             {
-                if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
+                foreach (DictionaryEntry entry in real.tWorld)
                 {
-                    if (!knowledge.tWorld.ContainsKey(entry.Key))
-                        knowledge.tWorld.Add(entry.Key, entry.Value);
+                    foreach (String loc in locs)
+                    {
+                        if (((String)entry.Key).StartsWith(prefix) && ((String)entry.Key).EndsWith(loc))
+                        {
+                            if (!knowledge.tWorld.ContainsKey(entry.Key))
+                                knowledge.tWorld.Add(entry.Key, entry.Value);
+                        }
+                    }
                 }
-            }
-            foreach (DictionaryEntry entry in real.fWorld)
-            {
-                if ((((String)entry.Key).StartsWith("at ") || ((String)entry.Key).StartsWith("at-")) && ((String)entry.Key).EndsWith(loc))
+                foreach (DictionaryEntry entry in real.fWorld)
                 {
-                    if (!knowledge.fWorld.ContainsKey(entry.Key))
-                        knowledge.fWorld.Add(entry.Key, entry.Value);
+                    foreach (String loc in locs)
+                    {
+                        if (((String)entry.Key).StartsWith(prefix) && ((String)entry.Key).EndsWith(loc))
+                        {
+                            if (!knowledge.fWorld.ContainsKey(entry.Key))
+                                knowledge.fWorld.Add(entry.Key, entry.Value);
+                        }
+                    }
                 }
             }
             return knowledge;

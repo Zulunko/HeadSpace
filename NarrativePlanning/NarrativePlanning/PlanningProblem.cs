@@ -578,8 +578,14 @@ namespace NarrativePlanning
             WorldState agentKnowledge = w.clone();
             agentKnowledge.tWorld.Clear();
             agentKnowledge.fWorld.Clear();
+
+            List<String> observablePrefixes = new List<String>() {
+                "at ",
+                "at-"
+            };
+
             // XXX HERE: ADD KNOWN KNOWLEDGE FROM DESIGNER
-            agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w);
+            agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w, observablePrefixes);
             /* mpk_eval_tutorial
             agentKnowledge.fWorld.Add("connected StartRoom GoalRoom", 0);
             agentKnowledge.fWorld.Add("open Chest", 0);
@@ -748,7 +754,7 @@ namespace NarrativePlanning
                 if (WorldState.isExecutable(selectedAction, w))
                 {
                     // Apply world state changes / observability of effects
-                    Tuple<WorldState, WorldState> newStates = WorldState.getNextStateWithKnowledgeUpdate(w, selectedAction, newKnowledge);
+                    Tuple<WorldState, WorldState> newStates = WorldState.getNextStateWithKnowledgeUpdate(w, selectedAction, newKnowledge, observablePrefixes);
                     WorldState newWorld = newStates.Item1;
                     newKnowledge = newStates.Item2;
                     current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));

@@ -793,6 +793,11 @@
   ],
   "initial": {
     "t": [
+        //ewl: simple test Map
+        "(at RedPlayer StartHallway)",
+        "(connected StartHallway CameraRoomHallway)"
+
+        /*
       //Map
       "(at RedPlayer StartHallway)",
       "(at BluePlayer StartHallway)",
@@ -830,6 +835,19 @@
       "(connected OctagonRoom InnerRoom4)",
       //"(connected OctagonRoom InnerRoom5)",
       //"(connected OctagonRoom InnerRoom6)",
+
+      //ewl: reverse connections are required, as move considers connections to be one-way
+      "(connected Stairway StartHallway)",
+      "(connected CameraRoomHallway Stairway)",
+      "(connected OctagonRoom StartHallway)",
+      "(connected CameraRoom CameraRoomHallway)",
+      //"(connected Elevator OctagonRoom)",
+      //"(connected InnerRoom1 OctagonRoom)",
+      //"(connected InnerRoom2 OctagonRoom)",
+      //"(connected InnerRoom3 OctagonRoom)",
+      "(connected InnerRoom4 OctagonRoom)",
+      //"(connected InnerRoom5 OctagonRoom)",
+      //"(connected InnerRoom6 OctagonRoom)",
 
       "(alive Enemy1)",
       //"(alive Enemy2)",
@@ -882,8 +900,10 @@
       "(locked InnerRoom5_Door)",
 
       "(has Enemy9 DoorKey)"
+       */
     ],
     "f": [
+      /*
       "(has RedPlayer DoorKey)",
       "(has BluePlayer DoorKey)",
       "(has GreenPlayer DoorKey)",
@@ -897,6 +917,7 @@
       "(has RedPlayer Battery3)",
       "(has BluePlayer Battery3)",
       "(has GreenPlayer Battery3)"
+      */
     ],
     "characters": [
       {
@@ -958,9 +979,7 @@
   // Debugging End Goal
   "final": {
     "t": [
-      "(at RedPlayer InnerRoom4)",
-      "(at BluePlayer InnerRoom4)",
-      "(at GreenPlayer InnerRoom4)"
+      "(at RedPlayer CameraRoomHallway)"
     ],
     "f": [
     ],
