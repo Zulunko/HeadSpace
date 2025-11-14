@@ -152,7 +152,8 @@ namespace NarrativePlanning
         };
         private Dictionary<string, float> propositionPrefs = new Dictionary<string, float>()
         {
-            {"at-ship PlayerShip AlienSettlement", -0.33f }
+            //{"at-ship PlayerShip AlienSettlement", -0.33f }
+
             //{"hired Sheriff", 1f },
             //{"hired Mercenaries", 1f },
             //{"on Player1 Horse", 1f }
@@ -261,7 +262,7 @@ namespace NarrativePlanning
             */
 
             //mpk_eval_task
-            
+            /*
             {"RedPlayer", new Dictionary<string, float>{
                 { "repair-engine", -1f },
                 { "repair-teleporter", -1f },
@@ -295,6 +296,7 @@ namespace NarrativePlanning
                 { "land-ship", -1f },
                 { "takeoff-ship", -1f },
             } },
+            */
             
 
             //mpk_eval_task reversed
@@ -381,6 +383,23 @@ namespace NarrativePlanning
             } }
             */
         };
+
+        public void AddCharacterActionPrefs(string name, Dictionary<string, float> prefs)
+        {
+            if (characterActionPrefs.ContainsKey(name))
+                UnityConsole.Log("ERROR: Adding action preferences for a character who already has action preferences: " + name, LOGMODE.ERROR);
+            characterActionPrefs.Add(name, prefs);
+        }
+
+        public void AddPropositionPrefs(Dictionary<string, float> prefs)
+        {
+            foreach (KeyValuePair<string, float> kvp in prefs)
+            {
+                if (propositionPrefs.ContainsKey(kvp.Key))
+                    UnityConsole.Log("ERROR: Having duplicate proposition preferences is currently unsupported: " + kvp.Key, LOGMODE.ERROR);
+                propositionPrefs.Add(kvp.Key, kvp.Value);
+            }
+        }
 
         private List<string> exploratoryCharacters = new List<string>()
         {

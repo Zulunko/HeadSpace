@@ -985,7 +985,9 @@
   // Debugging End Goal
   "final": {
     "t": [
-      "(at RedPlayer CameraRoomHallway)"
+      "(at RedPlayer InnerRoom4)",
+      "(at GreenPlayer CameraRoom)",
+      "(at BluePlayer OctagonRoom)"
     ],
     "f": [
     ],

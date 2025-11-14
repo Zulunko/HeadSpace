@@ -1286,6 +1286,49 @@
         "at ",
         "at-"
     ],
+    "characterpreferences": [
+        {
+            "name": "RedPlayer",
+            "actionpreferences": [
+                { "name": "repair-engine", "value": -1 },
+                { "name": "repair-teleporter", "value": -1}
+            ],
+            "propositionpreferences": [
+                { "name": "at-ship PlayerShip AlienSettlement", "value": -0.33}
+            ]
+        },
+        {
+            "name": "BluePlayer",
+            "actionpreferences": [
+                { "name": "triangulate-ship", "value": 1 },
+                { "name": "connect-to-ship", "value": 1 },
+                { "name": "repair-engine", "value": 1 },
+                { "name": "repair-teleporter", "value": 1 },
+                { "name": "turn-on-ship", "value": 1 },
+                { "name": "ask-aliens-about-ship", "value": -1 },
+                { "name": "rent-alien-transport", "value": -1 },
+                { "name": "threaten-aliens-for-transport", "value": -1 },
+                { "name": "threaten-aliens-for-information", "value": -1 },
+                { "name": "drive-alien-transport", "value": -1 },
+                { "name": "land-ship", "value": -1 },
+                { "name": "takeoff-ship", "value": -1 },
+            ],
+            "propositionpreferences": []
+        },
+        {
+            "name": "GreenPlayer",
+            "actionpreferences": [
+                { "name": "setup-triangulation-beacons", "value": 1 },
+                { "name": "inspect-ship-hull", "value": 1 },
+                { "name": "replace-power-cell", "value": 1 },
+                { "name": "start-engine", "value": 1 },
+                { "name": "drive-alien-transport", "value": -1 },
+                { "name": "land-ship", "value": -1 },
+                { "name": "takeoff-ship", "value": -1 },
+            ],
+            "propositionpreferences": []
+        }
+    ],
     "final": {
         "t": [
             //"(on-ship GreenPlayer CrashedShip)",

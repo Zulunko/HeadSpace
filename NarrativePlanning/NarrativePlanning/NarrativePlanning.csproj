@@ -39,6 +39,7 @@
     <Compile Include="DomainBuilder\DesireBuilder.cs" />
     <Compile Include="DomainBuilder\InitialKnowledgeBuilder.cs" />
     <Compile Include="DomainBuilder\JSONDomainBuilder.cs" />
+    <Compile Include="DomainBuilder\PreferenceBuilder.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
