@@ -8,8 +8,8 @@
 
 
   *** Current errors ***
-  * Fails when Enemy 3 is inside Camera Room and player tries to disable camera
-  * Tries to move player from CameraRoom to CameraRoomHallway
+  * kill-enemy requires the enemy to be guarding a room, and Enemy9 who has the key is not guarding a room so therefore cannot be killed.
+  *     May need an alternate kill-enemy action (like kill-guard) or just make Enemy9 guard something.
 */
 {
   "types": [
@@ -533,7 +533,8 @@
         "(open InnerRoom5_Door)"
       ],
       "eff-t": [
-        "(connected OctagonRoom InnerRoom5_Door)",
+        "(connected OctagonRoom InnerRoom5)",
+        "(connected InnerRoom5 OctagonRoom)",
         "(open InnerRoom5_Door)"
       ],
       "eff-f": [
@@ -600,7 +601,6 @@
         "(has DoorKey ?p)"
       ],
       "eff-f": [
-        "(at DoorKey InnerRoom3)",
         "(has DoorKey Enemy9)"
       ],
       "pre-bplus": [],
@@ -723,7 +723,7 @@
       "loc": "OctagonRoom",
       "pre-t": [
         "(at ?p OctagonRoom)",
-        "(has ?p ?b)",
+        "(has ?b ?p)",
         "(charge ?b)"
       ],
       "pre-f": [
@@ -794,7 +794,7 @@
   "initialknowledge": {
       "t": [
         // e.g.
-        //"(has Enemy9 DoorKey)"
+        //"(has DoorKey Enemy9)"
 
       "(guarding Enemy1 CameraRoom)",
       //"(guarding Enemy2 CameraRoom)",
@@ -810,10 +810,35 @@
       "(watching Camera4 InnerRoom4)",
       "(watching Camera5 InnerRoom5)",
       "(watching Camera6 InnerRoom6)",
+      
+      "(guarded CameraRoom)",
+      "(guarded InnerRoom1)",
+      "(guarded InnerRoom6)",
+      "(guarded Elevator)",
+
+      "(watched InnerRoom1)",
+      "(watched InnerRoom2)",
+      "(watched InnerRoom3)",
+      "(watched InnerRoom4)",
+      "(watched InnerRoom5)",
+      "(watched InnerRoom6)",
+
+      "(alive Enemy1)",
+      //"(alive Enemy2)",
+      //"(alive Enemy3)",
+      "(alive Enemy4)",
+      "(alive ElevatorGuard1)",
+      //"(alive ElevatorGuard2)",
+      "(alive Enemy7)",
+      //"(alive Enemy8)",
+      "(alive Enemy9)",
       ],
       "f": [
         // e.g.
-        //"(has Enemy1 DoorKey)"
+        //"(has DoorKey Enemy1)"
+        "(at Battery1 Elevator)",
+        "(at Battery2 Elevator)",
+        "(at Battery3 Elevator)",
       ]
   },
   "observableprefixes": [
@@ -825,7 +850,7 @@
       "at ",
       // if the agents know "has ?obj ?entity", that automatically means the agents know "not (has ?obj ?allotherentities)".
       "has ",
-      // if the agents know "guarding ?enemy ?location", that automatically means the agents know "not (guarding ?enemy ?allotherloactions)".
+      // if the agents know "guarding ?enemy ?location", that automatically means the agents know "not (guarding ?enemy ?allotherlocations)".
       "guarding ",
       // if the agents know "watching ?camera ?location", that automatically means the agents know "not (watching ?camera ?allotherlocations)".
       "watching "
@@ -878,26 +903,26 @@
       "(connected Stairway CameraRoomHallway)",
       "(connected StartHallway OctagonRoom)",
       "(connected CameraRoomHallway CameraRoom)",
-      //"(connected OctagonRoom Elevator)",
-      //"(connected OctagonRoom InnerRoom1)",
-      //"(connected OctagonRoom InnerRoom2)",
-      //"(connected OctagonRoom InnerRoom3)",
+      "(connected OctagonRoom Elevator)",
+      "(connected OctagonRoom InnerRoom1)",
+      "(connected OctagonRoom InnerRoom2)",
+      "(connected OctagonRoom InnerRoom3)",
       "(connected OctagonRoom InnerRoom4)",
       //"(connected OctagonRoom InnerRoom5)",
-      //"(connected OctagonRoom InnerRoom6)",
+      "(connected OctagonRoom InnerRoom6)",
 
       //ewl: reverse connections are required, as move considers connections to be one-way
       "(connected Stairway StartHallway)",
       "(connected CameraRoomHallway Stairway)",
       "(connected OctagonRoom StartHallway)",
       "(connected CameraRoom CameraRoomHallway)",
-      //"(connected Elevator OctagonRoom)",
-      //"(connected InnerRoom1 OctagonRoom)",
-      //"(connected InnerRoom2 OctagonRoom)",
-      //"(connected InnerRoom3 OctagonRoom)",
+      "(connected Elevator OctagonRoom)",
+      "(connected InnerRoom1 OctagonRoom)",
+      "(connected InnerRoom2 OctagonRoom)",
+      "(connected InnerRoom3 OctagonRoom)",
       "(connected InnerRoom4 OctagonRoom)",
       //"(connected InnerRoom5 OctagonRoom)",
-      //"(connected InnerRoom6 OctagonRoom)",
+      "(connected InnerRoom6 OctagonRoom)",
 
       "(alive Enemy1)",
       //"(alive Enemy2)",
@@ -949,7 +974,7 @@
 
       "(locked InnerRoom5_Door)",
 
-      "(has Enemy9 DoorKey)"
+      "(has DoorKey Enemy9)"
     ],
     "f": [
       "(has RedPlayer DoorKey)",
@@ -986,20 +1011,22 @@
         "unsure": []
       }
     ]
-  }, /* Real End Goal
+  }, /* Real End Goal */
   "final": {
     "t": [
-      "(at RedPlayer Elevator)",
-      "(at BluePlayer Elevator)",
-      "(at GreenPlayer Elevator)",
-      "(hack ElevatorTerminal1)",
-      "(hack ElevatorTerminal2)",
-      "(hack ElevatorTerminal3)"
+      //"(at RedPlayer Elevator)",
+      //"(at BluePlayer Elevator)",
+      //"(at GreenPlayer Elevator)",
+      //"(hack ElevatorTerminal1)",
+      //"(hack ElevatorTerminal2)",
+      // "(has DoorKey BluePlayer)"
+      //"(hack ElevatorTerminal3)"
     ],
     "f": [
-      "(charge Battery1)",
-      "(charge Battery2)",
-      "(charge Battery3)"
+        "(alive Enemy9)"
+      //"(charge Battery1)",
+      //"(charge Battery2)",
+      //"(charge Battery3)"
     ],
     "characters": [
       {
@@ -1022,8 +1049,8 @@
       }
     ]
   }
-}*/
-  // Debugging End Goal
+}
+  /*// Debugging End Goal
   "final": {
     "t": [
       "(at RedPlayer InnerRoom4)",
@@ -1053,4 +1080,4 @@
       }
     ]
   }
-}
+}*/
