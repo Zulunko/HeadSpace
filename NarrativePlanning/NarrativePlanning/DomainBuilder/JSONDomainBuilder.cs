@@ -32,6 +32,12 @@ namespace NarrativePlanning.DomainBuilder
             set;
         }
 
+        public NarrativePlanning.WorldState initialKnowledge
+        {
+            get;
+            set;
+        }
+
         public NarrativePlanning.WorldState goal
         {
             get;
@@ -114,6 +120,10 @@ namespace NarrativePlanning.DomainBuilder
             desires = DomainBuilder.DesireBuilder.parseDesires(jsonDomain.Desires);
             initial = StateCreator.getState(jsonDomain.Initial, prefs);
             initial = generateFalsesForCompleteState(initial, operators);
+            initialKnowledge = initial.clone();
+            initialKnowledge.tWorld.Clear();
+            initialKnowledge.fWorld.Clear();
+            initialKnowledge = DomainBuilder.InitialKnowledgeBuilder.parseInitialKnowledge(initialKnowledge, jsonDomain.InitialKnowledge);
             goal = StateCreator.getState(jsonDomain.Final);
             UnityConsole.Write("Deserialized JSON file");
         }
@@ -185,6 +195,18 @@ namespace JSONDomain
 
         [JsonProperty("final")]
         public Final Final { get; set; }
+
+        [JsonProperty("initialknowledge")]
+        public InitialKnowledge InitialKnowledge { get; set; }
+    }
+
+    public partial class InitialKnowledge
+    {
+        [JsonProperty("t")]
+        public string[] T { get; set; }
+
+        [JsonProperty("f")]
+        public string[] F { get; set; }
     }
 
     public partial class Final

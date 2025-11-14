@@ -37,6 +37,7 @@
     <Compile Include="CounterAction.cs" />
     <Compile Include="DomainBuilder\CounteractionBuilder.cs" />
     <Compile Include="DomainBuilder\DesireBuilder.cs" />
+    <Compile Include="DomainBuilder\InitialKnowledgeBuilder.cs" />
     <Compile Include="DomainBuilder\JSONDomainBuilder.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="Program.cs" />
@@ -67,6 +68,7 @@
     <None Include="beanstalk.json" />
     <None Include="breakout.json" />
     <None Include="JSON Files\hostile_multiprefknowledge_ship - Copy.json" />
+    <None Include="JSON Files\mpk_eval_task_initialknowledge.json" />
     <None Include="JSON Files\mpk_eval_tutorial.json" />
     <None Include="JSON Files\mp_stealth.json" />
     <None Include="JSON Files\multi_pref.json" />

@@ -23,6 +23,7 @@ namespace NarrativePlanning
         public List<Desire> desires;
         public List<CounterAction> counteractions;
         public Preferences preferences;
+        public WorldState agentKnowledge;
 
         /// <summary>
         /// A Planning Problem consists of the initial state, the goal state
@@ -66,12 +67,12 @@ namespace NarrativePlanning
             initialize(initial, goal, operators, desires, counters);
         }
 
-        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p)
-        {
+        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p, WorldState initialKnowledge) {
             w0 = initial;
             this.goal = goal;
             this.groundedoperators = operators;
             this.preferences = p;
+            this.agentKnowledge = initialKnowledge;
         }
 
         public void initialize(WorldState initial, WorldState goal, List<Operator> operators, List<Desire> desires, List<CounterAction> counteractions)
@@ -575,10 +576,6 @@ namespace NarrativePlanning
             Tuple<String, WorldState> best = null;
             WorldState w = current.steps.Last().Item2;
 
-            WorldState agentKnowledge = w.clone();
-            agentKnowledge.tWorld.Clear();
-            agentKnowledge.fWorld.Clear();
-
             List<String> observablePrefixes = new List<String>() {
                 "at ",
                 "at-"
@@ -610,6 +607,7 @@ namespace NarrativePlanning
             agentKnowledge.fWorld.Add("jump-route StartGalaxy HomeGalaxy", 0);
             */
             /* mpk_eval_task */
+            /*
             List<string> knownTruths = new List<string>()
             {
                 "(known-location CraggyRocks)",
@@ -653,6 +651,7 @@ namespace NarrativePlanning
                 if (!agentKnowledge.fWorld.ContainsKey(k))
                     agentKnowledge.fWorld.Add(s.Substring(1, s.Length - 2), 0);
             }
+            */
 
             // Should I be running a consistency check on the known agent knowledge here? Specifically to generate (not (at)) propositions.
 
