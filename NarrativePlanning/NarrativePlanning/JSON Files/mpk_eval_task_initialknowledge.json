@@ -1286,6 +1286,10 @@
         "at ",
         "at-"
     ],
+    "exclusiveprefixes": [
+        "at ",
+        "has "
+    ],
     "characterpreferences": [
         {
             "name": "RedPlayer",

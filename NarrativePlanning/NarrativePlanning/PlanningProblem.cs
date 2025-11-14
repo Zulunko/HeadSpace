@@ -25,6 +25,7 @@ namespace NarrativePlanning
         public Preferences preferences;
         public WorldState agentKnowledge;
         public string[] observablePrefixes;
+        public string[] exclusivePrefixes;
 
         /// <summary>
         /// A Planning Problem consists of the initial state, the goal state
@@ -68,16 +69,14 @@ namespace NarrativePlanning
             initialize(initial, goal, operators, desires, counters);
         }
 
-        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p, WorldState initialKnowledge, string[] observablePrefixes) {
+        public PlanningProblem(WorldState initial, WorldState goal, List<Operator> operators, Preferences p, WorldState initialKnowledge, string[] observablePrefixes, string[] exclusivePrefixes) {
             w0 = initial;
             this.goal = goal;
             this.groundedoperators = operators;
             this.preferences = p;
             this.agentKnowledge = initialKnowledge;
-            if (observablePrefixes == null)
-                this.observablePrefixes = new string[]{ "at", "at-"};
-            else
-                this.observablePrefixes = observablePrefixes;
+            this.observablePrefixes = observablePrefixes;
+            this.exclusivePrefixes = exclusivePrefixes;
         }
 
         public void initialize(WorldState initial, WorldState goal, List<Operator> operators, List<Desire> desires, List<CounterAction> counteractions)
@@ -656,7 +655,7 @@ namespace NarrativePlanning
             // Should I be running a consistency check on the known agent knowledge here? Specifically to generate (not (at)) propositions.
 
             agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
-            agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge);
+            agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge, exclusivePrefixes);
 
             current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(current.steps.Last().Item1, current.steps.Last().Item2, agentKnowledge));
             current.steps.Clear();
@@ -756,7 +755,7 @@ namespace NarrativePlanning
                     Tuple<WorldState, WorldState> newStates = WorldState.getNextStateWithKnowledgeUpdate(w, selectedAction, newKnowledge, observablePrefixes);
                     WorldState newWorld = newStates.Item1;
                     newKnowledge = newStates.Item2;
-                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge)));
+                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>(selectedAction.text, newWorld, FastForward.ApplyKnowledgeConsistency(newKnowledge, exclusivePrefixes)));
                     UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                     if (newWorld.isGoalState(goal))
                     {
@@ -764,7 +763,7 @@ namespace NarrativePlanning
                     }
                 } else
                 {
-                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("FAIL " + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge)));
+                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("FAIL " + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge, exclusivePrefixes)));
                     UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                 }
             }

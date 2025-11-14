@@ -94,7 +94,7 @@ namespace NarrativePlanning
              //DomainBuilder.GroundGenerator gg = new DomainBuilder.GroundGenerator(t.root, opb.operators);
              //DomainBuilder.OperationBuilder.storeOperators(gg.grounds, opb.operators, "serialized-ops.txt");
 
-             NarrativePlanning.PlanningProblem problem = new NarrativePlanning.PlanningProblem(j.initial, j.goal, j.operators, j.characterPreferences, j.initialKnowledge, j.observablePrefixes);
+             NarrativePlanning.PlanningProblem problem = new NarrativePlanning.PlanningProblem(j.initial, j.goal, j.operators, j.characterPreferences, j.initialKnowledge, j.observablePrefixes, j.exclusivePrefixes);
 
             /////// STEP 2: GENERATE PLAN 
             // Use planner to generate the plan and register it to mapper

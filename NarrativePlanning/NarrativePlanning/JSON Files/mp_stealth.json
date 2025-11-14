@@ -795,6 +795,21 @@
       "t": [
         // e.g.
         //"(has Enemy9 DoorKey)"
+
+      "(guarding Enemy1 CameraRoom)",
+      //"(guarding Enemy2 CameraRoom)",
+      "(guarding Enemy4 InnerRoom1)",
+      "(guarding ElevatorGuard1 Elevator)",
+      //"(guarding ElevatorGuard2 Elevator)",
+      "(guarding Enemy7 InnerRoom6)",
+      //"(guarding Enemy8 InnerRoom6)",
+
+      "(watching Camera1 InnerRoom1)",
+      "(watching Camera2 InnerRoom2)",
+      "(watching Camera3 InnerRoom3)",
+      "(watching Camera4 InnerRoom4)",
+      "(watching Camera5 InnerRoom5)",
+      "(watching Camera6 InnerRoom6)",
       ],
       "f": [
         // e.g.
@@ -805,11 +820,28 @@
       "at ",
       "connected "
   ],
+  "exclusiveprefixes": [
+      // if the agents know "at ?obj ?location", that automatically means the agents know "not (at ?obj ?allotherlocations)".
+      "at ",
+      // if the agents know "has ?obj ?entity", that automatically means the agents know "not (has ?obj ?allotherentities)".
+      "has ",
+      // if the agents know "guarding ?enemy ?location", that automatically means the agents know "not (guarding ?enemy ?allotherloactions)".
+      "guarding ",
+      // if the agents know "watching ?camera ?location", that automatically means the agents know "not (watching ?camera ?allotherlocations)".
+      "watching "
+  ],
   "characterpreferences": [
       {
           "name": "GreenPlayer",
           "actionpreferences": [
               { "name": "kill-enemy", "value": 1 }
+          ],
+          "propositionpreferences": []
+      },
+      {
+          "name": "RedPlayer",
+          "actionpreferences": [
+              { "name": "disable-camera", "value": 1 }
           ],
           "propositionpreferences": []
       }

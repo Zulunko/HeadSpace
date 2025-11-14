@@ -79,6 +79,11 @@ namespace NarrativePlanning.DomainBuilder
             get;
             set;
         }
+        public string[] exclusivePrefixes
+        {
+            get;
+            set;
+        }
 
         public JSONDomainBuilder(String filename)
         {
@@ -112,6 +117,7 @@ namespace NarrativePlanning.DomainBuilder
             initialKnowledge = DomainBuilder.InitialKnowledgeBuilder.parseInitialKnowledge(initialKnowledge, jsonDomain.InitialKnowledge);
             goal = StateCreator.getState(jsonDomain.Final);
             observablePrefixes = jsonDomain.ObservablePrefixes;
+            exclusivePrefixes = jsonDomain.ExclusivePrefixes;
             UnityConsole.Write("Deserialized JSON file");
         }
         private WorldState generateFalsesForCompleteState(WorldState initial, List<NarrativePlanning.Operator> operators)
@@ -192,6 +198,9 @@ namespace JSONDomain
 
         [JsonProperty("observableprefixes")]
         public string[] ObservablePrefixes { get; set; }
+
+        [JsonProperty("exclusiveprefixes")]
+        public string[] ExclusivePrefixes { get; set; }
     }
 
     public partial class InitialKnowledge

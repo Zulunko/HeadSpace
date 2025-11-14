@@ -59,7 +59,7 @@ namespace NarrativePlanning
         // should be handled by agents knowing the effects of their action, while location observability
         // should have its own function that's called every time an agent changes location with that
         // specific location.
-        public static WorldState ApplyInitialObservability(WorldState knowledge, WorldState real, string[] prefixes)
+        public static WorldState ApplyInitialObservability(WorldState knowledge, WorldState real, string[] observablePrefixes)
         {
             // First, we're going to do a pass for any proposition containing our character. We will also
             // save all locations where characters are.
@@ -89,10 +89,10 @@ namespace NarrativePlanning
                     }
                 }
             }
-            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, characterLocs, prefixes);
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, characterLocs, observablePrefixes);
         }
 
-        public static WorldState ApplyLocationObservabilityUpdate(WorldState knowledge, WorldState real, string lit, string[] prefixes)
+        public static WorldState ApplyLocationObservabilityUpdate(WorldState knowledge, WorldState real, string lit, string[] observablePrefixes)
         {
             // Extract location from literal "at agent location"
             // First, ensure middle argument is a character.
@@ -110,18 +110,18 @@ namespace NarrativePlanning
 
             string loc = splits[2];
 
-            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, loc, prefixes);
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, loc, observablePrefixes);
         }
 
-        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, string loc, string[] prefixes)
+        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, string loc, string[] observablePrefixes)
         {
-            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, new List<String>() { loc }, prefixes);
+            return ApplyObservabilityForLocationsWithObservableLiterals(knowledge, real, new List<String>() { loc }, observablePrefixes);
         }
 
-        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, List<String> locs, string[] prefixes)
+        private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, List<String> locs, string[] observablePrefixes)
         {
             // We do a pass for any propositions containing any of our characters' locations with our specified prefixes and add them to character knowledge.
-            foreach (String prefix in prefixes)
+            foreach (String prefix in observablePrefixes)
             {
                 foreach (DictionaryEntry entry in real.tWorld)
                 {
@@ -206,47 +206,50 @@ namespace NarrativePlanning
         }
 
         // OPTIMIZATION this could be passed a set of changed propositions instead of iterating through all propositions
-        public static WorldState ApplyKnowledgeConsistency(WorldState knowledge)
+        public static WorldState ApplyKnowledgeConsistency(WorldState knowledge, string[] exclusivePrefixes)
         {
             foreach (DictionaryEntry tentry in knowledge.tWorld)
             {
                 // at OBJ LOC
                 // has OBJ AGENT
-                if (((String)tentry.Key).StartsWith("at ") || ((String)tentry.Key).StartsWith("has "))
+                foreach (string exclusivePrefix in exclusivePrefixes)
                 {
-                    // XXX (post-dissertation): Should I be crossing these propositions? If an agent knows they "has" something,
-                    //  shouldn't they also know that it is (not (at)) any location?
+                    if (((String)tentry.Key).StartsWith(exclusivePrefix))
+                    {
+                        // XXX (post-dissertation): Should I be crossing these propositions? If an agent knows they "has" something,
+                        //  shouldn't they also know that it is (not (at)) any location?
 
-                    // Extract "at OBJ " or "has OBJ "
-                    String objkey = ((String)tentry.Key);
-                    objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
-                    // move all false at unknowns for this object to false knowns (and delete the one matching this proposition)
-                    List<object> keysToRemove = new List<object>();
-                    foreach (DictionaryEntry ufentry in knowledge.ufWorld)
-                    {
-                        if (((String)ufentry.Key).StartsWith(objkey))
+                        // Extract "at OBJ " or "has OBJ "
+                        String objkey = ((String)tentry.Key);
+                        objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
+                        // move all false at unknowns for this object to false knowns (and delete the one matching this proposition)
+                        List<object> keysToRemove = new List<object>();
+                        foreach (DictionaryEntry ufentry in knowledge.ufWorld)
                         {
-                            if (!((String)ufentry.Key).Equals(((String)tentry.Key)))
-                                knowledge.fWorld.Add(ufentry.Key, 0);
-                            keysToRemove.Add(ufentry.Key);
+                            if (((String)ufentry.Key).StartsWith(objkey))
+                            {
+                                if (!((String)ufentry.Key).Equals(((String)tentry.Key)))
+                                    knowledge.fWorld.Add(ufentry.Key, 0);
+                                keysToRemove.Add(ufentry.Key);
+                            }
                         }
-                    }
-                    foreach (object toRemove in keysToRemove)
-                    {
-                        knowledge.ufWorld.Remove(toRemove);
-                    }
-                    // XXX remove all true at unknowns for this object
-                    keysToRemove.Clear();
-                    foreach (DictionaryEntry utentry in knowledge.utWorld)
-                    {
-                        if (((String)utentry.Key).StartsWith(objkey))
+                        foreach (object toRemove in keysToRemove)
                         {
-                            keysToRemove.Add(utentry.Key);
+                            knowledge.ufWorld.Remove(toRemove);
                         }
-                    }
-                    foreach (object toRemove in keysToRemove)
-                    {
-                        knowledge.utWorld.Remove(toRemove);
+                        // XXX remove all true at unknowns for this object
+                        keysToRemove.Clear();
+                        foreach (DictionaryEntry utentry in knowledge.utWorld)
+                        {
+                            if (((String)utentry.Key).StartsWith(objkey))
+                            {
+                                keysToRemove.Add(utentry.Key);
+                            }
+                        }
+                        foreach (object toRemove in keysToRemove)
+                        {
+                            knowledge.utWorld.Remove(toRemove);
+                        }
                     }
                 }
                 // If we know something to be true, it shouldn't be in either unknown set.
