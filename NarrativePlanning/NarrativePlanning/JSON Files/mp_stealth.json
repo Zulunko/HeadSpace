@@ -108,6 +108,10 @@
       "type": "Location"
     },
     {
+      "name": "TotallyARealPlace",
+      "type": "Location"
+    },
+    {
       "name": "DoorKey",
       "type": "Key"
     },
@@ -792,9 +796,9 @@
     }
   ],
   "initialknowledge": {
-      "t": [
-        // e.g.
-        //"(has DoorKey Enemy9)"
+    "t": [
+      // e.g.
+      //"(has DoorKey Enemy9)"
 
       "(guarding Enemy1 CameraRoom)",
       //"(guarding Enemy2 CameraRoom)",
@@ -803,6 +807,7 @@
       //"(guarding ElevatorGuard2 Elevator)",
       "(guarding Enemy7 InnerRoom6)",
       //"(guarding Enemy8 InnerRoom6)",
+      "(guarding Enemy9 TotallyARealPlace)",
 
       "(watching Camera1 InnerRoom1)",
       "(watching Camera2 InnerRoom2)",
@@ -810,11 +815,12 @@
       "(watching Camera4 InnerRoom4)",
       "(watching Camera5 InnerRoom5)",
       "(watching Camera6 InnerRoom6)",
-      
+
       "(guarded CameraRoom)",
       "(guarded InnerRoom1)",
       "(guarded InnerRoom6)",
       "(guarded Elevator)",
+      "(guarded TotallyARealPlace)",
 
       "(watched InnerRoom1)",
       "(watched InnerRoom2)",
@@ -832,13 +838,13 @@
       "(alive Enemy7)",
       //"(alive Enemy8)",
       "(alive Enemy9)",
-      ],
+    ],
       "f": [
         // e.g.
         //"(has DoorKey Enemy1)"
         "(at Battery1 Elevator)",
         "(at Battery2 Elevator)",
-        "(at Battery3 Elevator)",
+        "(at Battery3 Elevator)"
       ]
   },
   "observableprefixes": [
@@ -947,16 +953,19 @@
 
       "(guarding Enemy1 CameraRoom)",
       //"(guarding Enemy2 CameraRoom)",
+      //"(guarding Enemy3 CameraRoom)",
       "(guarding Enemy4 InnerRoom1)",
       "(guarding ElevatorGuard1 Elevator)",
       //"(guarding ElevatorGuard2 Elevator)",
       "(guarding Enemy7 InnerRoom6)",
       //"(guarding Enemy8 InnerRoom6)",
+      "(guarding Enemy9 TotallyARealPlace)",
 
       "(guarded CameraRoom)",
       "(guarded InnerRoom1)",
       "(guarded InnerRoom6)",
       "(guarded Elevator)",
+      "(guarded TotallyARealPlace)",
 
       "(watching Camera1 InnerRoom1)",
       "(watching Camera2 InnerRoom2)",
@@ -1014,16 +1023,16 @@
   }, /* Real End Goal */
   "final": {
     "t": [
-      //"(at RedPlayer Elevator)",
-      //"(at BluePlayer Elevator)",
-      //"(at GreenPlayer Elevator)",
-      //"(hack ElevatorTerminal1)",
-      //"(hack ElevatorTerminal2)",
+      "(at RedPlayer Elevator)",
+      "(at BluePlayer Elevator)",
+      "(at GreenPlayer Elevator)",
+      "(hack ElevatorTerminal1)",
+      "(hack ElevatorTerminal2)",
       // "(has DoorKey BluePlayer)"
-      //"(hack ElevatorTerminal3)"
+      "(hack ElevatorTerminal3)"
     ],
     "f": [
-        "(alive Enemy9)"
+      //"(alive Enemy9)"
       //"(charge Battery1)",
       //"(charge Battery2)",
       //"(charge Battery3)"
