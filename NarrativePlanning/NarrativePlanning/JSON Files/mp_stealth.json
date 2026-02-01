@@ -715,12 +715,12 @@
           "type": "Player"
         },
         {
-          "name": "?b",
-          "type": "Battery"
-        },
-        {
           "name": "?t",
           "type": "Terminal"
+        },
+        {
+          "name": "?b",
+          "type": "Battery"
         }
       ],
       "char": "?p",
@@ -756,12 +756,12 @@
           "type": "Player"
         },
         {
-          "name": "?l",
-          "type": "Location"
-        },
-        {
           "name": "?e",
           "type": "Enemy"
+        },
+        {
+          "name": "?l",
+          "type": "Location"
         },
         {
           "name": "?gl",
