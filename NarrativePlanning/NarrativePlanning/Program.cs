@@ -46,7 +46,7 @@ namespace NarrativePlanning
 
 
             ////////////////////////////////////////////////////////
-            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/mp_stealth.json");
+            DomainBuilder.JSONDomainBuilder j = new NarrativePlanning.DomainBuilder.JSONDomainBuilder("../../JSON Files/empty_domain.json");
 
             // SMALL TEST
             /*WorldState knowledgeSet = new WorldState();
@@ -107,8 +107,8 @@ namespace NarrativePlanning
             //UnityConsole.WriteLine("NOPREFS: " + watch.ElapsedMilliseconds + "ms");
             //watch.Reset();
             watch.Start();
-            //NarrativePlanning.Plan plan = problem.FFPreferenceSolution(PLANNING_MODE.MULTI);
-            NarrativePlanning.Plan plan = problem.FFKnowledgePrefSolution(PLANNING_MODE.KNOWLEDGE);
+            NarrativePlanning.Plan plan = problem.FFPreferenceSolution(PLANNING_MODE.SINGLE);
+            //NarrativePlanning.Plan plan = problem.FFKnowledgePrefSolution(PLANNING_MODE.KNOWLEDGE);
             watch.Stop();
             UnityConsole.WriteLine("PREFS: " + watch.ElapsedMilliseconds + "ms");
             //NarrativePlanning.Plan plan = problem.FFSolution();

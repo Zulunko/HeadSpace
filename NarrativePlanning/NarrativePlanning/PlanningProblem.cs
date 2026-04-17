@@ -763,7 +763,7 @@ namespace NarrativePlanning
                     }
                 } else
                 {
-                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("FAIL " + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge, exclusivePrefixes)));
+                    current.knowledgeSteps.Add(new Tuple<string, WorldState, WorldState>("[FAIL]" + selectedAction.text, w.clone(), FastForward.ApplyKnowledgeConsistency(newKnowledge, exclusivePrefixes)));
                     UnityConsole.Log("Selected: " + current.knowledgeSteps.Last().Item1, LOGMODE.ERROR);
                 }
             }

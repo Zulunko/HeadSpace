@@ -1,0 +1,124 @@
+﻿
+{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "RedPlayer",
+            "type": "Player"
+        },
+        {
+            "name": "StartRoom",
+            "type": "Location"
+        },
+        {
+            "name": "GoalRoom",
+            "type": "Location"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l1",
+                    "type": "Location"
+                },
+                {
+                    "name": "?l2",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l1",
+            "pre-t": [
+                "(connected ?l1 ?l2)",
+                "(at ?p ?l1)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?l2)"
+            ],
+            "eff-f": [
+                "(at ?p ?l1)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "observableprefixes": [
+        "at ",
+        "connected "
+    ],
+    "exclusiveprefixes": [
+        // if the agents know "at ?obj ?location", that automatically means the agents know "not (at ?obj ?allotherlocations)".
+        "at ",
+        // if the agents know "has ?obj ?entity", that automatically means the agents know "not (has ?obj ?allotherentities)".
+        "has "
+    ],
+    "characterpreferences": [
+        {
+            "name": "RedPlayer",
+            "actionpreferences": [],
+            "propositionpreferences": []
+        }
+    ],
+    "initialknowledge": {
+        "t": [],
+        "f": []
+    },
+    "initial": {
+        "t": [
+            //Map
+            "(at RedPlayer StartRoom)",
+            
+            //"(connected StartRoom GoalRoom)",
+            //"(connected GoalRoom StartRoom)",
+        ],
+        "f": [],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at RedPlayer GoalRoom)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

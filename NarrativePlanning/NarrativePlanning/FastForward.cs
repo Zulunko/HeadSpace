@@ -120,6 +120,7 @@ namespace NarrativePlanning
 
         private static WorldState ApplyObservabilityForLocationsWithObservableLiterals(WorldState knowledge, WorldState real, List<String> locs, string[] observablePrefixes)
         {
+            if (observablePrefixes == null) return knowledge;
             // We do a pass for any propositions containing any of our characters' locations with our specified prefixes and add them to character knowledge.
             foreach (String prefix in observablePrefixes)
             {
@@ -210,45 +211,48 @@ namespace NarrativePlanning
         {
             foreach (DictionaryEntry tentry in knowledge.tWorld)
             {
-                // at OBJ LOC
-                // has OBJ AGENT
-                foreach (string exclusivePrefix in exclusivePrefixes)
+                if (exclusivePrefixes != null)
                 {
-                    if (((String)tentry.Key).StartsWith(exclusivePrefix))
+                    // at OBJ LOC
+                    // has OBJ AGENT
+                    foreach (string exclusivePrefix in exclusivePrefixes)
                     {
-                        // XXX (post-dissertation): Should I be crossing these propositions? If an agent knows they "has" something,
-                        //  shouldn't they also know that it is (not (at)) any location?
+                        if (((String)tentry.Key).StartsWith(exclusivePrefix))
+                        {
+                            // XXX (post-dissertation): Should I be crossing these propositions? If an agent knows they "has" something,
+                            //  shouldn't they also know that it is (not (at)) any location?
 
-                        // Extract "at OBJ " or "has OBJ "
-                        String objkey = ((String)tentry.Key);
-                        objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
-                        // move all false at unknowns for this object to false knowns (and delete the one matching this proposition)
-                        List<object> keysToRemove = new List<object>();
-                        foreach (DictionaryEntry ufentry in knowledge.ufWorld)
-                        {
-                            if (((String)ufentry.Key).StartsWith(objkey))
+                            // Extract "at OBJ " or "has OBJ "
+                            String objkey = ((String)tentry.Key);
+                            objkey = objkey.Substring(0, objkey.IndexOf(' ', objkey.IndexOf(' ') + 1) + 1);
+                            // move all false at unknowns for this object to false knowns (and delete the one matching this proposition)
+                            List<object> keysToRemove = new List<object>();
+                            foreach (DictionaryEntry ufentry in knowledge.ufWorld)
                             {
-                                if (!((String)ufentry.Key).Equals(((String)tentry.Key)))
-                                    knowledge.fWorld.Add(ufentry.Key, 0);
-                                keysToRemove.Add(ufentry.Key);
+                                if (((String)ufentry.Key).StartsWith(objkey))
+                                {
+                                    if (!((String)ufentry.Key).Equals(((String)tentry.Key)))
+                                        knowledge.fWorld.Add(ufentry.Key, 0);
+                                    keysToRemove.Add(ufentry.Key);
+                                }
                             }
-                        }
-                        foreach (object toRemove in keysToRemove)
-                        {
-                            knowledge.ufWorld.Remove(toRemove);
-                        }
-                        // XXX remove all true at unknowns for this object
-                        keysToRemove.Clear();
-                        foreach (DictionaryEntry utentry in knowledge.utWorld)
-                        {
-                            if (((String)utentry.Key).StartsWith(objkey))
+                            foreach (object toRemove in keysToRemove)
                             {
-                                keysToRemove.Add(utentry.Key);
+                                knowledge.ufWorld.Remove(toRemove);
                             }
-                        }
-                        foreach (object toRemove in keysToRemove)
-                        {
-                            knowledge.utWorld.Remove(toRemove);
+                            // XXX remove all true at unknowns for this object
+                            keysToRemove.Clear();
+                            foreach (DictionaryEntry utentry in knowledge.utWorld)
+                            {
+                                if (((String)utentry.Key).StartsWith(objkey))
+                                {
+                                    keysToRemove.Add(utentry.Key);
+                                }
+                            }
+                            foreach (object toRemove in keysToRemove)
+                            {
+                                knowledge.utWorld.Remove(toRemove);
+                            }
                         }
                     }
                 }

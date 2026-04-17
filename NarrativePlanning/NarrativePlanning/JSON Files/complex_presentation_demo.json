@@ -1,0 +1,696 @@
+﻿
+{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Key",
+            "type": "Object"
+        },
+        {
+            "name": "Button",
+            "type": "Object"
+        }
+    ],
+    "instances": [
+        {
+            "name": "RedPlayer",
+            "type": "Player"
+        },
+        {
+            "name": "BluePlayer",
+            "type": "Player"
+        },
+        {
+            "name": "GoalRoom",
+            "type": "Location"
+        },
+        {
+            "name": "Room00",
+            "type": "Location"
+        },
+        {
+            "name": "Room01",
+            "type": "Location"
+        },
+        {
+            "name": "Room02",
+            "type": "Location"
+        },
+        {
+            "name": "Room10",
+            "type": "Location"
+        },
+        {
+            "name": "Room11",
+            "type": "Location"
+        },
+        {
+            "name": "Room12",
+            "type": "Location"
+        },
+        {
+            "name": "Room20",
+            "type": "Location"
+        },
+        {
+            "name": "Room21",
+            "type": "Location"
+        },
+        {
+            "name": "Room22",
+            "type": "Location"
+        },
+        {
+            "name": "Room30",
+            "type": "Location"
+        },
+        {
+            "name": "Room31",
+            "type": "Location"
+        },
+        {
+            "name": "Room32",
+            "type": "Location"
+        },
+        {
+            "name": "Key00",
+            "type": "Key"
+        },
+        {
+            "name": "Key10",
+            "type": "Key"
+        },
+        {
+            "name": "Key02",
+            "type": "Key"
+        },
+        {
+            "name": "Key11",
+            "type": "Key"
+        },
+        {
+            "name": "Key31",
+            "type": "Key"
+        },
+        {
+            "name": "Button20",
+            "type": "Button"
+        },
+        {
+            "name": "Button11",
+            "type": "Button"
+        },
+        {
+            "name": "Button30",
+            "type": "Button"
+        },
+        {
+            "name": "Button31",
+            "type": "Button"
+        },
+        {
+            "name": "Button32",
+            "type": "Button"
+        },
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l1",
+                    "type": "Location"
+                },
+                {
+                    "name": "?l2",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l1",
+            "pre-t": [
+                "(connected ?l1 ?l2)",
+                "(at ?p ?l1)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?l2)"
+            ],
+            "eff-f": [
+                "(at ?p ?l1)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //press-button
+        {
+            "name": "press-button",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                },
+                {
+                    "name": "?lfrom",
+                    "type": "Location"
+                },
+                {
+                    "name": "?lto",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?b ?l)",
+                "(at ?p ?l)",
+                "(connects ?b ?lfrom ?lto)",
+                "(activates ?k ?b)",
+                "(has ?p ?k)"
+            ],
+            "pre-f": [
+                
+            ],
+            "eff-t": [
+                "(connected ?lfrom ?lto)",
+                "(connected ?lto ?lfrom)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pickup-key
+        {
+            "name": "pickup-key",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?k ?l)",
+                "(at ?p ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?p ?k)"
+            ],
+            "eff-f": [
+                "(at ?k ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "observableprefixes": [
+        "at ",
+        "connected "
+    ],
+    "exclusiveprefixes": [
+        // if the agents know "at ?obj ?location", that automatically means the agents know "not (at ?obj ?allotherlocations)".
+        "at ",
+        // if the agents know "has ?obj ?entity", that automatically means the agents know "not (has ?obj ?allotherentities)".
+        "has ",
+        // Button can only connect one set of locations.
+        "connects ",
+    ],
+    "characterpreferences": [
+        {
+            "name": "RedPlayer",
+            "actionpreferences": [],
+            "propositionpreferences": []
+        }
+    ],
+    "initialknowledge": {
+        "t": [
+            "(connected Room00 Room10)",
+            "(connected Room10 Room00)",
+            
+            "(connected Room00 Room01)",
+            "(connected Room01 Room00)",
+            
+            "(connected Room01 Room02)",
+            "(connected Room02 Room01)",
+            
+            "(connected Room10 Room20)",
+            "(connected Room20 Room10)",
+            
+            "(connected Room12 Room22)",
+            "(connected Room22 Room12)",
+            
+            "(connected Room20 Room21)",
+            "(connected Room21 Room20)",
+            
+            "(connected Room21 Room22)",
+            "(connected Room22 Room21)",
+            
+            "(connects Button20 Room12 Room11)",
+            "(connects Button11 Room31 Room21)",
+            "(connects Button31 Room22 Room32)",
+            "(connects Button32 Room31 Room30)",
+            "(connects Button30 Room00 GoalRoom)",
+        ],
+        "f": [
+            // room00
+            "(connected Room00 Room00)",
+            "(connected Room00 Room02)",
+            "(connected Room02 Room00)",
+            "(connected Room00 Room11)",
+            "(connected Room11 Room00)",
+            "(connected Room00 Room12)",
+            "(connected Room12 Room00)",
+            "(connected Room00 Room20)",
+            "(connected Room20 Room00)",
+            "(connected Room21 Room00)",
+            "(connected Room00 Room21)",
+            "(connected Room00 Room22)",
+            "(connected Room22 Room00)",
+            "(connected Room00 Room30)",
+            "(connected Room30 Room00)",
+            "(connected Room00 Room31)",
+            "(connected Room31 Room00)",
+            "(connected Room00 Room32)",
+            "(connected Room32 Room00)",
+            "(connected Room00 GoalRoom)",
+            "(connected GoalRoom Room00)",
+
+            //room 01
+            "(connected Room01 Room01)",
+            "(connected Room01 Room10)",
+            "(connected Room10 Room01)",
+            "(connected Room01 Room11)",
+            "(connected Room11 Room01)",
+            "(connected Room01 Room12)",
+            "(connected Room12 Room01)",
+            "(connected Room01 Room20)",
+            "(connected Room20 Room01)",
+            "(connected Room01 Room21)",
+            "(connected Room21 Room01)",
+            "(connected Room01 Room22)",
+            "(connected Room22 Room01)",
+            "(connected Room01 Room30)",
+            "(connected Room30 Room01)",
+            "(connected Room01 Room31)",
+            "(connected Room31 Room01)",
+            "(connected Room01 Room32)",
+            "(connected Room32 Room01)",
+            "(connected Room01 GoalRoom)",
+            "(connected GoalRoom Room01)",
+
+            // room 02
+            "(connected Room02 Room02)",
+            "(connected Room02 Room10)",
+            "(connected Room10 Room02)",
+            "(connected Room02 Room11)",
+            "(connected Room11 Room02)",
+            "(connected Room02 Room20)",
+            "(connected Room20 Room02)",
+            "(connected Room02 Room21)",
+            "(connected Room21 Room02)",
+            "(connected Room02 Room22)",
+            "(connected Room22 Room02)",
+            "(connected Room02 Room30)",
+            "(connected Room30 Room02)",
+            "(connected Room02 Room31)",
+            "(connected Room31 Room02)",
+            "(connected Room02 Room32)",
+            "(connected Room32 Room02)",
+            "(connected Room02 GoalRoom)",
+            "(connected GoalRoom Room02)",
+
+            // Room10
+            "(connected Room10 Room10)",
+            "(connected Room10 Room11)",
+            "(connected Room11 Room10)",
+            "(connected Room10 Room12)",
+            "(connected Room12 Room10)",
+            "(connected Room10 Room21)",
+            "(connected Room21 Room10)",
+            "(connected Room10 Room22)",
+            "(connected Room22 Room10)",
+            "(connected Room10 Room30)",
+            "(connected Room30 Room10)",
+            "(connected Room10 Room31)",
+            "(connected Room31 Room10)",
+            "(connected Room10 Room32)",
+            "(connected Room32 Room10)",
+            "(connected Room10 GoalRoom)",
+            "(connected GoalRoom Room10)",
+            
+            //Room11
+            "(connected Room11 Room11)",
+            "(connected Room11 Room12)",
+            "(connected Room12 Room11)",
+            "(connected Room11 Room20)",
+            "(connected Room20 Room11)",
+            "(connected Room11 Room21)",
+            "(connected Room21 Room11)",
+            "(connected Room11 Room22)",
+            "(connected Room22 Room11)",
+            "(connected Room11 Room30)",
+            "(connected Room30 Room11)",
+            "(connected Room11 Room31)",
+            "(connected Room31 Room11)",
+            "(connected Room11 Room32)",
+            "(connected Room32 Room11)",
+            "(connected Room11 GoalRoom)",
+            "(connected GoalRoom Room11)",
+            
+            //Room12
+            "(connected Room12 Room12)",
+            "(connected Room12 Room20)",
+            "(connected Room20 Room12)",
+            "(connected Room12 Room21)",
+            "(connected Room21 Room12)",
+            "(connected Room12 Room30)",
+            "(connected Room30 Room12)",
+            "(connected Room12 Room31)",
+            "(connected Room31 Room12)",
+            "(connected Room12 Room32)",
+            "(connected Room32 Room12)",
+            "(connected Room12 GoalRoom)",
+            "(connected GoalRoom Room12)",
+            
+            //Room20
+            "(connected Room20 Room20)",
+            "(connected Room20 Room22)",
+            "(connected Room22 Room20)",
+            "(connected Room20 Room30)",
+            "(connected Room30 Room20)",
+            "(connected Room20 Room31)",
+            "(connected Room31 Room20)",
+            "(connected Room20 Room32)",
+            "(connected Room32 Room20)",
+            "(connected Room20 GoalRoom)",
+            "(connected GoalRoom Room20)",
+            
+            //Room21
+            "(connected Room21 Room21)",
+            "(connected Room21 Room30)",
+            "(connected Room30 Room21)",
+            "(connected Room21 Room31)",
+            "(connected Room31 Room21)",
+            "(connected Room21 Room32)",
+            "(connected Room32 Room21)",
+            "(connected Room21 GoalRoom)",
+            "(connected GoalRoom Room21)",
+
+            //Room22
+            "(connected Room22 Room22)",
+            "(connected Room22 Room30)",
+            "(connected Room30 Room22)",
+            "(connected Room22 Room31)",
+            "(connected Room31 Room22)",
+            "(connected Room22 Room32)",
+            "(connected Room32 Room22)",
+            "(connected Room22 GoalRoom)",
+            "(connected GoalRoom Room22)",
+
+            //Room30
+            "(connected Room30 Room30)",
+            "(connected Room30 Room31)",
+            "(connected Room31 Room30)",
+            "(connected Room30 Room32)",
+            "(connected Room32 Room30)",
+            "(connected Room30 GoalRoom)",
+            "(connected GoalRoom Room30)",
+
+            //Room31
+            "(connected Room31 Room31)",
+            "(connected Room31 Room30)",
+            "(connected Room31 Room32)",
+            "(connected Room32 Room31)",
+            "(connected Room31 GoalRoom)",
+            "(connected GoalRoom Room31)",
+
+            //Room32
+            "(connected Room32 Room32)",
+            "(connected Room32 GoalRoom)",
+            "(connected GoalRoom Room32)",
+
+            //GoalRoom
+            "(connected GoalRoom GoalRoom)",
+            /*
+            //Button20
+            "(connects Button20 Room00 Room00)",
+            "(connects Button20 Room00 Room01)",
+            "(connects Button20 Room01 Room00)",
+            "(connects Button20 Room00 Room02)",
+            "(connects Button20 Room02 Room00)",
+            "(connects Button20 Room00 Room10)",
+            "(connects Button20 Room10 Room00)",
+            "(connects Button20 Room00 Room11)",
+            "(connects Button20 Room11 Room00)",
+            "(connects Button20 Room00 Room12)",
+            "(connects Button20 Room12 Room00)",
+            "(connects Button20 Room00 Room20)",
+            "(connects Button20 Room20 Room00)",
+            "(connects Button20 Room00 Room21)",
+            "(connects Button20 Room21 Room00)",
+            "(connects Button20 Room00 Room22)",
+            "(connects Button20 Room22 Room00)",
+            "(connects Button20 Room00 Room30)",
+            "(connects Button20 Room30 Room00)",
+            //...
+            "(connects Button20 Room00 Room31)",
+            "(connects Button20 Room00 Room32)",
+            "(connects Button20 Room00 GoalRoom)",
+            "(connects Button20 Room01 Room01)",
+            "(connects Button20 Room01 Room02)",
+            "(connects Button20 Room01 Room10)",
+            "(connects Button20 Room01 Room11)",
+            "(connects Button20 Room01 Room12)",
+            "(connects Button20 Room01 Room20)",
+            "(connects Button20 Room01 Room21)",
+            "(connects Button20 Room01 Room22)",
+            "(connects Button20 Room01 Room30)",
+            "(connects Button20 Room01 Room31)",
+            "(connects Button20 Room01 Room32)",
+            "(connects Button20 Room01 GoalRoom)",
+            "(connects Button20 Room02 Room02)",
+            "(connects Button20 Room02 Room10)",
+            "(connects Button20 Room02 Room11)",
+            "(connects Button20 Room02 Room12)",
+            "(connects Button20 Room02 Room20)",
+            "(connects Button20 Room02 Room21)",
+            "(connects Button20 Room02 Room22)",
+            "(connects Button20 Room02 Room30)",
+            "(connects Button20 Room02 Room31)",
+            "(connects Button20 Room02 Room32)",
+            "(connects Button20 Room02 GoalRoom)",
+            "(connects Button20 Room10 Room10)",
+            "(connects Button20 Room10 Room11)",
+            "(connects Button20 Room10 Room12)",
+            "(connects Button20 Room10 Room20)",
+            "(connects Button20 Room10 Room21)",
+            "(connects Button20 Room10 Room22)",
+            "(connects Button20 Room10 Room30)",
+            "(connects Button20 Room10 Room31)",
+            "(connects Button20 Room10 Room32)",
+            "(connects Button20 Room10 GoalRoom)",
+            "(connects Button20 Room11 Room11)",
+            "(connects Button20 Room11 Room12)",
+            "(connects Button20 Room11 Room20)",
+            "(connects Button20 Room11 Room21)",
+            "(connects Button20 Room11 Room22)",
+            "(connects Button20 Room11 Room30)",
+            "(connects Button20 Room11 Room31)",
+            "(connects Button20 Room11 Room32)",
+            "(connects Button20 Room11 GoalRoom)",
+            "(connects Button20 Room12 Room12)",
+            "(connects Button20 Room12 Room20)",
+            "(connects Button20 Room12 Room21)",
+            "(connects Button20 Room12 Room22)",
+            "(connects Button20 Room12 Room30)",
+            "(connects Button20 Room12 Room31)",
+            "(connects Button20 Room12 Room32)",
+            "(connects Button20 Room12 GoalRoom)",
+            "(connects Button20 Room20 Room20)",
+            "(connects Button20 Room20 Room21)",
+            "(connects Button20 Room20 Room22)",
+            "(connects Button20 Room20 Room30)",
+            "(connects Button20 Room20 Room31)",
+            "(connects Button20 Room20 Room32)",
+            "(connects Button20 Room20 GoalRoom)",
+            "(connects Button20 Room21 Room21)",
+            "(connects Button20 Room21 Room22)",
+            "(connects Button20 Room21 Room30)",
+            "(connects Button20 Room21 Room31)",
+            "(connects Button20 Room21 Room32)",
+            "(connects Button20 Room21 GoalRoom)",
+            "(connects Button20 Room22 Room22)",
+            "(connects Button20 Room22 Room30)",
+            "(connects Button20 Room22 Room31)",
+            "(connects Button20 Room22 Room32)",
+            "(connects Button20 Room22 GoalRoom)",
+            "(connects Button20 Room30 Room30)",
+            "(connects Button20 Room30 Room31)",
+            "(connects Button20 Room30 Room32)",
+            "(connects Button20 Room30 GoalRoom)",
+            "(connects Button20 Room31 Room31)",
+            "(connects Button20 Room31 Room32)",
+            "(connects Button20 Room31 GoalRoom)",
+            "(connects Button20 Room32 Room32)",
+            "(connects Button20 Room32 GoalRoom)",
+            "(connects Button20 GoalRoom GoalRoom)",
+            */
+
+            //Button11
+            
+
+            //Button31
+            
+
+            //Button32
+            
+
+            //Button30
+            
+        ]
+    },
+    "initial": {
+        "t": [
+            //Map
+            "(at RedPlayer Room00)",
+            //"(at BluePlayer StartRoom)",
+            
+            "(connected Room00 Room10)",
+            "(connected Room10 Room00)",
+            
+            "(connected Room00 Room01)",
+            "(connected Room01 Room00)",
+            
+            "(connected Room01 Room02)",
+            "(connected Room02 Room01)",
+            
+            "(connected Room10 Room20)",
+            "(connected Room20 Room10)",
+            
+            "(connected Room12 Room22)",
+            "(connected Room22 Room12)",
+            
+            "(connected Room20 Room21)",
+            "(connected Room21 Room20)",
+            
+            "(connected Room21 Room22)",
+            "(connected Room22 Room21)",
+
+            "(at Key00 Room00)",
+            "(at Key10 Room10)",
+            "(at Key02 Room02)",
+            "(at Key11 Room11)",
+            "(at Key31 Room31)",
+
+            "(at Button11 Room11)",
+            "(at Button20 Room20)",
+            "(at Button30 Room30)",
+            "(at Button31 Room31)",
+            "(at Button32 Room32)",
+            
+            "(connects Button20 Room12 Room11)",
+            "(connects Button11 Room31 Room21)",
+            "(connects Button31 Room22 Room32)",
+            "(connects Button32 Room31 Room30)",
+            "(connects Button30 Room00 GoalRoom)",
+
+            "(activates Key02 Button20)",
+            "(activates Key00 Button11)",
+            "(activates Key10 Button31)",
+            "(activates Key31 Button32)",
+            "(activates Key11 Button30)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at RedPlayer GoalRoom)"
+            //"(at BluePlayer GoalRoom)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}

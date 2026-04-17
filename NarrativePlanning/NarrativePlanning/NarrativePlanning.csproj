@@ -70,6 +70,9 @@
     <None Include="breakout.json" />
     <None Include="JSON Files\hostile_multiprefknowledge_ship - Copy.json" />
     <None Include="JSON Files\mpk_eval_task_initialknowledge.json" />
+    <None Include="JSON Files\complex_presentation_demo.json" />
+    <None Include="JSON Files\empty_domain.json" />
+    <None Include="JSON Files\simple_presentation_demo.json" />
     <None Include="JSON Files\mpk_eval_tutorial.json" />
     <None Include="JSON Files\mp_stealth.json" />
     <None Include="JSON Files\multi_pref.json" />

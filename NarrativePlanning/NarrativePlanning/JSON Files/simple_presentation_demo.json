@@ -1,0 +1,305 @@
+﻿
+{
+    "types": [
+        {
+            "name": "Player",
+            "type": "Object"
+        },
+        {
+            "name": "Location",
+            "type": "Object"
+        },
+        {
+            "name": "Key",
+            "type": "Object"
+        },
+        {
+            "name": "Button",
+            "type": "Object"
+        },
+        {
+            "name": "FinalLocation",
+            "type": "Location"
+        }
+    ],
+    "instances": [
+        {
+            "name": "RedPlayer",
+            "type": "Player"
+        },
+        {
+            "name": "BluePlayer",
+            "type": "Player"
+        },
+        {
+            "name": "StartRoom",
+            "type": "Location"
+        },
+        {
+            "name": "GoalRoom",
+            "type": "Location"
+        },
+        {
+            "name": "RightRoom1",
+            "type": "FinalLocation"
+        },
+        {
+            "name": "RightRoom2",
+            "type": "Location"
+        },
+        {
+            "name": "LeftRoom1",
+            "type": "FinalLocation"
+        },
+        {
+            "name": "LeftRoom2",
+            "type": "Location"
+        },
+        {
+            "name": "RightKey",
+            "type": "Key"
+        },
+        {
+            "name": "LeftKey",
+            "type": "Key"
+        },
+        {
+            "name": "RightButton",
+            "type": "Button"
+        },
+        {
+            "name": "LeftButton",
+            "type": "Button"
+        }
+    ],
+    "desires": [],
+    "counteractions": [],
+    "operators": [
+        //move
+        {
+            "name": "move",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?l1",
+                    "type": "Location"
+                },
+                {
+                    "name": "?l2",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l1",
+            "pre-t": [
+                "(connected ?l1 ?l2)",
+                "(at ?p ?l1)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(at ?p ?l2)"
+            ],
+            "eff-f": [
+                "(at ?p ?l1)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //press-button
+        {
+            "name": "press-button",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?b",
+                    "type": "Button"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                },
+                {
+                    "name": "?l",
+                    "type": "FinalLocation"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?b ?l)",
+                "(at ?p ?l)",
+                "(triggers ?b ?k ?l)",
+                "(has ?k ?p)"
+            ],
+            "pre-f": [
+                
+            ],
+            "eff-t": [
+                "(connected ?l GoalRoom)"
+            ],
+            "eff-f": [
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        },
+        //pickup-key
+        {
+            "name": "pickup-key",
+            "args": [
+                {
+                    "name": "?p",
+                    "type": "Player"
+                },
+                {
+                    "name": "?k",
+                    "type": "Key"
+                },
+                {
+                    "name": "?l",
+                    "type": "Location"
+                }
+            ],
+            "char": "?p",
+            "loc": "?l",
+            "pre-t": [
+                "(at ?k ?l)",
+                "(at ?p ?l)"
+            ],
+            "pre-f": [
+            ],
+            "eff-t": [
+                "(has ?k ?p)"
+            ],
+            "eff-f": [
+                "(at ?k ?l)"
+            ],
+            "pre-bplus": [],
+            "pre-bminus": [],
+            "pre-u": [],
+            "eff-bplus": [],
+            "eff-bminus": [],
+            "eff-u": [],
+            "isPrivate": false
+        }
+    ],
+    "observableprefixes": [
+        "at ",
+        "connected "
+    ],
+    "exclusiveprefixes": [
+        // if the agents know "at ?obj ?location", that automatically means the agents know "not (at ?obj ?allotherlocations)".
+        "at ",
+        // if the agents know "has ?obj ?entity", that automatically means the agents know "not (has ?obj ?allotherentities)".
+        "has "
+    ],
+    "characterpreferences": [
+        {
+            "name": "RedPlayer",
+            "actionpreferences": [],
+            "propositionpreferences": []
+        }
+    ],
+    "initialknowledge": {
+        "t": [
+            "(connected StartRoom RightRoom1)",
+            "(connected RightRoom1 StartRoom)",
+            "(connected RightRoom1 RightRoom2)",
+            "(connected RightRoom2 RightRoom1)",
+            "(connected StartRoom LeftRoom1)",
+            "(connected LeftRoom1 StartRoom)",
+            "(connected LeftRoom1 LeftRoom2)",
+            "(connected LeftRoom2 LeftRoom1)",
+            "(connected LeftRoom1 RightRoom1)",
+            "(connected RightRoom1 LeftRoom1)"
+        ],
+        "f": [
+            "(connected StartRoom RightRoom2)",
+            "(connected RightRoom2 StartRoom)",
+            "(connected StartRoom LeftRoom2)",
+            "(connected LeftRoom2 StartRoom)",
+            "(connected StartRoom GoalRoom)",
+            "(connected GoalRoom StartRoom)",
+        ]
+    },
+    "initial": {
+        "t": [
+            //Map
+            "(at RedPlayer StartRoom)",
+            //"(at BluePlayer StartRoom)",
+            
+            "(connected StartRoom RightRoom1)",
+            "(connected RightRoom1 StartRoom)",
+            "(connected RightRoom1 RightRoom2)",
+            "(connected RightRoom2 RightRoom1)",
+            "(connected StartRoom LeftRoom1)",
+            "(connected LeftRoom1 StartRoom)",
+            "(connected LeftRoom1 LeftRoom2)",
+            "(connected LeftRoom2 LeftRoom1)",
+            "(connected LeftRoom1 RightRoom1)",
+            "(connected RightRoom1 LeftRoom1)",
+
+            "(at RightButton RightRoom1)",
+            "(at LeftButton LeftRoom1)",
+            "(at RightKey RightRoom2)",
+            "(at LeftKey LeftRoom2)",
+            
+            "(triggers RightButton LeftKey RightRoom1)",
+            "(triggers LeftButton RightKey LeftRoom1)",
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    },
+    "final": {
+        "t": [
+            "(at RedPlayer GoalRoom)"
+            //"(at BluePlayer GoalRoom)"
+        ],
+        "f": [
+        ],
+        "characters": [
+            {
+                "name": "RedPlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            },
+            {
+                "name": "BluePlayer",
+                "bplus": [],
+                "bminus": [],
+                "unsure": []
+            }
+        ]
+    }
+}
