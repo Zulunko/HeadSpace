@@ -580,7 +580,6 @@ namespace NarrativePlanning
             Tuple<String, WorldState> best = null;
             WorldState w = current.steps.Last().Item2;
 
-            // XXX HERE: ADD KNOWN KNOWLEDGE FROM DESIGNER
             agentKnowledge = FastForward.ApplyInitialObservability(agentKnowledge, w, observablePrefixes);
             /* mpk_eval_tutorial
             agentKnowledge.fWorld.Add("connected StartRoom GoalRoom", 0);
@@ -651,8 +650,6 @@ namespace NarrativePlanning
                     agentKnowledge.fWorld.Add(s.Substring(1, s.Length - 2), 0);
             }
             */
-
-            // Should I be running a consistency check on the known agent knowledge here? Specifically to generate (not (at)) propositions.
 
             agentKnowledge = FastForward.CreateUnknownKnowledge(groundedoperators, agentKnowledge);
             agentKnowledge = FastForward.ApplyKnowledgeConsistency(agentKnowledge, exclusivePrefixes);
