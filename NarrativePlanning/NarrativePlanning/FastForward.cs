@@ -354,7 +354,7 @@ namespace NarrativePlanning
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
                     {
-                        Console.WriteLine("HEY U HECCIN FAILED");
+                        UnityConsole.Log("HEY U HECCIN FAILED", LOGMODE.ERROR);
                     }
                     return l;
                 }
@@ -399,7 +399,7 @@ namespace NarrativePlanning
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
                     {
-                        Console.WriteLine("HEY U HECCIN FAILED");
+                        UnityConsole.Log("HEY U HECCIN FAILED", LOGMODE.ERROR);
                     }
                     return l;
                 }
@@ -446,7 +446,7 @@ namespace NarrativePlanning
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
                     {
-                        Console.WriteLine("HEY U HECCIN FAILED");
+                        UnityConsole.Log("HEY U HECCIN FAILED", LOGMODE.ERROR);
                     }
                     return l;
                 }
@@ -495,7 +495,7 @@ namespace NarrativePlanning
                     l.k = t;
                     if (!((WorldState)l.F[t]).isGoalState(goal))
                     {
-                        Console.WriteLine("HEY U HECCIN FAILED");
+                        UnityConsole.Log("HEY U HECCIN FAILED", LOGMODE.ERROR);
                     }
                     return l;
                 }
@@ -817,7 +817,6 @@ namespace NarrativePlanning
                 // 3c. Iterate through each goal to find an action that provides that goal.
                 foreach (Tuple<string, bool, float> goalLit in goalData)
                 {
-                    //Console.WriteLine("Goal: " + goalLit.Item1 + " at " + goalLit.Item3);
                     //Check if this goal has already been satisfied by actions added in this layer.
                     if (satisfiedGoals.Contains(goalLit.Item1 + "!" + goalLit.Item2.ToString()))
                     {
@@ -849,13 +848,9 @@ namespace NarrativePlanning
                             //PRUNING
                             if (t == 1)
                             {
-                                //Console.WriteLine("----PRUNING LAYER");
-                                //Console.Write(o.text);
-                                //Console.WriteLine();
                                 if (i.prunedOperators == null)
                                     i.prunedOperators = new List<Operator>();
                                 i.prunedOperators.Add(o);
-                                //Console.WriteLine("----");
                             }
                             if (found) continue;
                             found = true;
@@ -1074,7 +1069,7 @@ namespace NarrativePlanning
         public static Tuple<int, float> extractPrefRPSizeAndPrunedOps(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
         {
             eggs++;
-            Console.WriteLine("Heuristic runs: " + eggs);
+            UnityConsole.Log("Heuristic runs: " + eggs, LOGMODE.HEURISTIC);
             printRPG(l);
             HashSet<string> selectedActions = new HashSet<string>();
 
@@ -1276,7 +1271,7 @@ namespace NarrativePlanning
         public static Tuple<List<Operator>, List<float>, float> extractRPKnowledge(Layers l, WorldState g, WorldState i)//, List<Operator> operators) <- Trying to rely on the operator lists in l, not sure why we need this.
         {
             eggs++;
-            Console.WriteLine("Heuristic runs: " + eggs);
+            UnityConsole.Log("Heuristic runs: " + eggs, LOGMODE.HEURISTIC);
             printRPG(l);
             List<Operator> selectedActions = new List<Operator>();
             List<float> actionPrefs = new List<float>();
@@ -1309,10 +1304,7 @@ namespace NarrativePlanning
                 goalCount++;
             }
             prefMatch /= goalCount;
-            //Console.WriteLine("------Pref match value: " + prefMatch);
-            //character states ignored!!
             int m = firstlevels.Max();
-            //Console.WriteLine("MAX CONSIDERED: " + m + " OUT OF " + l.k);
 
             // 2. Add first equivalent level (to final layer) goal props to goal set at that layer.
             Hashtable Gt = new Hashtable();

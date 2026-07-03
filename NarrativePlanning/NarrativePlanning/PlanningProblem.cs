@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
+using System.Diagnostics;
 
 namespace NarrativePlanning
 {
@@ -237,7 +238,7 @@ namespace NarrativePlanning
                         //solution found!
                         current.steps.Add(res);
                         solutionPlan = current;
-                        UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                        //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                         return solutionPlan;
                     }
                 }
@@ -245,8 +246,8 @@ namespace NarrativePlanning
                 if (n.Count == 0)
                     return null;
 
-                UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
-                UnityConsole.Write("----------\n");
+                //UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                //UnityConsole.Write("----------\n");
                 if (tmp > bfactor)
                     bfactor = tmp;
 
@@ -256,7 +257,7 @@ namespace NarrativePlanning
                 {
                     //solution found!
                     solutionPlan = current;
-                    UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                     return solutionPlan;
                 }
                 depth++;
@@ -268,6 +269,7 @@ namespace NarrativePlanning
         {
             UnityConsole.Log("Rewinding " + numToRewind + " steps from current plan:", LOGMODE.MEMOIZE);
             int i = p.steps.Count - 1 - numToRewind;
+            if (i < 0) return null; // We can't rewind any further!
             for (int j = 0; j < p.steps.Count - 1; j++)
             {
                 UnityConsole.Log("    " + p.steps[j].Item1, LOGMODE.MEMOIZE);
@@ -338,13 +340,20 @@ namespace NarrativePlanning
             return p;
         }
 
+        public Plan FFPreferenceSolution(PLANNING_MODE mode)
+        {
+            return FFPreferenceSolution(mode, -1, -1);
+        }
+
         /// <summary>
         /// Returns a plan using a FF-based solution.
         /// </summary>
         /// <returns> A solution plan</returns>
-        public Plan FFPreferenceSolution(PLANNING_MODE mode)
+        public Plan FFPreferenceSolution(PLANNING_MODE mode, int maxLength, int msTimeLimit)
         {
-            Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            //Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
             int depth = 1;
             int bfactor = 0;
             int avg_branching_factor = 0;
@@ -357,6 +366,8 @@ namespace NarrativePlanning
             Tuple<String, WorldState> best = null;
             while (solutionPlan == null)
             {
+                if ((maxLength > 0 && current.steps.Count > maxLength) || (msTimeLimit > 0 && watch.ElapsedMilliseconds > msTimeLimit))
+                    return null;
                 min = 100;
                 WorldState w = current.steps[current.steps.Count - 1].Item2;
                 
@@ -371,7 +382,7 @@ namespace NarrativePlanning
                     {
                         UnityConsole.Log("MEMOIZATION TRIGGERED after " + current.steps[current.steps.Count - 1].Item1, LOGMODE.MEMOIZE);
                         //RewindAndEliminateAction(current, current.steps.Count - 1 - i);
-                        RewindAndEliminateAction(current, 1);
+                        if (RewindAndEliminateAction(current, 1) == null) return null;
                         w = current.steps[current.steps.Count - 1].Item2;
                         break;
                     }
@@ -463,10 +474,11 @@ namespace NarrativePlanning
                 if (n.Count == 0)
                 {
                     // Possibly here: instead keep a list of eliminated actions, redo this add without pruned actions but while still avoiding eliminated actions
-                    RewindAndEliminateAction(current, 1);
+                    if (RewindAndEliminateAction(current, 1) == null) return null;
                     continue;
                     //return null;
                 }
+                if (best == null) return null;
 
                 UnityConsole.Log("STEP SELECTED: " + best.Item1 + "\n", LOGMODE.PLANNER);
                 //if (best.Item1 == "proceed Act2 Act3")
@@ -484,14 +496,14 @@ namespace NarrativePlanning
                     //solution found!
                     solutionPlan = current;
                     UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
-                    Console.WriteLine("---------------------PLANNING PROCESS ENDED");
+                    //Console.WriteLine("---------------------PLANNING PROCESS ENDED");
                     return solutionPlan;
                 }
 
                 // XXX MEMO: removed this, can change to make more accurate maybe
                 //depth++;
             }
-            Console.WriteLine("---------------------PLANNING PROCESS ENDED");
+            //Console.WriteLine("---------------------PLANNING PROCESS ENDED");
             return solutionPlan;
         }
 
@@ -568,7 +580,7 @@ namespace NarrativePlanning
                 UnityConsole.Log("FAIL: PLANNING_MODE must be KNOWLEDGE.", LOGMODE.ERROR);
                 return null;
             }
-            Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
+            //Console.WriteLine("---------------------PLANNING PROCESS BEGUN");
             int depth = 1;
             int bfactor = 0;
             int avg_branching_factor = 0;
@@ -1029,8 +1041,8 @@ namespace NarrativePlanning
                 if (n.Count == 0 || best == null)
                     return null;
 
-                UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
-                UnityConsole.Write("----------\n");
+                //UnityConsole.Write("STEP SELECTED: " + best.Item1 + "\n");
+                //UnityConsole.Write("----------\n");
                 avg_branching_factor += tmp;
                 if (tmp > bfactor)
                     bfactor = tmp;
@@ -1041,7 +1053,7 @@ namespace NarrativePlanning
                 {
                     //solution found!
                     solutionPlan = current;
-                    UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
+                    //UnityConsole.Write("\n Number of nodes = " + nnodes + " and branching factor = " + bfactor);
                     return solutionPlan;
                 }
                 depth++;

@@ -66,6 +66,25 @@
             "type": "Door"
         }
     ],
+    
+    "characterpreferences": [
+        {
+            "name": "RedPlayer",
+            "actionpreferences": [
+                {"name": "open-chest", "value": 1 },
+                {"name": "open-goal-door", "value":1}
+            ],
+            "propositionpreferences": []
+        },
+        {
+            "name": "BluePlayer",
+            "actionpreferences": [
+                { "name": "cast-hover-spell", "value": 1 }
+            ],
+            "propositionpreferences": []
+        }
+    ],
+
     "desires": [],
     "counteractions": [],
     "operators": [

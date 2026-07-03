@@ -164,6 +164,9 @@ namespace NarrativePlanning
 
         private Dictionary<string, Dictionary<string, float>> characterActionPrefs = new Dictionary<string, Dictionary<string, float>>
         {
+            {"Green", Harvester },
+            {"Blue", Crafter },
+            {"Red", Tactician }
             /*simple_preference
             {"Player1", new Dictionary<string, float>
             {

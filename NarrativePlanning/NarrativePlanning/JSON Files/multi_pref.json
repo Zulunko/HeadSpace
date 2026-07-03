@@ -1126,6 +1126,7 @@
             "(at RockPuzzle Act1)",
             "(reward-for RockPuzzle ChameleonHerb)",
             "(at Wood Act1)",
+            "(defended Boat)",
 
             "(at Flint Act2)",
             "(at Vine Act2)",
@@ -1137,6 +1138,7 @@
             "(at Stone Act3)",
             "(defended Monolith)",
             "(at MonolithPuzzle Act3)",
+            "(active Monolith)",
             "(reward-for MonolithPuzzle DisableButton)"
 
             //Testing shortcuts
